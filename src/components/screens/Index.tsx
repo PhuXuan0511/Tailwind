@@ -4,10 +4,7 @@ import "react-toastify/dist/ReactToastify.css";
 import { useAuthState } from "~/components/contexts/UserContext";
 import { Head } from "~/components/shared/Head";
 import { useFirestore } from "~/lib/firebase";
-import { collection, query, getDocs, addDoc } from "firebase/firestore";
-import {PencilSquareIcon} from "@heroicons/react/24/outline";
-import { Outlet } from "react-router-dom";
-import { Layout } from "~/components/shared/Layout";
+import { collection, query, getDocs } from "firebase/firestore";
 import clsx from "clsx";
 
 type Tool = {
@@ -15,169 +12,135 @@ type Tool = {
   title: string;
   description: string;
   url: string;
+  semester: string;
+  progress: string;
 };
-
-enum InputEnum {
-  Title = "title",
-  Description = "description",
-  Url = "url",
-}
 
 function Index() {
   const { state } = useAuthState();
-  const [firstTools, setFirstTools] = useState<Tool[]>([]);
-  const [secondTools, setSecondTools] = useState<Tool[]>([]);
-  const firestore = useFirestore();
-  const [inputData, setInputData] = useState<Partial<Tool>>({
-    title: "",
-    description: "",
-    url: "",
-  });
+  const [tools, setTools] = useState<Tool[]>([
+    {
+      id: "1",
+      title: "Publer",
+      description: "Schedule, collaborate & analyze all your social media posts from the same spot",
+      url: "https://publer.io/features/ai-assist",
+      semester: "",
+      progress: "",
+    },
+    {
+      id: "2",
+      title: "LetsAsk AI",
+      description: "Create your website's chatbot in minutes",
+      url: "https://letsask.ai/",
+      semester: "",
+      progress: "",
+    },
+    {
+      id: "3",
+      title: "Timely",
+      description: "An AI-powered automatic time tracker to boost your productivity and save hours daily.",
+      url: "https://timelyapp.com/",
+      semester: "",
+      progress: "",
+    },
+    {
+      id: "4",
+      title: "DeepBrain AI",
+      description: "An AI-powered tool that helps you convert any text into a compelling video within seconds.",
+      url: "https://www.deepbrain.io/",
+      semester: "",
+      progress: "",
+    },
+    {
+      id: "5",
+      title: "Another Tool",
+      description: "This is description",
+      url: "url",
+      semester: "",
+      progress: "",
+    },
+    {
+      id: "6",
+      title: "Title",
+      description: "Description test",
+      url: "testurl",
+      semester: "",
+      progress: "",
+    },
+  ]);
+  const [searchTerm, setSearchTerm] = useState("");
 
-  useEffect(() => {
-    async function fetchData() {
-      const fetchCollection = async (collectionName: string) => {
-        const toolsCollection = collection(firestore, collectionName);
-        const toolsQuery = query(toolsCollection);
-        const querySnapshot = await getDocs(toolsQuery);
-        return querySnapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        })) as Tool[];
-      };
-
-      const [firstData, secondData] = await Promise.all([
-        fetchCollection("First"),
-        fetchCollection("Second"),
-      ]);
-
-      setFirstTools(firstData);
-      setSecondTools(secondData);
-    }
-
-    fetchData();
-  }, [firestore]);
-
-  const handleInputChange = (field: InputEnum, value: string) => {
-    setInputData({ ...inputData, [field]: value });
-  };
-
-  const handleFormSubmit = async (
-    e: React.FormEvent<HTMLFormElement>,
-    collectionName: string
-  ) => {
-    e.preventDefault();
-    if (!inputData.title || !inputData.description || !inputData.url) {
-      toast.error("All fields are required!", { theme: "dark" });
-      return;
-    }
-
-    try {
-      const toolsCollection = collection(firestore, collectionName);
-      const newTool: Partial<Tool> = {
-        title: inputData.title,
-        description: inputData.description,
-        url: inputData.url,
-      };
-
-      await addDoc(toolsCollection, newTool);
-
-      // Success Toast
-      toast.success("✅ Tool Added Successfully!", { theme: "dark", transition: Bounce });
-
-      // Reset input fields
-      setInputData({ title: "", description: "", url: "" });
-
-      // Refetch Data
-      const fetchCollection = async () => {
-        const toolsQuery = query(toolsCollection);
-        const querySnapshot = await getDocs(toolsQuery);
-        return querySnapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        })) as Tool[];
-      };
-
-      if (collectionName === "First") {
-        setFirstTools(await fetchCollection());
-      } else {
-        setSecondTools(await fetchCollection());
-      }
-    } catch (error) {
-      toast.error("❌ Error adding tool!", { theme: "dark" });
-    }
-  };
-
-  const renderTable = (tools: Tool[], title: string) => (
-    <div className="mb-12">
-      <h2 className="text-2xl font-bold mb-4">{title}</h2>
-      <div className="overflow-x-auto">
-        <table className="table-auto w-full border border-gray-700 rounded-lg">
-          <tbody>
-            {tools.map((tool) => (
-              <tr key={tool.id} className="hover:bg-gray-800 transition">
-                <td className="px-6 py-3 border border-gray-700">{tool.title}</td>
-                <td className="px-6 py-3 border border-gray-700">{tool.description}</td>
-                <td className="px-6 py-3 border border-gray-700">
-                  <a href={tool.url} target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300">
-                    {tool.url}
-                    <PencilSquareIcon className="size-6 text-slate-500" />
-                  </a>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-    </div>
+  const filteredTools = tools.filter((tool) =>
+    tool.title.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   return (
     <>
-      <Head title="TOP PAGE" />
-      <Layout>
-        <div className="min-h-screen bg-gray-900 text-white p-8">
-          <ToastContainer />
-          <div className="flex gap-4 mb-6">
-            {/* Form for Adding Tools */}
-            <form className="flex gap-4 w-full" onSubmit={(e) => handleFormSubmit(e, "First")}>
-              <input
-                type="text"
-                onChange={(e) => handleInputChange(InputEnum.Title, e.target.value)}
-                value={inputData.title}
-                placeholder="Title"
-                className="w-1/3 p-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:ring-2 focus:ring-purple-500"
-              />
-              <input
-                type="text"
-                onChange={(e) => handleInputChange(InputEnum.Description, e.target.value)}
-                value={inputData.description}
-                placeholder="Description"
-                className="w-1/3 p-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:ring-2 focus:ring-purple-500"
-              />
-              <input
-                type="text"
-                onChange={(e) => handleInputChange(InputEnum.Url, e.target.value)}
-                value={inputData.url}
-                placeholder="URL"
-                className="w-1/3 p-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:ring-2 focus:ring-purple-500"
-              />
-              <button
-                type="submit"
-                className="bg-purple-600 hover:bg-purple-700 px-6 py-3 rounded-lg text-white font-semibold"
-              >
-                Add Tool
-              </button>
-            </form>
+      <Head title="My Courses" />
+      <div className="min-h-screen bg-gray-900 text-white">
+        {/* Header */}
+        <header className="bg-gray-800 shadow">
+          <div className="container mx-auto px-4 py-4 flex justify-between items-center">
+            <h1 className="text-2xl font-bold text-orange-600">Vietnamese-German University</h1>
+            <nav className="flex gap-6">
+              <a href="#" className="text-gray-700 hover:text-orange-600 font-medium">
+                Home
+              </a>
+              <a href="#" className="text-gray-700 hover:text-orange-600 font-medium">
+                Dashboard
+              </a>
+              <a href="#" className="text-orange-600 font-medium border-b-2 border-orange-600">
+                My Courses
+              </a>
+            </nav>
           </div>
+        </header>
 
-          {/* First Tools Section */}
-          {renderTable(firstTools, "First Tools")}
-
-          {/* Second Tools Section */}
-          {renderTable(secondTools, "Second Tools")}
+        {/* Search and Filter */}
+        <div className="container mx-auto px-4 py-6">
+          <div className="flex justify-between items-center">
+            <div className="flex gap-4">
+              <select className="p-2 border border-gray-300 rounded">
+                <option value="all">All</option>
+                <option value="completed">Completed</option>
+                <option value="in-progress">In Progress</option>
+              </select>
+              <input
+                type="text"
+                placeholder="Search"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="p-2 border border-gray-300 rounded w-64"
+              />
+            </div>
+            <select className="p-2 border border-gray-300 rounded">
+              <option value="name">Sort by course name</option>
+              <option value="date">Sort by date</option>
+            </select>
+          </div>
         </div>
-      </Layout>
+
+        {/* Grid of Cards */}
+        <div className="container mx-auto px-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          {filteredTools.map((tool) => (
+            <div
+              key={tool.id}
+              className="bg-gray-800 shadow rounded-lg overflow-hidden border border-gray-700 p-4"
+            >
+              <h2 className="text-lg font-bold text-white">{tool.title}</h2>
+              <p className="text-gray-400">{tool.description}</p>
+              <a
+                href={tool.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-blue-400 hover:text-blue-300 mt-2 block"
+              >
+                {tool.url}
+              </a>
+            </div>
+          ))}
+        </div>
+      </div>
     </>
   );
 }

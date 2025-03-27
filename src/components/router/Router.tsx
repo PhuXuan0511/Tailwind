@@ -5,6 +5,7 @@ import { Outlet, RouteObject, useRoutes, BrowserRouter } from 'react-router-dom'
 const Loading = () => <p className="p-4 w-full h-full text-center">Loading...</p>;
 
 const IndexScreen = lazy(() => import('~/components/screens/Index'));
+const ManageBookScreen = lazy(() => import('~/components/screens/ManageBook')); // Import ManageBook
 const Page404Screen = lazy(() => import('~/components/screens/404'));
 
 function Layout() {
@@ -35,6 +36,10 @@ const InnerRouter = () => {
         {
           index: true,
           element: <IndexScreen />,
+        },
+        {
+          path: 'manage-book', // Add the manage-book route
+          element: <ManageBookScreen />,
         },
         {
           path: '*',

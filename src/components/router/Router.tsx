@@ -10,13 +10,17 @@ const AddBookScreen = lazy(() => import('~/components/screens/AddBook'));
 const Page404Screen = lazy(() => import('~/components/screens/404'));
 const ViewBooksScreen = lazy(() => import('~/components/screens/ViewBooks')); // Import ViewBooks
 
-function Layout() {
+function Layout({ showHeader = true }: { showHeader?: boolean }) {
   return (
-    <div>
-      <nav className="p-4 flex items-center justify-between">
-        <span>Header</span>
-      </nav>
-      <Outlet />
+    <div className="min-h-screen bg-gray-900 text-white">
+      {showHeader && (
+        <nav className="p-4 flex items-center justify-between bg-gray-800 shadow">
+          <span className="text-white font-bold text-lg">Library Management</span>
+        </nav>
+      )}
+      <div className="container mx-auto px-4 py-6">
+        <Outlet />
+      </div>
     </div>
   );
 }
@@ -52,7 +56,7 @@ const InnerRouter = () => {
           element: <AddBookScreen />,
         },
         {
-          path: 'manage-book/list', // Add route for ViewBooks
+          path: 'manage-book/list', // Route for ViewBooks (with delete functionality integrated)
           element: <ViewBooksScreen />,
         },
         {

@@ -20,14 +20,8 @@ function ManageBook() {
     {
       id: "2",
       title: "View Book List",
-      description: "Browse and manage the list of available books.",
+      description: "Browse, manage, and delete books from the system.",
       path: "/manage-book/list", // Link to ViewBooks page
-    },
-    {
-      id: "3",
-      title: "Search Book",
-      description: "Find books by title, author, or category.",
-      path: "/manage-book/search",
     },
   ];
 

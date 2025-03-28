@@ -157,7 +157,7 @@ function ViewBooks() {
                         value={quantityChanges[book.id] || ""}
                         onChange={(e) => handleQuantityChange(book.id, e.target.value)}
                         className="w-16 text-center mx-2 bg-gray-700 text-white border border-gray-600 rounded"
-                        placeholder="Enter"
+                        placeholder="Qty"
                       />
                       <button
                         onClick={() =>

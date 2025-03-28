@@ -15,13 +15,13 @@ function ManageBook() {
       id: "1",
       title: "Update Book Details",
       description: "Modify book information like title, author, and availability.",
-      path: "/manage-book/update",
+      path: "/manage-book/update", // Link to UpdateBook page
     },
     {
       id: "2",
       title: "View Book List",
       description: "Browse and manage the list of available books.",
-      path: "/manage-book/list",
+      path: "/manage-book/list", // Link to ViewBooks page
     },
     {
       id: "3",

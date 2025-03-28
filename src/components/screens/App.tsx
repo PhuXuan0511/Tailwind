@@ -1,16 +1,8 @@
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import Index from "./Index";
-import ManageBook from "./ManageBook";
+import React from "react";
+import { Router } from "../router/Router"; // Import the Router component
 
 function App() {
-  return (
-    <Router>
-      <Routes>
-        <Route path="/" element={<Index />} />
-        <Route path="/manage-book" element={<ManageBook />} />
-      </Routes>
-    </Router>
-  );
+  return <Router />; // Use the centralized Router component
 }
 
 export default App;

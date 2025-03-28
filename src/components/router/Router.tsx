@@ -3,7 +3,7 @@ import { Outlet, RouteObject, useRoutes, BrowserRouter } from 'react-router-dom'
 
 const Loading = () => <p className="p-4 w-full h-full text-center">Loading...</p>;
 
-const IndexScreen = lazy(() => import('~/components/screens/Index')); // Index page
+const HomepageScreen = lazy(() => import('~/components/screens/Homepage')); // Renamed from Index to Homepage
 const ManageBookScreen = lazy(() => import('~/components/screens/ManageBook')); // Acts as ViewBooks
 const AddBookScreen = lazy(() => import('~/components/screens/AddBook')); // AddBook page
 const EditBookScreen = lazy(() => import('~/components/screens/EditBook')); // EditBook page
@@ -40,7 +40,7 @@ const InnerRouter = () => {
       children: [
         {
           index: true,
-          element: <IndexScreen />, // Index page is the default page
+          element: <HomepageScreen />, // Updated to use Homepage
         },
         {
           path: 'manage-book',

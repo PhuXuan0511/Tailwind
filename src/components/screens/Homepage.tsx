@@ -9,7 +9,7 @@ type ManagementItem = {
   path: string;
 };
 
-function Index() {
+function Homepage() { // Renamed from Index to Homepage
   const [searchTerm, setSearchTerm] = useState("");
 
   const managementItems: ManagementItem[] = [
@@ -74,4 +74,4 @@ function Index() {
   );
 }
 
-export default Index;
+export default Homepage;

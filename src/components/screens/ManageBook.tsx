@@ -71,8 +71,18 @@ function ManageBook() {
     <div className="min-h-screen bg-gray-900 text-white">
       <Head title="Manage Books" />
       <div className="container mx-auto px-4 py-6">
+        {/* Back to Homepage Button */}
+        <div className="mb-4">
+          <button
+            onClick={() => navigate("/")}
+            className="bg-gray-500 text-white px-3 py-1 rounded text-sm hover:bg-gray-600"
+          >
+            Back
+          </button>
+        </div>
         <h1 className="text-3xl font-bold mb-6">Manage Books</h1>
-        <div className="mb-4 flex justify-between items-center">
+        <div className="mb-4 flex items-center space-x-4">
+          {/* Search Box */}
           <input
             type="text"
             placeholder="Search by ISBN, Title, Author, or Category"
@@ -80,9 +90,10 @@ function ManageBook() {
             onChange={handleSearch}
             className="p-2 border border-gray-600 rounded w-full max-w-lg bg-gray-700 text-white"
           />
+          {/* Add New Book Button */}
           <button
             onClick={() => navigate("/manage-book/add")}
-            className="ml-4 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+            className="bg-blue-500 text-white px-3 py-1 rounded text-sm hover:bg-blue-600"
           >
             Add New Book
           </button>

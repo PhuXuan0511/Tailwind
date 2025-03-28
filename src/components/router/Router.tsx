@@ -3,12 +3,11 @@ import { Outlet, RouteObject, useRoutes, BrowserRouter } from 'react-router-dom'
 
 const Loading = () => <p className="p-4 w-full h-full text-center">Loading...</p>;
 
-const IndexScreen = lazy(() => import('~/components/screens/Index'));
-const ManageBookScreen = lazy(() => import('~/components/screens/ManageBook'));
-const UpdateBookScreen = lazy(() => import('../screens/UpdateBook'));
-const AddBookScreen = lazy(() => import('~/components/screens/AddBook'));
-const Page404Screen = lazy(() => import('~/components/screens/404'));
-const ViewBooksScreen = lazy(() => import('~/components/screens/ViewBooks')); // Import ViewBooks
+const IndexScreen = lazy(() => import('~/components/screens/Index')); // Index page
+const ManageBookScreen = lazy(() => import('~/components/screens/ManageBook')); // Acts as ViewBooks
+const AddBookScreen = lazy(() => import('~/components/screens/AddBook')); // AddBook page
+const EditBookScreen = lazy(() => import('~/components/screens/EditBook')); // EditBook page
+const Page404Screen = lazy(() => import('~/components/screens/404')); // 404 page
 
 function Layout({ showHeader = true }: { showHeader?: boolean }) {
   return (
@@ -41,33 +40,27 @@ const InnerRouter = () => {
       children: [
         {
           index: true,
-          element: <IndexScreen />,
+          element: <IndexScreen />, // Index page is the default page
         },
         {
           path: 'manage-book',
-          element: <ManageBookScreen />,
+          element: <ManageBookScreen />, // Acts as the ViewBooks list
         },
         {
-          path: 'manage-book/update',
-          element: <UpdateBookScreen />,
+          path: 'manage-book/add',
+          element: <AddBookScreen />, // Route for adding a new book
         },
         {
-          path: 'manage-book/update/add',
-          element: <AddBookScreen />,
-        },
-        {
-          path: 'manage-book/list', // Route for ViewBooks (with delete functionality integrated)
-          element: <ViewBooksScreen />,
+          path: 'manage-book/edit/:id',
+          element: <EditBookScreen />, // Route for editing a book
         },
         {
           path: '*',
-          element: <Page404Screen />,
+          element: <Page404Screen />, // 404 page for unmatched routes
         },
       ],
     },
   ];
   const element = useRoutes(routes);
-  return (
-    <Suspense fallback={<Loading />}>{element}</Suspense>
-  );
+  return <Suspense fallback={<Loading />}>{element}</Suspense>;
 };

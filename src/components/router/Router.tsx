@@ -4,9 +4,9 @@ import { Outlet, RouteObject, useRoutes, BrowserRouter } from 'react-router-dom'
 const Loading = () => <p className="p-4 w-full h-full text-center">Loading...</p>;
 
 const HomepageScreen = lazy(() => import('~/components/screens/Homepage')); // Renamed from Index to Homepage
-const ManageBookScreen = lazy(() => import('~/components/screens/ManageBook')); // Acts as ViewBooks
-const AddBookScreen = lazy(() => import('~/components/screens/AddBook')); // AddBook page
-const EditBookScreen = lazy(() => import('~/components/screens/EditBook')); // EditBook page
+const ManageBookScreen = lazy(() => import('~/components/screens/manage-books/ManageBook')); // Acts as ViewBooks
+const AddBookScreen = lazy(() => import('~/components/screens/manage-books/AddBook')); // AddBook page
+const EditBookScreen = lazy(() => import('~/components/screens/manage-books/EditBook')); // EditBook page
 const Page404Screen = lazy(() => import('~/components/screens/404')); // 404 page
 
 function Layout({ showHeader = true }: { showHeader?: boolean }) {

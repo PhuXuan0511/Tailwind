@@ -4,6 +4,7 @@ import { useFirestore } from "~/lib/firebase";
 import { collection, getDocs } from "firebase/firestore";
 import { Head } from "~/components/shared/Head";
 
+// Define the structure of a Book object
 type Book = {
   id: string;
   isbn: string;
@@ -17,27 +18,52 @@ type Book = {
 };
 
 function ManageBook() {
+  // Initialize Firestore instance
   const firestore = useFirestore();
+
+  // State to store all books fetched from Firestore
   const [books, setBooks] = useState<Book[]>([]);
+
+  // State to store filtered books based on search input
   const [filteredBooks, setFilteredBooks] = useState<Book[]>([]);
+
+  // State to store the current search term
   const [searchTerm, setSearchTerm] = useState("");
+
+  // State to track whether data is still loading
   const [loading, setLoading] = useState(true);
+
+  // React Router's navigate function for programmatic navigation
   const navigate = useNavigate();
 
+  // Fetch books from Firestore when the component mounts
   useEffect(() => {
     const fetchBooks = async () => {
       try {
+        // Reference the "books" collection in Firestore
         const booksCollection = collection(firestore, "books");
+
+        // Fetch all documents in the "books" collection
         const snapshot = await getDocs(booksCollection);
+
+        // Map the documents to an array of Book objects
         const booksData = snapshot.docs.map((doc) => ({
           id: doc.id,
           ...doc.data(),
         })) as Book[];
+
+        // Update state with the fetched books
         setBooks(booksData);
-        setFilteredBooks(booksData); // Initialize filteredBooks with all books
+
+        // Initialize filteredBooks with all books
+        setFilteredBooks(booksData);
+
+        // Set loading to false after data is fetched
         setLoading(false);
       } catch (error) {
         console.error("Error fetching books:", error);
+
+        // Set loading to false if an error occurs
         setLoading(false);
       }
     };
@@ -45,9 +71,12 @@ function ManageBook() {
     fetchBooks();
   }, [firestore]);
 
+  // Handle search input and filter books based on the search term
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     const term = e.target.value.toLowerCase();
     setSearchTerm(term);
+
+    // Filter books based on ISBN, title, author, or category
     setFilteredBooks(
       books.filter(
         (book) =>
@@ -59,17 +88,22 @@ function ManageBook() {
     );
   };
 
+  // Show a loading message while data is being fetched
   if (loading) {
     return <p className="text-center text-gray-300">Loading books...</p>;
   }
 
+  // Show a message if no books are found
   if (books.length === 0) {
     return <p className="text-center text-gray-300">No books found.</p>;
   }
 
+  // Render the ManageBook UI
   return (
     <div className="min-h-screen bg-gray-900 text-white">
+      {/* Set the page title */}
       <Head title="Manage Books" />
+
       <div className="container mx-auto px-4 py-6">
         {/* Back to Homepage Button */}
         <div className="mb-4">

@@ -20,7 +20,7 @@ function EditUserScreen(){
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        const fetchBook = async () => {
+        const fetchUser = async () => {
           try {
             const userDoc = doc(firestore, "users", id!);
             const userSnapshot = await getDoc(userDoc);
@@ -41,14 +41,14 @@ function EditUserScreen(){
               navigate("/"); // Redirect back to ManageUser if the user doesn't exist
             }
           } catch (error) {
-            console.error("Error fetching book:", error);
-            alert("Failed to fetch book details. Check the console for details.");
+            console.error("Error fetching user:", error);
+            alert("Failed to fetch user details. Check the console for details.");
           } finally {
             setLoading(false);
           }
         };
     
-        fetchBook();
+        fetchUser();
       }, [firestore, id, navigate]);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -66,7 +66,7 @@ function EditUserScreen(){
             phone: parseInt(formData.phone),
           });
           alert("User updated successfully!");
-          navigate("/manage-user"); // Redirect to ManageBook page
+          navigate("/manage-user"); // Redirect to ManageUser page
         } catch (error) {
           console.error("Error updating user:", error);
           alert("Failed to update user. Check the console for details.");

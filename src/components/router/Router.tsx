@@ -7,6 +7,9 @@ const HomepageScreen = lazy(() => import('~/components/screens/Homepage')); // R
 const ManageBookScreen = lazy(() => import('~/components/screens/manage-books/ManageBook')); // Acts as ViewBooks
 const AddBookScreen = lazy(() => import('~/components/screens/manage-books/AddBook')); // AddBook page
 const EditBookScreen = lazy(() => import('~/components/screens/manage-books/EditBook')); // EditBook page
+const ManageUserScreen = lazy(() => import('~/components/screens/manage-users/ManageUser')); // Manage User page
+const AddUserScreen = lazy(() => import('~/components/screens/manage-users/AddUser')); // Add User page
+const EditUserScreen = lazy(() => import('~/components/screens/manage-users/EditUser')); // Edit User page
 const Page404Screen = lazy(() => import('~/components/screens/404')); // 404 page
 const ManageLendingScreen = lazy(() => import('~/components/screens/ManageLending/ManageLending')); // Manage Lending page
 const AddLendingScreen = lazy(() => import('~/components/screens/ManageLending/AddLending')); // Add Lending page
@@ -45,6 +48,18 @@ const InnerRouter = () => {
         {
           index: true,
           element: <HomepageScreen />, // Updated to use Homepage
+        },
+        {
+          path: 'manage-user',
+          element: <ManageUserScreen />, // Route for managing users
+        },
+        {
+          path: 'manage-user/add',
+          element: <AddUserScreen />, // Route for adding a new user
+        },
+        {
+          path: 'manage-user/edit/:id',
+          element: <EditUserScreen />, // Route for editing a user
         },
         {
           path: 'manage-book',

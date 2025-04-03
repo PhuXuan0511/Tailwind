@@ -33,7 +33,7 @@ function ManageUser(){
               ...doc.data(),
             })) as User[];
             setUsers(usersData);
-            setFilteredUsers(usersData); // Initialize filteredBooks with all books
+            setFilteredUsers(usersData); // Initialize filteredUsers with all users
             setLoading(false);
           } catch (error) {
             console.error("Error fetching users:", error);
@@ -57,11 +57,11 @@ function ManageUser(){
         );
       };
     if (loading) {
-       return <p className="text-center text-gray-300">Loading books...</p>;
+       return <p className="text-center text-gray-300">Loading users...</p>;
     }
     
     if (users.length === 0) {
-       return <p className="text-center text-gray-300">No books found.</p>;
+       return <p className="text-center text-gray-300">No users found.</p>;
     }
     return (
         <div className="min-h-screen bg-gray-900 text-white">
@@ -76,7 +76,7 @@ function ManageUser(){
                 Back
               </button>
             </div>
-            <h1 className="text-3xl font-bold mb-6">Manage Books</h1>
+            <h1 className="text-3xl font-bold mb-6">Manage Users</h1>
             <div className="mb-4 flex items-center space-x-4">
               {/* Search Box */}
               <input
@@ -88,7 +88,7 @@ function ManageUser(){
               />
               {/* Add New User Button */}
               <button
-                onClick={() => navigate("/manage-book/add")}
+                onClick={() => navigate("/manage-user/add")}
                 className="bg-blue-500 text-white px-3 py-1 rounded text-sm hover:bg-blue-600"
               >
                 Add New User
@@ -120,7 +120,7 @@ function ManageUser(){
                       <td className="border-b border-gray-700 p-2">{user.role}</td>
                       <td className="border-b border-gray-700 p-2">
                         <button
-                          onClick={() => navigate(`/manage-book/edit/${user.id}`)}
+                          onClick={() => navigate(`/manage-user/edit/${user.id}`)}
                           className="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600"
                         >
                           Edit

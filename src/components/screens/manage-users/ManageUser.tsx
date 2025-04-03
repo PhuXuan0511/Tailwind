@@ -59,10 +59,11 @@ function ManageUser(){
     if (loading) {
        return <p className="text-center text-gray-300">Loading users...</p>;
     }
-    
+    /*
     if (users.length === 0) {
        return <p className="text-center text-gray-300">No users found.</p>;
     }
+    */
     return (
         <div className="min-h-screen bg-gray-900 text-white">
           <Head title="Manage Users" />

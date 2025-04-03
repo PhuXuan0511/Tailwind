@@ -8,6 +8,10 @@ const ManageBookScreen = lazy(() => import('~/components/screens/manage-books/Ma
 const AddBookScreen = lazy(() => import('~/components/screens/manage-books/AddBook')); // AddBook page
 const EditBookScreen = lazy(() => import('~/components/screens/manage-books/EditBook')); // EditBook page
 const Page404Screen = lazy(() => import('~/components/screens/404')); // 404 page
+const ManageLendingScreen = lazy(() => import('~/components/screens/ManageLending/ManageLending')); // Manage Lending page
+const AddLendingScreen = lazy(() => import('~/components/screens/ManageLending/AddLending')); // Add Lending page
+const EditLendingScreen = lazy(() => import('~/components/screens/ManageLending/EditLending')); // Edit Lending page
+
 
 function Layout({ showHeader = true }: { showHeader?: boolean }) {
   return (
@@ -53,6 +57,18 @@ const InnerRouter = () => {
         {
           path: 'manage-book/edit/:id',
           element: <EditBookScreen />, // Route for editing a book
+        },
+        {
+          path: 'manage-lending',
+          element: <ManageLendingScreen />, // Route for managing lending records
+        },
+        {
+          path: 'manage-lending/add',
+          element: <AddLendingScreen />, // Route for adding a new lending record
+        },
+        {
+          path: 'manage-lending/edit/:id',
+          element: <EditLendingScreen />, // Route for editing a lending record
         },
         {
           path: '*',

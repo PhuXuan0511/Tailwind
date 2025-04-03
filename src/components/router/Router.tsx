@@ -20,9 +20,9 @@ const LoginScreen = lazy(() => import('~/components/screens/login/Login')); // L
 function Layout({ showHeader = true }: { showHeader?: boolean }) {
   return (
     <div className="min-h-screen bg-gray-900 text-white">
-      {showHeader && (
+       {showHeader && (
         <nav className="p-4 flex items-center justify-between bg-gray-800 shadow">
-          <span className="text-white font-bold text-lg">Library Management</span>
+          <p className="text-3xl text-blue-500">Tailwind <span className="text-purple-500">Library</span></p>
         </nav>
       )}
       <div className="container mx-auto px-4 py-6">

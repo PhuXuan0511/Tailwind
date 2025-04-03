@@ -1,10 +1,11 @@
 import { lazy, Suspense } from 'react';
 import { Outlet, RouteObject, useRoutes, BrowserRouter } from 'react-router-dom';
+import RequireAuth from '~/components/auth/RequireAuth'; // Import RequireAuth for protected routes
 
 const Loading = () => <p className="p-4 w-full h-full text-center">Loading...</p>;
 
-const HomepageScreen = lazy(() => import('~/components/screens/Homepage')); // Renamed from Index to Homepage
-const ManageBookScreen = lazy(() => import('~/components/screens/manage-books/ManageBook')); // Acts as ViewBooks
+const HomepageScreen = lazy(() => import('~/components/screens/Homepage'));
+const ManageBookScreen = lazy(() => import('~/components/screens/manage-books/ManageBook'));
 const AddBookScreen = lazy(() => import('~/components/screens/manage-books/AddBook')); // AddBook page
 const EditBookScreen = lazy(() => import('~/components/screens/manage-books/EditBook')); // EditBook page
 const ManageUserScreen = lazy(() => import('~/components/screens/manage-users/ManageUser')); // Manage User page
@@ -14,7 +15,7 @@ const Page404Screen = lazy(() => import('~/components/screens/404')); // 404 pag
 const ManageLendingScreen = lazy(() => import('~/components/screens/manage-lendings/ManageLending')); // Manage Lending page
 const AddLendingScreen = lazy(() => import('~/components/screens/manage-lendings/AddLending')); // Add Lending page
 const EditLendingScreen = lazy(() => import('~/components/screens/manage-lendings/EditLending')); // Edit Lending page
-
+const LoginScreen = lazy(() => import('~/components/screens/login/Login')); // Login page
 
 function Layout({ showHeader = true }: { showHeader?: boolean }) {
   return (
@@ -47,43 +48,87 @@ const InnerRouter = () => {
       children: [
         {
           index: true,
-          element: <HomepageScreen />, // Updated to use Homepage
+          element: (
+            <RequireAuth>
+              <HomepageScreen />
+            </RequireAuth>
+          ), // Homepage (protected)
+        },
+        {
+          path: 'login',
+          element: <LoginScreen />, // Login page (public)
         },
         {
           path: 'manage-user',
-          element: <ManageUserScreen />, // Route for managing users
+          element: (
+            <RequireAuth>
+              <ManageUserScreen />
+            </RequireAuth>
+          ), // Manage Users (protected)
         },
         {
           path: 'manage-user/add',
-          element: <AddUserScreen />, // Route for adding a new user
+          element: (
+            <RequireAuth>
+              <AddUserScreen />
+            </RequireAuth>
+          ), // Add User (protected)
         },
         {
           path: 'manage-user/edit/:id',
-          element: <EditUserScreen />, // Route for editing a user
+          element: (
+            <RequireAuth>
+              <EditUserScreen />
+            </RequireAuth>
+          ), // Edit User (protected)
         },
         {
           path: 'manage-book',
-          element: <ManageBookScreen />, // Acts as the ViewBooks list
+          element: (
+            <RequireAuth>
+              <ManageBookScreen />
+            </RequireAuth>
+          ), // Manage Books (protected)
         },
         {
           path: 'manage-book/add',
-          element: <AddBookScreen />, // Route for adding a new book
+          element: (
+            <RequireAuth>
+              <AddBookScreen />
+            </RequireAuth>
+          ), // Add Book (protected)
         },
         {
           path: 'manage-book/edit/:id',
-          element: <EditBookScreen />, // Route for editing a book
+          element: (
+            <RequireAuth>
+              <EditBookScreen />
+            </RequireAuth>
+          ), // Edit Book (protected)
         },
         {
           path: 'manage-lending',
-          element: <ManageLendingScreen />, // Route for managing lending records
+          element: (
+            <RequireAuth>
+              <ManageLendingScreen />
+            </RequireAuth>
+          ), // Manage Lending (protected)
         },
         {
           path: 'manage-lending/add',
-          element: <AddLendingScreen />, // Route for adding a new lending record
+          element: (
+            <RequireAuth>
+              <AddLendingScreen />
+            </RequireAuth>
+          ), // Add Lending (protected)
         },
         {
           path: 'manage-lending/edit/:id',
-          element: <EditLendingScreen />, // Route for editing a lending record
+          element: (
+            <RequireAuth>
+              <EditLendingScreen />
+            </RequireAuth>
+          ), // Edit Lending (protected)
         },
         {
           path: '*',
@@ -92,6 +137,7 @@ const InnerRouter = () => {
       ],
     },
   ];
+
   const element = useRoutes(routes);
   return <Suspense fallback={<Loading />}>{element}</Suspense>;
 };

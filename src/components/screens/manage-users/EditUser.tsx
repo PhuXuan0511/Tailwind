@@ -31,7 +31,7 @@ function EditUserScreen(){
                 name: userData.name || "",
                 birthyear: userData.birthyear?.toString() || "",
                 address: userData.address || "",
-                phone: userData.phone.phone?.toString() || "",
+                phone: userData.phone?.toString() || "",
                 email: userData.email || "",
                 role: userData.role || "",
                 password: userData.password || "",

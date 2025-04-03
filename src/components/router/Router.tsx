@@ -11,9 +11,9 @@ const ManageUserScreen = lazy(() => import('~/components/screens/manage-users/Ma
 const AddUserScreen = lazy(() => import('~/components/screens/manage-users/AddUser')); // Add User page
 const EditUserScreen = lazy(() => import('~/components/screens/manage-users/EditUser')); // Edit User page
 const Page404Screen = lazy(() => import('~/components/screens/404')); // 404 page
-const ManageLendingScreen = lazy(() => import('~/components/screens/ManageLending/ManageLending')); // Manage Lending page
-const AddLendingScreen = lazy(() => import('~/components/screens/ManageLending/AddLending')); // Add Lending page
-const EditLendingScreen = lazy(() => import('~/components/screens/ManageLending/EditLending')); // Edit Lending page
+const ManageLendingScreen = lazy(() => import('~/components/screens/manage-lendings/ManageLending')); // Manage Lending page
+const AddLendingScreen = lazy(() => import('~/components/screens/manage-lendings/AddLending')); // Add Lending page
+const EditLendingScreen = lazy(() => import('~/components/screens/manage-lendings/EditLending')); // Edit Lending page
 
 
 function Layout({ showHeader = true }: { showHeader?: boolean }) {

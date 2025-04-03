@@ -27,7 +27,6 @@ function AddUserScreen() {
           await addDoc(usersCollection, {
             ...formData,
             birthyear: parseInt(formData.birthyear, 10),
-            phone: parseInt(formData.phone, 10),
           });
           alert("User added successfully!");
           navigate("/manage-user"); // Redirect to ManageUser page
@@ -88,7 +87,7 @@ function AddUserScreen() {
               <div className="mb-4">
                 <label className="block text-sm font-medium mb-1">Phone</label>
                 <input
-                  type="number"
+                  type="text"
                   name="phone"
                   value={formData.phone}
                   onChange={handleChange}
@@ -99,7 +98,7 @@ function AddUserScreen() {
               <div className="mb-4">
                 <label className="block text-sm font-medium mb-1">Email</label>
                 <input
-                  type="email"
+                  type="text"
                   name="email"
                   value={formData.email}
                   onChange={handleChange}

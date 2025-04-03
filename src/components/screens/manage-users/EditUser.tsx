@@ -129,7 +129,7 @@ function EditUserScreen(){
               <div className="mb-4">
                 <label className="block text-sm font-medium mb-1">Phone</label>
                 <input
-                  type="number"
+                  type="text"
                   name="phone"
                   value={formData.phone}
                   onChange={handleChange}
@@ -140,7 +140,7 @@ function EditUserScreen(){
               <div className="mb-4">
                 <label className="block text-sm font-medium mb-1">E-Mail</label>
                 <input
-                  type="email"
+                  type="text"
                   name="email"
                   value={formData.email}
                   onChange={handleChange}

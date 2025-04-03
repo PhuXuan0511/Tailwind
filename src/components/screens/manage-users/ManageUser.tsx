@@ -30,7 +30,13 @@ function ManageUser(){
             const snapshot = await getDocs(usersCollection);
             const usersData = snapshot.docs.map((doc) => ({
               id: doc.id,
-              ...doc.data(),
+              name: doc.data().name || "",
+              birthyear: doc.data().birthyear || "",
+              address: doc.data().address || "",
+              phone: doc.data().phone || "",
+              email: doc.data().email || "",
+              role: doc.data().role || "",
+              password: doc.data().password || "",
             })) as User[];
             setUsers(usersData);
             setFilteredUsers(usersData); // Initialize filteredUsers with all users
@@ -49,7 +55,7 @@ function ManageUser(){
         setFilteredUsers(
           users.filter(
             (user) =>
-              user.id.toString().toLowerCase().includes(term) ||
+              user.id.toLowerCase().includes(term) ||
               user.name.toLowerCase().includes(term) ||
               user.email.toLowerCase().includes(term) ||
               user.role.toLowerCase().includes(term) 
@@ -59,11 +65,6 @@ function ManageUser(){
     if (loading) {
        return <p className="text-center text-gray-300">Loading users...</p>;
     }
-    /*
-    if (users.length === 0) {
-       return <p className="text-center text-gray-300">No users found.</p>;
-    }
-    */
     return (
         <div className="min-h-screen bg-gray-900 text-white">
           <Head title="Manage Users" />

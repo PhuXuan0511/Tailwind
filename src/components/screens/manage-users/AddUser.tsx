@@ -7,7 +7,6 @@ function AddUserScreen() {
     const firestore = useFirestore();
     const navigate = useNavigate();
     const [formData, setFormData] = useState({
-        id: "",
         name: "",
         birthyear: "",
         address: "",
@@ -40,17 +39,6 @@ function AddUserScreen() {
           <div className="container mx-auto px-4 py-6">
             <h1 className="text-3xl font-bold mb-6">Add New User</h1>
             <form onSubmit={handleSubmit} className="bg-gray-800 p-6 rounded-lg shadow">
-              <div className="mb-4">
-                <label className="block text-sm font-medium mb-1">ID</label>
-                <input
-                  type="number"
-                  name="id"
-                  value={formData.id}
-                  onChange={handleChange}
-                  className="p-2 border border-gray-600 rounded w-full bg-gray-700 text-white"
-                  required
-                />
-              </div>
               <div className="mb-4">
                 <label className="block text-sm font-medium mb-1">Name</label>
                 <input

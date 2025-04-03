@@ -8,7 +8,6 @@ function EditUserScreen(){
     const navigate = useNavigate();
     const { id } = useParams<{ id: string }>(); // Get the user ID from the URL
     const [formData, setFormData] = useState({
-        id: "",
         name: "",
         birthyear: "",
         address: "",
@@ -19,7 +18,7 @@ function EditUserScreen(){
     });
     const [loading, setLoading] = useState(true);
 
-    useEffect(() => {
+    useEffect(() => { 
         const fetchUser = async () => {
           try {
             const userDoc = doc(firestore, "users", id!);
@@ -27,11 +26,10 @@ function EditUserScreen(){
             if (userSnapshot.exists()) {
               const userData = userSnapshot.data();
               setFormData({
-                id: userData.id || "",
                 name: userData.name || "",
                 birthyear: userData.birthyear?.toString() || "",
                 address: userData.address || "",
-                phone: userData.phone?.toString() || "",
+                phone: userData.phone || "",
                 email: userData.email || "",
                 role: userData.role || "",
                 password: userData.password || "",
@@ -82,17 +80,6 @@ function EditUserScreen(){
           <div className="container mx-auto px-4 py-6">
             <h1 className="text-3xl font-bold mb-6">Edit User</h1>
             <form onSubmit={handleSubmit} className="bg-gray-800 p-6 rounded-lg shadow">
-              <div className="mb-4">
-                <label className="block text-sm font-medium mb-1">ID</label>
-                <input
-                  type="number"
-                  name="id"
-                  value={formData.id}
-                  onChange={handleChange}
-                  className="p-2 border border-gray-600 rounded w-full bg-gray-700 text-white"
-                  required
-                />
-              </div>
               <div className="mb-4">
                 <label className="block text-sm font-medium mb-1">Name</label>
                 <input

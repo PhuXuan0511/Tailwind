@@ -1,10 +1,22 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import { Head } from "~/components/shared/Head";
-import {PencilSquareIcon} from "@heroicons/react/24/outline";
+import { signOut } from "firebase/auth";
+import { auth } from "~/lib/firebase";
 
 function Homepage() {
   const navigate = useNavigate();
+
+  const handleLogout = async () => {
+    try {
+      await signOut(auth);
+      alert("You have been logged out.");
+      navigate("/login"); // Redirect to login page after logout
+    } catch (error) {
+      console.error("Error logging out:", error);
+      alert("Failed to log out. Please try again.");
+    }
+  };
 
   const cards = [
     {
@@ -30,9 +42,19 @@ function Homepage() {
   ];
 
   return (
-    <div className="min-h-screen bg-gray-1300 text-">
-     
+    <div className="min-h-screen bg-gray-900 text-white">
+      <Head title="Library Management Services" />
       <div className="container mx-auto px-4 py-6">
+        {/* Logout Button */}
+        <div className="flex justify-end mb-4">
+          <button
+            onClick={handleLogout}
+            className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition"
+          >
+            Logout
+          </button>
+        </div>
+
         <h1 className="text-4xl font-extrabold mb-8 text-center bg-gradient-to-r from-blue-400 via-purple-500 to-pink-500 text-transparent bg-clip-text drop-shadow-lg">
           Library Management Services
         </h1>

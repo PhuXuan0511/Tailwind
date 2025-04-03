@@ -1,26 +1,21 @@
 import { lazy, Suspense } from 'react';
 import { Outlet, RouteObject, useRoutes, BrowserRouter } from 'react-router-dom';
-import RequireAuth from '~/components/auth/RequireAuth'; // Import RequireAuth for protected routes
 
 const Loading = () => <p className="p-4 w-full h-full text-center">Loading...</p>;
 
-const HomepageScreen = lazy(() => import('~/components/screens/Homepage'));
-const ManageBookScreen = lazy(() => import('~/components/screens/manage-books/ManageBook'));
-const AddBookScreen = lazy(() => import('~/components/screens/manage-books/AddBook')); // AddBook page
-const EditBookScreen = lazy(() => import('~/components/screens/manage-books/EditBook')); // EditBook page
-const ManageUserScreen = lazy(() => import('~/components/screens/manage-users/ManageUser')); // Manage User page
-const AddUserScreen = lazy(() => import('~/components/screens/manage-users/AddUser')); // Add User page
-const EditUserScreen = lazy(() => import('~/components/screens/manage-users/EditUser')); // Edit User page
+const HomepageScreen = lazy(() => import('~/components/screens/Homepage')); // Renamed from Index to Homepage
+const ManageBookScreen = lazy(() => import('~/components/screens/ManageBook')); // Acts as ViewBooks
+const AddBookScreen = lazy(() => import('~/components/screens/AddBook')); // AddBook page
+const EditBookScreen = lazy(() => import('~/components/screens/EditBook')); // EditBook page
 const Page404Screen = lazy(() => import('~/components/screens/404')); // 404 page
 const ManageLendingScreen = lazy(() => import('~/components/screens/manage-lendings/ManageLending')); // Manage Lending page
 const AddLendingScreen = lazy(() => import('~/components/screens/manage-lendings/AddLending')); // Add Lending page
 const EditLendingScreen = lazy(() => import('~/components/screens/manage-lendings/EditLending')); // Edit Lending page
-const LoginScreen = lazy(() => import('~/components/screens/login/Login')); // Login page
 
 function Layout({ showHeader = true }: { showHeader?: boolean }) {
   return (
     <div className="min-h-screen bg-gray-900 text-white">
-       {showHeader && (
+      {showHeader && (
         <nav className="p-4 flex items-center justify-between bg-gray-800 shadow">
           <p className="text-3xl text-blue-500">Tailwind <span className="text-purple-500">Library</span></p>
         </nav>
@@ -48,87 +43,31 @@ const InnerRouter = () => {
       children: [
         {
           index: true,
-          element: (
-            <RequireAuth>
-              <HomepageScreen />
-            </RequireAuth>
-          ), // Homepage (protected)
-        },
-        {
-          path: 'login',
-          element: <LoginScreen />, // Login page (public)
-        },
-        {
-          path: 'manage-user',
-          element: (
-            <RequireAuth>
-              <ManageUserScreen />
-            </RequireAuth>
-          ), // Manage Users (protected)
-        },
-        {
-          path: 'manage-user/add',
-          element: (
-            <RequireAuth>
-              <AddUserScreen />
-            </RequireAuth>
-          ), // Add User (protected)
-        },
-        {
-          path: 'manage-user/edit/:id',
-          element: (
-            <RequireAuth>
-              <EditUserScreen />
-            </RequireAuth>
-          ), // Edit User (protected)
+          element: <HomepageScreen />, // Updated to use Homepage
         },
         {
           path: 'manage-book',
-          element: (
-            <RequireAuth>
-              <ManageBookScreen />
-            </RequireAuth>
-          ), // Manage Books (protected)
+          element: <ManageBookScreen />, // Acts as the ViewBooks list
         },
         {
           path: 'manage-book/add',
-          element: (
-            <RequireAuth>
-              <AddBookScreen />
-            </RequireAuth>
-          ), // Add Book (protected)
+          element: <AddBookScreen />, // Route for adding a new book
         },
         {
           path: 'manage-book/edit/:id',
-          element: (
-            <RequireAuth>
-              <EditBookScreen />
-            </RequireAuth>
-          ), // Edit Book (protected)
+          element: <EditBookScreen />, // Route for editing a book
         },
         {
           path: 'manage-lending',
-          element: (
-            <RequireAuth>
-              <ManageLendingScreen />
-            </RequireAuth>
-          ), // Manage Lending (protected)
+          element: <ManageLendingScreen />, // Route for managing lending records
         },
         {
           path: 'manage-lending/add',
-          element: (
-            <RequireAuth>
-              <AddLendingScreen />
-            </RequireAuth>
-          ), // Add Lending (protected)
+          element: <AddLendingScreen />, // Route for adding a new lending record
         },
         {
           path: 'manage-lending/edit/:id',
-          element: (
-            <RequireAuth>
-              <EditLendingScreen />
-            </RequireAuth>
-          ), // Edit Lending (protected)
+          element: <EditLendingScreen />, // Route for editing a lending record
         },
         {
           path: '*',
@@ -137,7 +76,7 @@ const InnerRouter = () => {
       ],
     },
   ];
-
   const element = useRoutes(routes);
   return <Suspense fallback={<Loading />}>{element}</Suspense>;
 };
+

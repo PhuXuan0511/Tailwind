@@ -93,11 +93,6 @@ function ManageBook() {
     return <p className="text-center text-gray-300">Loading books...</p>;
   }
 
-  // Show a message if no books are found
-  if (books.length === 0) {
-    return <p className="text-center text-gray-300">No books found.</p>;
-  }
-
   // Render the ManageBook UI
   return (
     <div className="min-h-screen bg-gray-900 text-white">

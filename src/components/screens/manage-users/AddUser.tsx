@@ -58,7 +58,6 @@ function AddUserScreen() {
                   value={formData.birthyear}
                   onChange={handleChange}
                   className="p-2 border border-gray-600 rounded w-full bg-gray-700 text-white"
-                  required
                 />
               </div>
               <div className="mb-4">
@@ -69,7 +68,6 @@ function AddUserScreen() {
                   value={formData.address}
                   onChange={handleChange}
                   className="p-2 border border-gray-600 rounded w-full bg-gray-700 text-white"
-                  required
                 />
               </div>
               <div className="mb-4">

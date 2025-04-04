@@ -99,7 +99,6 @@ function EditUserScreen(){
                   value={formData.birthyear}
                   onChange={handleChange}
                   className="p-2 border border-gray-600 rounded w-full bg-gray-700 text-white"
-                  required
                 />
               </div>
               <div className="mb-4">
@@ -110,7 +109,6 @@ function EditUserScreen(){
                   value={formData.address}
                   onChange={handleChange}
                   className="p-2 border border-gray-600 rounded w-full bg-gray-700 text-white"
-                  required
                 />
               </div>
               <div className="mb-4">
@@ -121,7 +119,6 @@ function EditUserScreen(){
                   value={formData.phone}
                   onChange={handleChange}
                   className="p-2 border border-gray-600 rounded w-full bg-gray-700 text-white"
-                  required
                 />
               </div>
               <div className="mb-4">

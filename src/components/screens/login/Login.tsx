@@ -13,20 +13,31 @@ function LoginScreen() {
       const result = await signInWithPopup(auth, provider);
       const user = result.user;
 
+      // Check if the user exists in Firestore
       const userDocRef = doc(firestore, "users", user.uid);
       const userDoc = await getDoc(userDocRef);
 
       if (!userDoc.exists()) {
+        // If the user doesn't exist, create a new document with a default role
         await setDoc(userDocRef, {
           uid: user.uid,
           email: user.email,
           name: user.displayName || "Unknown",
-          role: "user",
+          role: "user", // Default role
           createdAt: new Date().toISOString(),
         });
+        alert("Account created. You are logged in as a user.");
+        navigate("/user-homepage"); // Redirect to UserHomepage for new users
+      } else {
+        const userData = userDoc.data();
+        if (userData.role === "admin") {
+          navigate("/"); // Redirect to Homepage for admins
+        } else if (userData.role === "user") {
+          navigate("/user-homepage"); // Redirect to UserHomepage for users
+        } else {
+          alert("Unknown role. Please contact the admin.");
+        }
       }
-
-      navigate("/");
     } catch (error) {
       console.error("Error logging in:", error);
       alert("Login failed. Try again.");

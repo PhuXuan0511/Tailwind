@@ -2,9 +2,12 @@ import { lazy, Suspense } from 'react';
 import { Outlet, RouteObject, useRoutes, BrowserRouter } from 'react-router-dom';
 import RequireAuth from '~/components/auth/RequireAuth'; // Import RequireAuth for protected routes
 import UserHomepage from "~/components/screens/UserHomepage"; // Import UserHomepage
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import { Bounce } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css'; // Import CSS for toast notifications
 
 const Loading = () => <p className="p-4 w-full h-full text-center">Loading...</p>;
-
 const HomepageScreen = lazy(() => import('~/components/screens/Homepage'));
 const ManageBookScreen = lazy(() => import('~/components/screens/manage-books/ManageBook'));
 const AddBookScreen = lazy(() => import('~/components/screens/manage-books/AddBook')); // AddBook page
@@ -29,6 +32,7 @@ function Layout({ showHeader = true }: { showHeader?: boolean }) {
       <div className="container mx-auto px-4 py-6">
         <Outlet />
       </div>
+      
     </div>
   );
 }

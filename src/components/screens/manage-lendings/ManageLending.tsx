@@ -3,6 +3,9 @@ import { useNavigate } from "react-router-dom";
 import { useFirestore } from "~/lib/firebase";
 import { collection, getDocs } from "firebase/firestore";
 import { Head } from "~/components/shared/Head";
+import { ToastContainer, toast } from "react-toastify";
+import 'react-toastify/dist/ReactToastify.css';
+import { showToastFromLocalStorage } from "~/components/shared/toastUtils";
 
 type Lending = {
   id: string;
@@ -42,6 +45,10 @@ function ManageLending() {
     fetchLendings();
   }, [firestore]);
 
+  useEffect(() => {
+    showToastFromLocalStorage("showToast", "🦄 Lending added successfully!");
+  }, []);
+
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     const term = e.target.value.toLowerCase();
     setSearchTerm(term);
@@ -59,10 +66,10 @@ function ManageLending() {
     return <p className="text-center text-gray-300">Loading lending records...</p>;
   }
 
-
   return (
     <div className="min-h-screen bg-gray-900 text-white">
       <Head title="Manage Lending" />
+      <ToastContainer />
       <div className="container mx-auto px-4 py-6">
         {/* Back Button */}
         <div className="mb-4">

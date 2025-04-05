@@ -2,7 +2,8 @@ import React, { useState } from "react";
 import { useFirestore } from "~/lib/firebase";
 import { collection, addDoc } from "firebase/firestore";
 import { useNavigate } from "react-router-dom";
-
+import { Bounce, ToastContainer } from 'react-toastify';
+import { toast } from 'react-toastify';
 // Component for adding a new book
 function AddBookScreen() {
   // Initialize Firestore instance
@@ -28,6 +29,7 @@ function AddBookScreen() {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
+   
 
   // Handle form submission to add a new book to Firestore
   const handleSubmit = async (e: React.FormEvent) => {
@@ -43,8 +45,8 @@ function AddBookScreen() {
         quantity: parseInt(formData.quantity, 10), // Convert quantity to a number
       });
 
-      // Show success message and redirect to the ManageBook page
-      alert("Book added successfully!");
+      // Set flag for toast
+      localStorage.setItem("showToast", "true");
       navigate("/manage-book");
     } catch (error) {
       // Handle errors during the Firestore operation

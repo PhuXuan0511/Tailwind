@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useFirestore } from "~/lib/firebase";
 import { collection, addDoc } from "firebase/firestore";
 import { useNavigate } from "react-router-dom";
+import { ToastContainer } from "react-toastify";
 
 function AddUserScreen() {
     const firestore = useFirestore();
@@ -27,7 +28,7 @@ function AddUserScreen() {
             ...formData,
             birthyear: parseInt(formData.birthyear, 10),
           });
-          alert("User added successfully!");
+          localStorage.setItem("showToast", "true"); // Set flag for toast
           navigate("/manage-user"); // Redirect to ManageUser page
         } catch (error) {
           console.error("Error adding user:", error);
@@ -36,6 +37,7 @@ function AddUserScreen() {
       };
       return (
         <div className="min-h-screen bg-gray-900 text-white">
+          <ToastContainer /> 
           <div className="container mx-auto px-4 py-6">
             <h1 className="text-3xl font-bold mb-6">Add New User</h1>
             <form onSubmit={handleSubmit} className="bg-gray-800 p-6 rounded-lg shadow">

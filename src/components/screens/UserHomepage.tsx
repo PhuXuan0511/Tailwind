@@ -19,14 +19,9 @@ function UserHomepage() {
 
   const cards = [
     {
-      title: "Search Book",
-      description: "Find books in the library.",
-      path: "/search-book",
-    },
-    {
       title: "View Book List",
       description: "Browse the list of available books.",
-      path: "/book-list",
+      path: "/user-homepage/book-list", // Path to ViewBook
     },
     {
       title: "View Account",

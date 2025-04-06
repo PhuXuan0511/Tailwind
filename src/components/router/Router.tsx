@@ -21,6 +21,7 @@ const ManageLendingScreen = lazy(() => import('~/components/screens/manage-lendi
 const AddLendingScreen = lazy(() => import('~/components/screens/manage-lendings/AddLending')); // Add Lending page
 const EditLendingScreen = lazy(() => import('~/components/screens/manage-lendings/EditLending')); // Edit Lending page
 const LoginScreen = lazy(() => import('~/components/screens/login/Login')); // Login page
+const ViewProfileScreen = lazy(() => import('~/components/screens/view-profile/ViewProfile')); // View Profile page
 
 function Layout({ showHeader = true }: { showHeader?: boolean }) {
   return (
@@ -142,6 +143,14 @@ const InnerRouter = () => {
               <EditLendingScreen />
             </RequireAuth>
           ), // Edit Lending (protected)
+        },
+        {
+          path: 'view-profile',
+          element: (
+            <RequireAuth>
+              <ViewProfileScreen />
+            </RequireAuth>
+          ), // View Profile (protected)
         },
         {
           path: '*',

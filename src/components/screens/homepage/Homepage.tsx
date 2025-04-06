@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Head } from "~/components/shared/Head";
 import { signOut } from "firebase/auth";
 import { auth } from "~/lib/firebase";
+import ViewProfile from "../view-profile/ViewProfile";
 
 function Homepage() {
   const navigate = useNavigate();
@@ -16,6 +17,10 @@ function Homepage() {
       console.error("Error logging out:", error);
       alert("Failed to log out. Please try again.");
     }
+  };
+
+  const viewProfile = () => {
+    navigate("/view-profile");
   };
 
   const cards = [
@@ -52,6 +57,15 @@ function Homepage() {
             className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition"
           >
             Logout
+          </button>
+        </div>
+
+        <div className="flex justify-end mb-4">
+          <button
+            onClick={viewProfile}
+            className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition"
+          >
+            Profile
           </button>
         </div>
 

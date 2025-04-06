@@ -17,6 +17,10 @@ function UserHomepage() {
     }
   };
 
+  const viewProfile = () => {
+    navigate("/view-profile");
+  };
+
   const cards = [
     {
       title: "View Book List",
@@ -45,6 +49,15 @@ function UserHomepage() {
             className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition"
           >
             Logout
+          </button>
+        </div>
+
+        <div className="flex justify-end mb-4">
+          <button
+            onClick={viewProfile}
+            className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition"
+          >
+            Profile
           </button>
         </div>
 

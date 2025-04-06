@@ -1,7 +1,7 @@
 import { lazy, Suspense } from 'react';
 import { Outlet, RouteObject, useRoutes, BrowserRouter } from 'react-router-dom';
 import RequireAuth from '~/components/auth/RequireAuth'; // Import RequireAuth for protected routes
-import UserHomepage from "~/components/screens/UserHomepage"; // Import UserHomepage
+import UserHomepage from "~/components/screens/homepage/UserHomepage"; // Import UserHomepage
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { Bounce } from 'react-toastify';
@@ -9,7 +9,7 @@ import 'react-toastify/dist/ReactToastify.css'; // Import CSS for toast notifica
 import ViewBook from "~/components/screens/view-books/ViewBook"; // Import ViewBook
 const Loading = () => <p className="p-4 w-full h-full text-center">Loading...</p>;
 
-const HomepageScreen = lazy(() => import('~/components/screens/Homepage'));
+const HomepageScreen = lazy(() => import('~/components/screens/homepage/Homepage'));
 const ManageBookScreen = lazy(() => import('~/components/screens/manage-books/ManageBook'));
 const AddBookScreen = lazy(() => import('~/components/screens/manage-books/AddBook')); // AddBook page
 const EditBookScreen = lazy(() => import('~/components/screens/manage-books/EditBook')); // EditBook page

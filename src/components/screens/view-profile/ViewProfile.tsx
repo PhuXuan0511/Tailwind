@@ -137,11 +137,6 @@ const ViewProfile: React.FC = () => {
                   <p className="text-gray-800">{user.birthyear}</p>
                 </div>
               )}
-
-              <div className="profile-item">
-                <h3 className="text-gray-500 text-sm">Role</h3>
-                <p className="text-gray-800 truncate">{user.role}</p>
-              </div>
               
               {user.phoneNumber && (
                 <div className="profile-item">

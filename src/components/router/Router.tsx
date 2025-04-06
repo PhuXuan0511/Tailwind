@@ -2,8 +2,11 @@ import { lazy, Suspense } from 'react';
 import { Outlet, RouteObject, useRoutes, BrowserRouter } from 'react-router-dom';
 import RequireAuth from '~/components/auth/RequireAuth'; // Import RequireAuth for protected routes
 import UserHomepage from "~/components/screens/UserHomepage"; // Import UserHomepage
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import { Bounce } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css'; // Import CSS for toast notifications
 import ViewBook from "~/components/screens/view-books/ViewBook"; // Import ViewBook
-
 const Loading = () => <p className="p-4 w-full h-full text-center">Loading...</p>;
 
 const HomepageScreen = lazy(() => import('~/components/screens/Homepage'));
@@ -63,14 +66,6 @@ const InnerRouter = () => {
               <UserHomepage />
             </RequireAuth>
           ), // User Homepage (protected)
-        },
-        {
-          path: 'user-homepage/book-list',
-          element: (
-            <RequireAuth>
-              <ViewBook />
-            </RequireAuth>
-          ), // View Book (protected)
         },
         {
           path: 'login',

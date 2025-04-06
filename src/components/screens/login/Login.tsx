@@ -3,6 +3,8 @@ import { signInWithPopup, GoogleAuthProvider } from "firebase/auth";
 import { useNavigate } from "react-router-dom";
 import { auth, firestore } from "~/lib/firebase";
 import { doc, getDoc, setDoc } from "firebase/firestore";
+import { showToastFromLocalStorage } from "~/components/shared/toastUtils"; // Import toast utility
+import { ToastContainer } from "react-toastify";
 
 function LoginScreen() {
   const navigate = useNavigate();
@@ -26,10 +28,11 @@ function LoginScreen() {
           role: "user", // Default role
           createdAt: new Date().toISOString(),
         });
-        alert("Account created. You are logged in as a user.");
+        localStorage.setItem("loginSuccess", "true"); // Set flag for toast
         navigate("/user-homepage"); // Redirect to UserHomepage for new users
       } else {
         const userData = userDoc.data();
+        localStorage.setItem("loginSuccess", "true"); // Set flag for toast
         if (userData.role === "admin") {
           navigate("/"); // Redirect to Homepage for admins
         } else if (userData.role === "user") {
@@ -44,19 +47,26 @@ function LoginScreen() {
     }
   };
 
+  React.useEffect(() => {
+    showToastFromLocalStorage("loginSuccess", "Logout successful!"); // Show toast if login was successful
+  }, []);
+
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-900 text-gray-300">
-      <div className="bg-gray-800 p-6 rounded-lg shadow-lg text-center w-80">
-        <h1 className="text-2xl font-semibold mb-4">Welcome</h1>
-        <p className="text-sm mb-6 text-gray-400">Sign in to continue</p>
-        <button
-          onClick={handleLogin}
-          className="bg-blue-500 text-white text-sm px-3 py-1 rounded hover:bg-blue-600 transition"
-        >
-          Sign in with Google
-        </button>
+    <>
+      <ToastContainer />
+      <div className="min-h-screen flex items-center justify-center bg-gray-900 text-gray-300">
+        <div className="bg-gray-800 p-6 rounded-lg shadow-lg text-center w-80">
+          <h1 className="text-2xl font-semibold mb-4">Welcome</h1>
+          <p className="text-sm mb-6 text-gray-400">Sign in to continue</p>
+          <button
+            onClick={handleLogin}
+            className="bg-blue-500 text-white text-sm px-3 py-1 rounded hover:bg-blue-600 transition"
+          >
+            Sign in with Google
+          </button>
+        </div>
       </div>
-    </div>
+    </>
   );
 }
 

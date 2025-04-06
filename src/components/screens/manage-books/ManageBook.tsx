@@ -3,6 +3,8 @@ import { Link, useNavigate } from "react-router-dom";
 import { useFirestore } from "~/lib/firebase";
 import { collection, getDocs } from "firebase/firestore";
 import { Head } from "~/components/shared/Head";
+import { showToastFromLocalStorage } from "~/components/shared/toastUtils";
+import { ToastContainer } from "react-toastify";
 
 // Define the structure of a Book object
 type Book = {
@@ -66,10 +68,15 @@ function ManageBook() {
         // Set loading to false if an error occurs
         setLoading(false);
       }
+      
     };
 
     fetchBooks();
   }, [firestore]);
+
+  useEffect(() => {
+    showToastFromLocalStorage("showToast", "📚 Book added successfully!");
+  }, []);
 
   // Handle search input and filter books based on the search term
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -98,7 +105,7 @@ function ManageBook() {
     <div className="min-h-screen bg-gray-900 text-white">
       {/* Set the page title */}
       <Head title="Manage Books" />
-
+      <ToastContainer />
       <div className="container mx-auto px-4 py-6">
         {/* Back to Homepage Button */}
         <div className="mb-4">

@@ -3,6 +3,8 @@ import { Link, useNavigate } from "react-router-dom";
 import { useFirestore } from "~/lib/firebase";
 import { collection, getDocs } from "firebase/firestore";
 import { Head } from "~/components/shared/Head";
+import { showToastFromLocalStorage } from "~/components/shared/toastUtils";
+import { ToastContainer } from "react-toastify";
 
 type User = {
     id: "",
@@ -49,6 +51,11 @@ function ManageUser(){
     
         fetchUsers();
     }, [firestore]);
+
+    useEffect(() => {
+      showToastFromLocalStorage("showToast", "👤 User added successfully!");
+    }, []);
+
     const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
         const term = e.target.value.toLowerCase();
         setSearchTerm(term);
@@ -68,6 +75,7 @@ function ManageUser(){
     return (
         <div className="min-h-screen bg-gray-900 text-white">
           <Head title="Manage Users" />
+          <ToastContainer /> 
           <div className="container mx-auto px-4 py-6">
             {/* Back to Homepage Button */}
             <div className="mb-4">

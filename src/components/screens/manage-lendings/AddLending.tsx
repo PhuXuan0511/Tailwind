@@ -3,6 +3,9 @@ import { useNavigate } from "react-router-dom";
 import { useFirestore } from "~/lib/firebase";
 import { collection, addDoc } from "firebase/firestore";
 import { Head } from "~/components/shared/Head";
+import 'react-toastify/dist/ReactToastify.css';
+import { Bounce, ToastContainer } from 'react-toastify';
+import { toast } from 'react-toastify';
 
 function AddLending() {
   const firestore = useFirestore();
@@ -25,14 +28,17 @@ function AddLending() {
     try {
       const lendingsCollection = collection(firestore, "lendings");
       await addDoc(lendingsCollection, formData);
+      localStorage.setItem("showToast", "true"); // Set flag for toast
       navigate("/manage-lending");
     } catch (error) {
       console.error("Error adding lending record:", error);
     }
   };
+  
 
   return (
     <div className="min-h-screen bg-gray-900 text-white">
+      <ToastContainer /> 
       <Head title="Add New Lending" />
       <div className="container mx-auto px-4 py-6">
         <button

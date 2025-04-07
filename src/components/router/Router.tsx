@@ -22,6 +22,7 @@ const EditLendingScreen = lazy(() => import('~/components/screens/manage-lending
 const LoginScreen = lazy(() => import('~/components/screens/login/Login')); // Login page
 const ViewProfileScreen = lazy(() => import('~/components/screens/view-profile/ViewProfile')); // View Profile page
 const ViewBook = lazy(() => import('~/components/screens/view-books/ViewBook')); // Lazy load ViewBook
+const ViewLending = lazy(() => import('~/components/screens/view-lendings/ViewLending')); // Lazy load ViewLending
 
 function Layout({ showHeader = true }: { showHeader?: boolean }) {
   return (
@@ -75,6 +76,14 @@ const InnerRouter = () => {
               <ViewBook />
             </RequireAuth>
           ), // View Book List (protected)
+        },
+        {
+          path: "/user-homepage/lending-list",
+          element: (
+            <RequireAuth>
+              <ViewLending />
+            </RequireAuth>
+        ), // View Lending (protected)
         },
         {
           path: 'login',

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { collection, getDocs } from "firebase/firestore";
+import { collection, getDocs, addDoc } from "firebase/firestore"; // Added addDoc
 import { firestore } from "~/lib/firebase";
 import { Head } from "~/components/shared/Head";
 
@@ -41,6 +41,24 @@ function ViewBook() {
 
     fetchBooks();
   }, []);
+
+  const handleRequestToBorrow = async (book: Book) => {
+    try {
+      // Add a new document to the "lendings" collection
+      const lendingsCollection = collection(firestore, "lendings");
+      await addDoc(lendingsCollection, {
+        bookTitle: book.title,
+        borrowerName: "John Doe", // Replace with actual borrower name if available
+        borrowDate: new Date().toISOString().split("T")[0], // Current date
+        returnDate: null,
+        status: "Borrowed",
+      });
+      alert(`Book "${book.title}" has been added to lendings with status "Borrowed"!`);
+    } catch (error) {
+      console.error("Error adding book to lendings:", error);
+      alert("Failed to add book to lendings. Please try again.");
+    }
+  };
 
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     const term = e.target.value.toLowerCase();
@@ -87,6 +105,7 @@ function ViewBook() {
                 <th className="border-b border-gray-700 p-2">Category</th>
                 <th className="border-b border-gray-700 p-2">Quantity</th>
                 <th className="border-b border-gray-700 p-2">Restrictions</th>
+                <th className="border-b border-gray-700 p-2">Actions</th> {/* New column */}
               </tr>
             </thead>
             <tbody>
@@ -100,6 +119,14 @@ function ViewBook() {
                   <td className="border-b border-gray-700 p-2">{book.category}</td>
                   <td className="border-b border-gray-700 p-2">{book.quantity}</td>
                   <td className="border-b border-gray-700 p-2">{book.restrictions}</td>
+                  <td className="border-b border-gray-700 p-2">
+                    <button
+                      onClick={() => handleRequestToBorrow(book)}
+                      className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+                    >
+                      Request to Borrow
+                    </button>
+                  </td>
                 </tr>
               ))}
             </tbody>

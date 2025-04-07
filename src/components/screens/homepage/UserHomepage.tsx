@@ -35,7 +35,7 @@ function UserHomepage() {
     {
       title: "View Lendings",
       description: "See your borrowed books and their status.",
-      path: "/lendings",
+      path: "/user-homepage/lending-list", // Path to ViewBook
     },
   ];
 

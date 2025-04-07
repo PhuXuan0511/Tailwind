@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { collection, getDocs, addDoc } from "firebase/firestore"; // Added addDoc
 import { firestore } from "~/lib/firebase";
 import { Head } from "~/components/shared/Head";
+import { getAuth } from "firebase/auth"; // Import Firebase Auth
 
 type Book = {
   id: string;
@@ -44,19 +45,30 @@ function ViewBook() {
 
   const handleRequestToBorrow = async (book: Book) => {
     try {
+      const auth = getAuth(); // Get the Firebase Auth instance
+      const currentUser = auth.currentUser; // Get the currently logged-in user
+
+      if (!currentUser) {
+        alert("You must be logged in to request a book.");
+        return;
+      }
+
+      const userId = currentUser.uid; // Get the user ID from the logged-in user
+
       // Add a new document to the "lendings" collection
       const lendingsCollection = collection(firestore, "lendings");
       await addDoc(lendingsCollection, {
-        bookTitle: book.title,
-        borrowerName: "John Doe", // Replace with actual borrower name if available
+        bookId: book.id, // Store the book ID
+        userId: userId, // Store the current user's ID
         borrowDate: new Date().toISOString().split("T")[0], // Current date
         returnDate: null,
-        status: "Borrowed",
+        status: "Requesting",
       });
-      alert(`Book "${book.title}" has been added to lendings with status "Borrowed"!`);
+
+      alert(`Book "${book.title}" has been requested for borrowing!`);
     } catch (error) {
       console.error("Error adding book to lendings:", error);
-      alert("Failed to add book to lendings. Please try again.");
+      alert("Failed to request book for borrowing. Please try again.");
     }
   };
 

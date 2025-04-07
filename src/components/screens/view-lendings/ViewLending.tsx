@@ -1,31 +1,55 @@
 import React, { useEffect, useState } from "react";
-import { collection, getDocs } from "firebase/firestore";
+import { collection, getDocs, query, where, doc, getDoc } from "firebase/firestore";
 import { firestore } from "~/lib/firebase";
+import { getAuth } from "firebase/auth";
 import { Head } from "~/components/shared/Head";
 
-type Lending = {
-  id: string;
-  bookTitle: string;
-  borrowerName: string;
-  borrowDate: string;
-  returnDate: string | null;
-  status: string;
-};
-
 function ViewLending() {
-  const [lendings, setLendings] = useState<Lending[]>([]);
+  const [lendings, setLendings] = useState<any[]>([]); // Use `any[]` to handle Firestore data dynamically
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchLendings = async () => {
       try {
+        const auth = getAuth(); // Get Firebase Auth instance
+        const currentUser = auth.currentUser; // Get the currently logged-in user
+
+        if (!currentUser) {
+          alert("You must be logged in to view your lendings.");
+          return;
+        }
+
+        const userId = currentUser.uid; // Get the user ID of the logged-in user
+
+        // Query the "lendings" collection for lendings associated with the current user
         const lendingsCollection = collection(firestore, "lendings");
-        const snapshot = await getDocs(lendingsCollection);
-        const lendingsData = snapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        })) as Lending[];
-        setLendings(lendingsData);
+        const userLendingsQuery = query(lendingsCollection, where("userId", "==", userId));
+        const snapshot = await getDocs(userLendingsQuery);
+
+        const lendingsWithDetails = await Promise.all(
+          snapshot.docs.map(async (docSnapshot) => {
+            const lending = docSnapshot.data();
+
+            // Fetch book title
+            const bookDoc = await getDoc(doc(firestore, "books", lending.bookId));
+            const bookTitle = bookDoc.exists() ? bookDoc.data().title : "Unknown Book";
+
+            // Fetch borrower name
+            const userDoc = await getDoc(doc(firestore, "users", lending.userId));
+            const borrowerName = userDoc.exists() ? userDoc.data().name : "Unknown User";
+
+            return {
+              id: docSnapshot.id,
+              bookTitle,
+              borrowerName,
+              borrowDate: lending.borrowDate,
+              returnDate: lending.returnDate,
+              status: lending.status,
+            };
+          })
+        );
+
+        setLendings(lendingsWithDetails);
         setLoading(false);
       } catch (error) {
         console.error("Error fetching lendings:", error);
@@ -44,7 +68,7 @@ function ViewLending() {
     <div className="min-h-screen bg-gray-900 text-white">
       <Head title="View Lendings" />
       <div className="container mx-auto px-4 py-6">
-        <h1 className="text-3xl font-bold mb-6">View Lendings</h1>
+        <h1 className="text-3xl font-bold mb-6">My Lendings</h1>
         <div className="bg-gray-800 shadow rounded-lg p-6 border border-gray-700">
           <table className="w-full text-left border-collapse">
             <thead>
@@ -54,7 +78,6 @@ function ViewLending() {
                 <th className="border-b border-gray-700 p-2">Date Borrowed</th>
                 <th className="border-b border-gray-700 p-2">Due Date</th>
                 <th className="border-b border-gray-700 p-2">Status</th>
-                
               </tr>
             </thead>
             <tbody>

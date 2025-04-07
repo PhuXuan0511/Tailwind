@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useFirestore } from "~/lib/firebase";
-import { collection, getDocs } from "firebase/firestore";
+import { collection, getDocs, doc, getDoc } from "firebase/firestore";
 import { Head } from "~/components/shared/Head";
 import { ToastContainer, toast } from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
@@ -9,11 +9,13 @@ import { showToastFromLocalStorage } from "~/components/shared/toastUtils";
 
 type Lending = {
   id: string;
-  bookTitle: string;
-  borrowerName: string;
+  bookId: string; // Store only the book ID
+  userId: string; // Store only the user ID
   borrowDate: string;
   returnDate: string | null;
   status: string; // e.g., "Borrowed", "Returned"
+  bookTitle?: string; // Dynamically fetched
+  borrowerName?: string; // Dynamically fetched
 };
 
 function ManageLending() {
@@ -24,17 +26,58 @@ function ManageLending() {
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
+  // Fetch book title by bookId
+  async function fetchBookTitle(bookId: string): Promise<string> {
+    try {
+      const bookDoc = await getDoc(doc(firestore, "books", bookId));
+      if (bookDoc.exists()) {
+        return bookDoc.data().title || "Unknown Book";
+      }
+    } catch (error) {
+      console.error("Error fetching book title:", error);
+    }
+    return "Unknown Book";
+  }
+
+  // Fetch borrower name by userId
+  async function fetchBorrowerName(userId: string): Promise<string> {
+    try {
+      const userDoc = await getDoc(doc(firestore, "users", userId));
+      if (userDoc.exists()) {
+        return userDoc.data().name || "Unknown User";
+      }
+    } catch (error) {
+      console.error("Error fetching borrower name:", error);
+    }
+    return "Unknown User";
+  }
+
+  // Fetch lending records and dynamically fetch book titles and borrower names
   useEffect(() => {
     const fetchLendings = async () => {
       try {
         const lendingsCollection = collection(firestore, "lendings");
         const snapshot = await getDocs(lendingsCollection);
-        const lendingsData = snapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        })) as Lending[];
-        setLendings(lendingsData);
-        setFilteredLendings(lendingsData);
+
+        const lendingsWithDetails = await Promise.all(
+          snapshot.docs.map(async (docSnapshot) => {
+            const lending = docSnapshot.data() as Lending;
+
+            // Fetch book title and borrower name dynamically
+            const bookTitle = await fetchBookTitle(lending.bookId);
+            const borrowerName = await fetchBorrowerName(lending.userId);
+
+            return {
+              ...lending,
+              id: docSnapshot.id,
+              bookTitle,
+              borrowerName,
+            };
+          })
+        );
+
+        setLendings(lendingsWithDetails);
+        setFilteredLendings(lendingsWithDetails);
         setLoading(false);
       } catch (error) {
         console.error("Error fetching lending records:", error);
@@ -55,8 +98,8 @@ function ManageLending() {
     setFilteredLendings(
       lendings.filter(
         (lending) =>
-          lending.bookTitle.toLowerCase().includes(term) ||
-          lending.borrowerName.toLowerCase().includes(term) ||
+          lending.bookTitle?.toLowerCase().includes(term) ||
+          lending.borrowerName?.toLowerCase().includes(term) ||
           lending.status.toLowerCase().includes(term)
       )
     );
@@ -113,8 +156,8 @@ function ManageLending() {
             <tbody>
               {filteredLendings.map((lending) => (
                 <tr key={lending.id}>
-                  <td className="border-b border-gray-700 p-2">{lending.bookTitle}</td>
-                  <td className="border-b border-gray-700 p-2">{lending.borrowerName}</td>
+                  <td className="border-b border-gray-700 p-2">{lending.bookTitle || "Loading..."}</td>
+                  <td className="border-b border-gray-700 p-2">{lending.borrowerName || "Loading..."}</td>
                   <td className="border-b border-gray-700 p-2">{lending.borrowDate}</td>
                   <td className="border-b border-gray-700 p-2">
                     {lending.returnDate || "Not Returned"}

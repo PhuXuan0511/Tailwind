@@ -9,12 +9,14 @@ function EditLending() {
   const firestore = useFirestore();
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
-    bookTitle: "",
-    borrowerName: "",
+    bookId: "",
+    userId: "",
     borrowDate: "",
     returnDate: "",
     status: "Borrowed",
   });
+  const [bookTitle, setBookTitle] = useState("Loading...");
+  const [borrowerName, setBorrowerName] = useState("Loading...");
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -23,7 +25,20 @@ function EditLending() {
         const lendingDoc = doc(firestore, "lendings", id!);
         const lendingSnapshot = await getDoc(lendingDoc);
         if (lendingSnapshot.exists()) {
-          setFormData(lendingSnapshot.data() as typeof formData);
+          const lendingData = lendingSnapshot.data();
+          setFormData(lendingData as typeof formData);
+
+          // Fetch book title
+          const bookDoc = await getDoc(doc(firestore, "books", lendingData.bookId));
+          if (bookDoc.exists()) {
+            setBookTitle(bookDoc.data().title || "Unknown Book");
+          }
+
+          // Fetch borrower name
+          const userDoc = await getDoc(doc(firestore, "users", lendingData.userId));
+          if (userDoc.exists()) {
+            setBorrowerName(userDoc.data().name || "Unknown User");
+          }
         } else {
           console.error("Lending record not found");
         }
@@ -46,7 +61,10 @@ function EditLending() {
     e.preventDefault();
     try {
       const lendingDoc = doc(firestore, "lendings", id!);
-      await updateDoc(lendingDoc, formData);
+      await updateDoc(lendingDoc, {
+        returnDate: formData.returnDate,
+        status: formData.status,
+      });
       navigate("/manage-lending");
     } catch (error) {
       console.error("Error updating lending record:", error);
@@ -70,39 +88,41 @@ function EditLending() {
         <h1 className="text-3xl font-bold mb-6">Edit Lending</h1>
         <form onSubmit={handleSubmit} className="bg-gray-800 p-6 rounded-lg shadow border border-gray-700">
           <div className="grid grid-cols-1 gap-4">
+            {/* Book Title (Read-Only) */}
             <div>
               <label className="block text-sm font-medium mb-1">Book Title</label>
               <input
                 type="text"
-                name="bookTitle"
-                value={formData.bookTitle}
-                onChange={handleChange}
+                value={bookTitle}
                 className="w-full p-2 bg-gray-700 border border-gray-600 rounded text-white"
-                required
+                readOnly
               />
             </div>
+
+            {/* Borrower Name (Read-Only) */}
             <div>
               <label className="block text-sm font-medium mb-1">Borrower Name</label>
               <input
                 type="text"
-                name="borrowerName"
-                value={formData.borrowerName}
-                onChange={handleChange}
+                value={borrowerName}
                 className="w-full p-2 bg-gray-700 border border-gray-600 rounded text-white"
-                required
+                readOnly
               />
             </div>
+
+            {/* Borrow Date (Read-Only) */}
             <div>
               <label className="block text-sm font-medium mb-1">Borrow Date</label>
               <input
                 type="date"
                 name="borrowDate"
                 value={formData.borrowDate}
-                onChange={handleChange}
                 className="w-full p-2 bg-gray-700 border border-gray-600 rounded text-white"
-                required
+                readOnly
               />
             </div>
+
+            {/* Return Date (Editable) */}
             <div>
               <label className="block text-sm font-medium mb-1">Return Date</label>
               <input
@@ -113,6 +133,8 @@ function EditLending() {
                 className="w-full p-2 bg-gray-700 border border-gray-600 rounded text-white"
               />
             </div>
+
+            {/* Status (Editable) */}
             <div>
               <label className="block text-sm font-medium mb-1">Status</label>
               <input

@@ -45,16 +45,16 @@ function UserHomepage() {
         {/* Logout Button */}
         <div className="flex justify-end mb-4 space-x-4">
           <button
-            onClick={handleLogout}
-            className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition"
-          >
-            Logout
-          </button>
-          <button
             onClick={viewProfile}
             className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition"
           >
             Profile
+          </button>
+          <button
+            onClick={handleLogout}
+            className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition"
+          >
+            Logout
           </button>
         </div>
 

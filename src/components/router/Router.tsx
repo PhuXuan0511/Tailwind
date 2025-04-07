@@ -6,7 +6,6 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { Bounce } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css'; // Import CSS for toast notifications
-import ViewBook from "~/components/screens/view-books/ViewBook"; // Import ViewBook
 const Loading = () => <p className="p-4 w-full h-full text-center">Loading...</p>;
 
 const HomepageScreen = lazy(() => import('~/components/screens/homepage/Homepage'));
@@ -22,6 +21,7 @@ const AddLendingScreen = lazy(() => import('~/components/screens/manage-lendings
 const EditLendingScreen = lazy(() => import('~/components/screens/manage-lendings/EditLending')); // Edit Lending page
 const LoginScreen = lazy(() => import('~/components/screens/login/Login')); // Login page
 const ViewProfileScreen = lazy(() => import('~/components/screens/view-profile/ViewProfile')); // View Profile page
+const ViewBook = lazy(() => import('~/components/screens/view-books/ViewBook')); // Lazy load ViewBook
 
 function Layout({ showHeader = true }: { showHeader?: boolean }) {
   return (
@@ -67,6 +67,14 @@ const InnerRouter = () => {
               <UserHomepage />
             </RequireAuth>
           ), // User Homepage (protected)
+        },
+        {
+          path: 'user-homepage/book-list',
+          element: (
+            <RequireAuth>
+              <ViewBook />
+            </RequireAuth>
+          ), // View Book List (protected)
         },
         {
           path: 'login',

@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
 import { doc, getDoc, getFirestore } from 'firebase/firestore';
 import { useNavigate } from 'react-router-dom';
+import { signOut } from "firebase/auth";
 
 interface UserProfile {
   displayName: string;
@@ -23,6 +24,18 @@ const ViewProfile: React.FC = () => {
   const navigate = useNavigate();
   const auth = getAuth();
   const db = getFirestore();
+
+  const handleLogout = async () => {
+    try {
+      const authInstance = getAuth(); // Ensure auth is initialized
+      await signOut(authInstance);
+      alert("You have been logged out.");
+      navigate("/login"); // Redirect to login page after logout
+    } catch (error) {
+      console.error("Error logging out:", error);
+      alert("Failed to log out. Please try again.");
+    }
+  };
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
@@ -96,6 +109,13 @@ const ViewProfile: React.FC = () => {
           className="bg-gray-500 text-white px-3 py-1 rounded text-sm hover:bg-gray-600"
         >
           Back
+        </button>
+
+        <button
+          onClick={handleLogout}
+          className="bg-red-500 text-white px-3 py-1 rounded text-sm hover:bg-red-600 ml-2"
+        >
+          Logout
         </button>
       </div>
 

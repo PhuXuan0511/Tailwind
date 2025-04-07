@@ -38,12 +38,7 @@ function Homepage() {
       title: "Manage Lending",
       description: "Track and manage book lending records.",
       path: "/manage-lending",
-    },
-    {
-      title: "Manage Transaction",
-      description: "View and manage all library transactions.",
-      path: "/manage-transaction",
-    },
+    }
   ];
 
   return (
@@ -51,16 +46,13 @@ function Homepage() {
       <Head title="Library Management Services" />
       <div className="container mx-auto px-4 py-6">
         {/* Logout Button */}
-        <div className="flex justify-end mb-4">
+        <div className="flex justify-end mb-4 space-x-4">
           <button
             onClick={handleLogout}
             className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition"
           >
             Logout
           </button>
-        </div>
-
-        <div className="flex justify-end mb-4">
           <button
             onClick={viewProfile}
             className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition"

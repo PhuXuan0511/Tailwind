@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useFirestore } from "~/lib/firebase";
-import { collection, getDocs, doc, getDoc } from "firebase/firestore";
+import { collection, getDocs, doc, getDoc, updateDoc, deleteDoc } from "firebase/firestore";
 import { Head } from "~/components/shared/Head";
 import { ToastContainer, toast } from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
@@ -13,7 +13,7 @@ type Lending = {
   userId: string; // Store only the user ID
   borrowDate: string;
   returnDate: string | null;
-  status: string; // e.g., "Borrowed", "Returned"
+  status: string; // e.g., "Borrowed", "Returned", "Requesting", "Approved"
   bookTitle?: string; // Dynamically fetched
   borrowerName?: string; // Dynamically fetched
 };
@@ -51,6 +51,51 @@ function ManageLending() {
     }
     return "Unknown User";
   }
+
+  // Approve a lending request
+  const handleApprove = async (lending: Lending) => {
+    try {
+      const bookDocRef = doc(firestore, "books", lending.bookId);
+      const bookDoc = await getDoc(bookDocRef);
+
+      if (!bookDoc.exists()) {
+        toast.error("Book not found.");
+        return;
+      }
+
+      const bookData = bookDoc.data();
+      const currentQuantity = bookData.quantity;
+
+      if (currentQuantity <= 0) {
+        toast.error("Book is out of stock.");
+        return;
+      }
+
+      // Decrease the book quantity by 1
+      await updateDoc(bookDocRef, { quantity: currentQuantity - 1 });
+
+      // Update the lending status to "Approved"
+      const lendingDocRef = doc(firestore, "lendings", lending.id);
+      await updateDoc(lendingDocRef, { status: "Approved" });
+
+      // Update the state
+      setLendings((prev) =>
+        prev.map((l) =>
+          l.id === lending.id ? { ...l, status: "Approved" } : l
+        )
+      );
+      setFilteredLendings((prev) =>
+        prev.map((l) =>
+          l.id === lending.id ? { ...l, status: "Approved" } : l
+        )
+      );
+
+      toast.success("Lending approved successfully!");
+    } catch (error) {
+      console.error("Error approving lending:", error);
+      toast.error("Failed to approve lending. Please try again.");
+    }
+  };
 
   // Fetch lending records and dynamically fetch book titles and borrower names
   useEffect(() => {
@@ -103,6 +148,34 @@ function ManageLending() {
           lending.status.toLowerCase().includes(term)
       )
     );
+  };
+
+  const handleAction = async (action: string, lendingId: string) => {
+      const lending = lendings.find((l) => l.id === lendingId);
+
+    if (!lending) {
+      toast.error("Lending not found.");
+      return;
+    }
+
+    if (action === "approve") {
+      await handleApprove(lending); // Call the handleApprove function
+    } else if (action === "edit") {
+      navigate(`/manage-lending/edit/${lendingId}`);
+    } else if (action === "delete") {
+      const confirmDelete = window.confirm("Are you sure you want to delete this lending?");
+      if (confirmDelete) {
+        try {
+          await deleteDoc(doc(firestore, "lendings", lendingId));
+          setLendings((prev) => prev.filter((l) => l.id !== lendingId));
+          setFilteredLendings((prev) => prev.filter((l) => l.id !== lendingId));
+          toast.success("Lending deleted successfully!");
+        } catch (error) {
+          console.error("Error deleting lending:", error);
+          toast.error("Failed to delete lending. Please try again.");
+        }
+      }
+    }
   };
 
   if (loading) {
@@ -164,12 +237,15 @@ function ManageLending() {
                   </td>
                   <td className="border-b border-gray-700 p-2">{lending.status}</td>
                   <td className="border-b border-gray-700 p-2">
-                    <button
-                      onClick={() => navigate(`/manage-lending/edit/${lending.id}`)}
-                      className="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600"
+                    <select
+                      onChange={(e) => handleAction(e.target.value, lending.id)}
+                      className="bg-gray-700 text-white p-2 rounded"
                     >
-                      Edit
-                    </button>
+                      <option value="">Select Action</option>
+                      {lending.status === "Requesting" && <option value="approve">Approve</option>}
+                      <option value="edit">Edit</option>
+                      <option value="delete">Delete</option>
+                    </select>
                   </td>
                 </tr>
               ))}

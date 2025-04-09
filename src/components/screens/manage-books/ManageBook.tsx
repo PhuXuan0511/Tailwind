@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useFirestore } from "~/lib/firebase";
-import { collection, getDocs } from "firebase/firestore";
+import { collection, getDocs, deleteDoc, doc } from "firebase/firestore"; // Add `deleteDoc` and `doc` for deletion
 import { Head } from "~/components/shared/Head";
 import { showToastFromLocalStorage } from "~/components/shared/toastUtils";
 import { ToastContainer } from "react-toastify";
@@ -95,6 +95,34 @@ function ManageBook() {
     );
   };
 
+  const handleDeleteBook = async (bookId: string) => {
+    try {
+      // Delete the book document from Firestore
+      const bookDoc = doc(firestore, "books", bookId);
+      await deleteDoc(bookDoc);
+
+      // Update the UI after deletion
+      setBooks((prevBooks) => prevBooks.filter((book) => book.id !== bookId));
+      setFilteredBooks((prevFilteredBooks) => prevFilteredBooks.filter((book) => book.id !== bookId));
+
+      alert("Book deleted successfully.");
+    } catch (error) {
+      console.error("Error deleting book:", error);
+      alert("Failed to delete book. Please try again.");
+    }
+  };
+
+  const handleBookAction = (action: string, bookId: string) => {
+    if (action === "edit") {
+      navigate(`/manage-book/edit/${bookId}`);
+    } else if (action === "delete") {
+      const confirmDelete = window.confirm("Are you sure you want to delete this book?");
+      if (confirmDelete) {
+        handleDeleteBook(bookId);
+      }
+    }
+  };
+
   // Show a loading message while data is being fetched
   if (loading) {
     return <p className="text-center text-gray-300">Loading books...</p>;
@@ -161,12 +189,14 @@ function ManageBook() {
                   <td className="border-b border-gray-700 p-2">{book.quantity}</td>
                   <td className="border-b border-gray-700 p-2">{book.restrictions}</td>
                   <td className="border-b border-gray-700 p-2">
-                    <button
-                      onClick={() => navigate(`/manage-book/edit/${book.id}`)}
-                      className="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600"
+                    <select
+                      onChange={(e) => handleBookAction(e.target.value, book.id)}
+                      className="bg-gray-700 text-white p-2 rounded"
                     >
-                      Edit
-                    </button>
+                      <option value="">Select Action</option>
+                      <option value="edit">Edit</option>
+                      <option value="delete">Delete</option>
+                    </select>
                   </td>
                 </tr>
               ))}

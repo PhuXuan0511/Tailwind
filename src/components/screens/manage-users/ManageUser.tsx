@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useFirestore } from "~/lib/firebase";
-import { collection, getDocs } from "firebase/firestore";
+import { collection, getDocs, deleteDoc, doc, query, where } from "firebase/firestore";
 import { Head } from "~/components/shared/Head";
 import { showToastFromLocalStorage } from "~/components/shared/toastUtils";
 import { ToastContainer } from "react-toastify";
@@ -69,6 +69,42 @@ function ManageUser(){
           )
         );
       };
+
+    const handleDeleteUser = async (userId: string) => {
+      try {
+        // Delete all lending records related to the user
+        const lendingsCollection = collection(firestore, "lendings");
+        const userLendingsQuery = query(lendingsCollection, where("userId", "==", userId));
+        const userLendingsSnapshot = await getDocs(userLendingsQuery);
+    
+        const deleteLendingPromises = userLendingsSnapshot.docs.map((doc) => deleteDoc(doc.ref));
+        await Promise.all(deleteLendingPromises);
+    
+        // Delete the user document (assuming users are stored in a "users" collection)
+        const userDoc = doc(firestore, "users", userId);
+        await deleteDoc(userDoc);
+    
+        // Update the UI after deletion
+        setUsers((prevUsers) => prevUsers.filter((user) => user.id !== userId));
+        setFilteredUsers((prevFilteredUsers) => prevFilteredUsers.filter((user) => user.id !== userId));
+    
+        alert("User and all related data have been deleted successfully.");
+      } catch (error) {
+        console.error("Error deleting user and related data:", error);
+        alert("Failed to delete user. Please try again.");
+      }
+    };
+
+    const handleUserAction = (action: string, userId: string) => {
+      if (action === "edit") {
+        navigate(`/manage-user/edit/${userId}`);
+      } else if (action === "delete") {
+        if (window.confirm(`Are you sure you want to delete this user?`)) {
+          handleDeleteUser(userId);
+        }
+      }
+    };
+
     if (loading) {
        return <p className="text-center text-gray-300">Loading users...</p>;
     }
@@ -129,12 +165,14 @@ function ManageUser(){
                       <td className="border-b border-gray-700 p-2">{user.email}</td>
                       <td className="border-b border-gray-700 p-2">{user.role}</td>
                       <td className="border-b border-gray-700 p-2">
-                        <button
-                          onClick={() => navigate(`/manage-user/edit/${user.id}`)}
-                          className="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600"
+                        <select
+                          onChange={(e) => handleUserAction(e.target.value, user.id)}
+                          className="bg-gray-700 text-white p-2 rounded"
                         >
-                          Edit
-                        </button>
+                          <option value="">Select Action</option>
+                          <option value="edit">Edit</option>
+                          <option value="delete">Delete</option>
+                        </select>
                       </td>
                     </tr>
                   ))}

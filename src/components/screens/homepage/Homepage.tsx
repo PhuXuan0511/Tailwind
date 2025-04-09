@@ -42,7 +42,7 @@ function Homepage() {
           </button>
         </div>
 
-        <h1 className="text-4xl font-extrabold mb-8 text-center bg-gradient-to-r from-blue-400 via-purple-500 to-pink-500 text-transparent bg-clip-text drop-shadow-lg">
+        <h1 className="text-4xl font-extrabold mb-8 text-center bg-gradient-to-r from-blue-400 via-purple-500 to-pink-500 text-transparent bg-clip-text drop-shadow-lg leading-normal">
           Library Management Services
         </h1>
         <div className="grid grid-cols-3 sm:grid-cols-2 gap-5">
@@ -52,9 +52,11 @@ function Homepage() {
               onClick={() => navigate(card.path)}
               className="bg-gray-800 p-6 rounded-lg shadow-lg hover:bg-gray-700 cursor-pointer transition transform hover:scale-105 flex items-center justify-between"
             >
-              <div>
+              <div className="flex-1">
                 <h2 className="text-2xl font-bold mb-4 text-blue-400">{card.title}</h2>
-                <p className="text-base text-gray-400">{card.description}</p>
+                <p className="text-base text-gray-400 break-words">
+                  {card.description}
+                </p>
               </div>
               {card.title === "Manage User" && (
                 <svg

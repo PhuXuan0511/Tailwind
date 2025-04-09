@@ -74,19 +74,25 @@ function ManageLending() {
       // Decrease the book quantity by 1
       await updateDoc(bookDocRef, { quantity: currentQuantity - 1 });
 
-      // Update the lending status to "Approved"
+      // Calculate return date (7 days from today)
+      const today = new Date();
+      const returnDate = new Date(today);
+      returnDate.setDate(today.getDate() + 7);
+      const formattedReturnDate = returnDate.toISOString().split("T")[0];
+
+      // Update the lending status to "Approved" and set the return date
       const lendingDocRef = doc(firestore, "lendings", lending.id);
-      await updateDoc(lendingDocRef, { status: "Approved" });
+      await updateDoc(lendingDocRef, { status: "Approved", returnDate: formattedReturnDate });
 
       // Update the state
       setLendings((prev) =>
         prev.map((l) =>
-          l.id === lending.id ? { ...l, status: "Approved" } : l
+          l.id === lending.id ? { ...l, status: "Approved", returnDate: formattedReturnDate } : l
         )
       );
       setFilteredLendings((prev) =>
         prev.map((l) =>
-          l.id === lending.id ? { ...l, status: "Approved" } : l
+          l.id === lending.id ? { ...l, status: "Approved", returnDate: formattedReturnDate } : l
         )
       );
 
@@ -94,6 +100,47 @@ function ManageLending() {
     } catch (error) {
       console.error("Error approving lending:", error);
       toast.error("Failed to approve lending. Please try again.");
+    }
+  };
+
+  // Mark a lending as returned
+  const handleMarkAsReturned = async (lending: Lending) => {
+    try {
+      // Reference to the book document
+      const bookDocRef = doc(firestore, "books", lending.bookId);
+      const bookDoc = await getDoc(bookDocRef);
+
+      if (!bookDoc.exists()) {
+        toast.error("Book not found.");
+        return;
+      }
+
+      const bookData = bookDoc.data();
+      const currentQuantity = bookData.quantity;
+
+      // Increase the book quantity by 1
+      await updateDoc(bookDocRef, { quantity: currentQuantity + 1 });
+
+      // Update the lending status to "Returned"
+      const lendingDocRef = doc(firestore, "lendings", lending.id);
+      await updateDoc(lendingDocRef, { status: "Returned" });
+
+      // Update the state
+      setLendings((prev) =>
+        prev.map((l) =>
+          l.id === lending.id ? { ...l, status: "Returned" } : l
+        )
+      );
+      setFilteredLendings((prev) =>
+        prev.map((l) =>
+          l.id === lending.id ? { ...l, status: "Returned" } : l
+        )
+      );
+
+      toast.success("Lending marked as returned and book quantity updated!");
+    } catch (error) {
+      console.error("Error marking lending as returned:", error);
+      toast.error("Failed to mark lending as returned. Please try again.");
     }
   };
 
@@ -151,7 +198,7 @@ function ManageLending() {
   };
 
   const handleAction = async (action: string, lendingId: string) => {
-      const lending = lendings.find((l) => l.id === lendingId);
+    const lending = lendings.find((l) => l.id === lendingId);
 
     if (!lending) {
       toast.error("Lending not found.");
@@ -160,6 +207,8 @@ function ManageLending() {
 
     if (action === "approve") {
       await handleApprove(lending); // Call the handleApprove function
+    } else if (action === "markAsReturned") {
+      await handleMarkAsReturned(lending); // Call the handleMarkAsReturned function
     } else if (action === "edit") {
       navigate(`/manage-lending/edit/${lendingId}`);
     } else if (action === "delete") {
@@ -239,10 +288,13 @@ function ManageLending() {
                   <td className="border-b border-gray-700 p-2">
                     <select
                       onChange={(e) => handleAction(e.target.value, lending.id)}
-                      className="bg-gray-700 text-white p-2 rounded"
+                      className="bg-gray-700 text-white p-2 rounded w-48" // Added consistent width
                     >
                       <option value="">Select Action</option>
                       {lending.status === "Requesting" && <option value="approve">Approve</option>}
+                      {lending.status === "Approved" && (
+                        <option value="markAsReturned">Mark as Returned</option>
+                      )}
                       <option value="edit">Edit</option>
                       <option value="delete">Delete</option>
                     </select>

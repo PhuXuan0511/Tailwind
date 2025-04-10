@@ -3,10 +3,12 @@ import { collection, getDocs, query, where, doc, getDoc } from "firebase/firesto
 import { firestore } from "~/lib/firebase";
 import { getAuth } from "firebase/auth";
 import { Head } from "~/components/shared/Head";
+import { useNavigate } from "react-router-dom"; // Import useNavigate for navigation
 
 function ViewLending() {
   const [lendings, setLendings] = useState<any[]>([]); // Use `any[]` to handle Firestore data dynamically
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate(); // Initialize navigate for navigation
 
   useEffect(() => {
     const fetchLendings = async () => {
@@ -68,6 +70,16 @@ function ViewLending() {
     <div className="min-h-screen bg-gray-900 text-white">
       <Head title="View Lendings" />
       <div className="container mx-auto px-4 py-6">
+        {/* Back Button */}
+        <div className="mb-4">
+          <button
+            onClick={() => navigate(-1)} // Navigate to the previous page
+            className="bg-gray-500 text-white px-3 py-1 rounded text-sm hover:bg-gray-600"
+          >
+            Back
+          </button>
+        </div>
+
         <h1 className="text-3xl font-bold mb-6">My Lendings</h1>
         <div className="bg-gray-800 shadow rounded-lg p-6 border border-gray-700">
           <table className="w-full text-left border-collapse">

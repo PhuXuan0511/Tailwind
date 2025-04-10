@@ -3,6 +3,7 @@ import { collection, getDocs, addDoc } from "firebase/firestore"; // Added addDo
 import { firestore } from "~/lib/firebase";
 import { Head } from "~/components/shared/Head";
 import { getAuth } from "firebase/auth"; // Import Firebase Auth
+import { useNavigate } from "react-router-dom"; // Import useNavigate for navigation
 
 type Book = {
   id: string;
@@ -21,6 +22,7 @@ function ViewBook() {
   const [filteredBooks, setFilteredBooks] = useState<Book[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchBooks = async () => {
@@ -94,6 +96,16 @@ function ViewBook() {
     <div className="min-h-screen bg-gray-900 text-white">
       <Head title="View Books" />
       <div className="container mx-auto px-4 py-6">
+        {/* Back Button */}
+        <div className="mb-4">
+          <button
+            onClick={() => navigate(-1)} // Navigate to the previous page
+            className="bg-gray-500 text-white px-3 py-1 rounded text-sm hover:bg-gray-600"
+          >
+            Back
+          </button>
+        </div>
+
         <h1 className="text-3xl font-bold mb-6">View Books</h1>
         <div className="mb-4 flex items-center space-x-4">
           {/* Search Box */}
@@ -117,7 +129,7 @@ function ViewBook() {
                 <th className="border-b border-gray-700 p-2">Category</th>
                 <th className="border-b border-gray-700 p-2">Quantity</th>
                 <th className="border-b border-gray-700 p-2">Restrictions</th>
-                <th className="border-b border-gray-700 p-2">Actions</th> {/* New column */}
+                <th className="border-b border-gray-700 p-2">Actions</th>
               </tr>
             </thead>
             <tbody>

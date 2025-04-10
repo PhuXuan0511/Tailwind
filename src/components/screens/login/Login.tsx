@@ -28,19 +28,14 @@ function LoginScreen() {
           role: "user", // Default role
           createdAt: new Date().toISOString(),
         });
-        localStorage.setItem("loginSuccess", "true"); // Set flag for toast
-        navigate("/user-homepage"); // Redirect to UserHomepage for new users
-      } else {
-        const userData = userDoc.data();
-        localStorage.setItem("loginSuccess", "true"); // Set flag for toast
-        if (userData.role === "admin") {
-          navigate("/"); // Redirect to Homepage for admins
-        } else if (userData.role === "user") {
-          navigate("/user-homepage"); // Redirect to UserHomepage for users
-        } else {
-          alert("Unknown role. Please contact the admin.");
-        }
       }
+
+      // Store user role in localStorage for dynamic card paths
+      const userData = userDoc.exists() ? userDoc.data() : { role: "user" };
+      localStorage.setItem("userRole", userData.role);
+
+      // Redirect to the homepage
+      navigate("/homepage");
     } catch (error) {
       console.error("Error logging in:", error);
       alert("Login failed. Try again.");

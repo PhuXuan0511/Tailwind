@@ -1,14 +1,16 @@
 import { lazy, Suspense } from 'react';
-import { Outlet, RouteObject, useRoutes, BrowserRouter } from 'react-router-dom';
+import { Outlet, RouteObject, useRoutes, BrowserRouter, useNavigate } from 'react-router-dom';
 import RequireAuth from '~/components/auth/RequireAuth'; // Import RequireAuth for protected routes
-import UserHomepage from "~/components/screens/homepage/UserHomepage"; // Import UserHomepage
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { Bounce } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css'; // Import CSS for toast notifications
 const Loading = () => <p className="p-4 w-full h-full text-center">Loading...</p>;
 
-const HomepageScreen = lazy(() => import('~/components/screens/homepage/Homepage'));
+// Lazy load screens
+const HomepageScreen = lazy(() => import('~/components/screens/homepage/Homepage')); // Unified Homepage
+const AdminDashboardScreen = lazy(() => import('~/components/screens/homepage/AdminDashboard')); // Admin Dashboard
+const UserDashboardScreen = lazy(() => import('~/components/screens/homepage/UserDashboard')); // User Dashboard
 const ManageBookScreen = lazy(() => import('~/components/screens/manage-books/ManageBook'));
 const AddBookScreen = lazy(() => import('~/components/screens/manage-books/AddBook')); // AddBook page
 const EditBookScreen = lazy(() => import('~/components/screens/manage-books/EditBook')); // EditBook page
@@ -24,16 +26,32 @@ const ViewProfileScreen = lazy(() => import('~/components/screens/view-profile/V
 const ViewBook = lazy(() => import('~/components/screens/view-books/ViewBook')); // Lazy load ViewBook
 const ViewLending = lazy(() => import('~/components/screens/view-lendings/ViewLending')); // Lazy load ViewLending
 
-function Layout({ showHeader = true }: { showHeader?: boolean }) {
+function Layout({ showHeader = true, children }: { showHeader?: boolean; children: React.ReactNode }) {
+  const navigate = useNavigate(); // Import useNavigate for navigation
+
   return (
     <div className="min-h-screen bg-gray-900 text-white">
-       {showHeader && (
+      {showHeader && (
         <nav className="p-4 flex items-center justify-between bg-gray-800 shadow">
-          <p className="text-3xl text-blue-500">Tailwind <span className="text-purple-500">Library</span></p>
+          {/* Clickable Header */}
+          <button
+            onClick={() => navigate("/homepage")} // Navigate to the homepage
+            className="text-3xl text-blue-500 hover:text-blue-400 transition"
+          >
+            Tailwind <span className="text-purple-500">Library</span>
+          </button>
+
+          {/* Profile Button */}
+          <button
+            onClick={() => navigate("/view-profile")} // Navigate to the profile page
+            className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition"
+          >
+            Profile
+          </button>
         </nav>
       )}
       <div className="container mx-auto px-4 py-6">
-        <Outlet />
+        {children} {/* Render the children */}
       </div>
     </div>
   );
@@ -50,130 +68,162 @@ export const Router = () => {
 const InnerRouter = () => {
   const routes: RouteObject[] = [
     {
-      path: '/',
-      element: <Layout />,
-      children: [
-        {
-          index: true,
-          element: (
-            <RequireAuth>
-              <HomepageScreen />
-            </RequireAuth>
-          ), // Admin Homepage (protected)
-        },
-        {
-          path: 'user-homepage',
-          element: (
-            <RequireAuth>
-              <UserHomepage />
-            </RequireAuth>
-          ), // User Homepage (protected)
-        },
-        {
-          path: 'user-homepage/book-list',
-          element: (
-            <RequireAuth>
-              <ViewBook />
-            </RequireAuth>
-          ), // View Book List (protected)
-        },
-        {
-          path: "/user-homepage/lending-list",
-          element: (
-            <RequireAuth>
-              <ViewLending />
-            </RequireAuth>
-        ), // View Lending (protected)
-        },
-        {
-          path: 'login',
-          element: <LoginScreen />, // Login page (public)
-        },
-        {
-          path: 'manage-user',
-          element: (
-            <RequireAuth>
-              <ManageUserScreen />
-            </RequireAuth>
-          ), // Manage Users (protected)
-        },
-        {
-          path: 'manage-user/add',
-          element: (
-            <RequireAuth>
-              <AddUserScreen />
-            </RequireAuth>
-          ), // Add User (protected)
-        },
-        {
-          path: 'manage-user/edit/:id',
-          element: (
-            <RequireAuth>
-              <EditUserScreen />
-            </RequireAuth>
-          ), // Edit User (protected)
-        },
-        {
-          path: 'manage-book',
-          element: (
-            <RequireAuth>
-              <ManageBookScreen />
-            </RequireAuth>
-          ), // Manage Books (protected)
-        },
-        {
-          path: 'manage-book/add',
-          element: (
-            <RequireAuth>
-              <AddBookScreen />
-            </RequireAuth>
-          ), // Add Book (protected)
-        },
-        {
-          path: 'manage-book/edit/:id',
-          element: (
-            <RequireAuth>
-              <EditBookScreen />
-            </RequireAuth>
-          ), // Edit Book (protected)
-        },
-        {
-          path: 'manage-lending',
-          element: (
-            <RequireAuth>
-              <ManageLendingScreen />
-            </RequireAuth>
-          ), // Manage Lending (protected)
-        },
-        {
-          path: 'manage-lending/add',
-          element: (
-            <RequireAuth>
-              <AddLendingScreen />
-            </RequireAuth>
-          ), // Add Lending (protected)
-        },
-        {
-          path: 'manage-lending/edit/:id',
-          element: (
-            <RequireAuth>
-              <EditLendingScreen />
-            </RequireAuth>
-          ), // Edit Lending (protected)
-        },
-        {
-          path: 'view-profile',
-          element: (
-            <RequireAuth>
-              <ViewProfileScreen />
-            </RequireAuth>
-          ), // View Profile (protected)
-        },
-        {
-          path: '*',
-          element: <Page404Screen />, // 404 page for unmatched routes
-        },
-      ],
+      path: '/', // Default route
+      element: <LoginScreen />, // Login page
+    },
+    {
+      path: '/homepage', // Unified Homepage route
+      element: (
+        <Layout showHeader={true}>
+          <RequireAuth>
+            <HomepageScreen />
+          </RequireAuth>
+        </Layout>
+      ),
+    },
+    {
+      path: '/admin-dashboard',
+      element: (
+        <Layout showHeader={true}>
+          <RequireAuth>
+            <AdminDashboardScreen />
+          </RequireAuth>
+        </Layout>
+      ),
+    },
+    {
+      path: '/user-dashboard',
+      element: (
+        <Layout showHeader={true}>
+          <RequireAuth>
+            <UserDashboardScreen />
+          </RequireAuth>
+        </Layout>
+      ),
+    },
+    {
+      path: '/user-dashboard/book-list',
+      element: (
+        <Layout showHeader={true}>
+          <RequireAuth>
+            <ViewBook />
+          </RequireAuth>
+        </Layout>
+      ),
+    },
+    {
+      path: '/user-dashboard/lending-list',
+      element: (
+        <Layout showHeader={true}>
+          <RequireAuth>
+            <ViewLending />
+          </RequireAuth>
+        </Layout>
+      ),
+    },
+    {
+      path: '/manage-user',
+      element: (
+        <Layout showHeader={true}>
+          <RequireAuth>
+            <ManageUserScreen />
+          </RequireAuth>
+        </Layout>
+      ),
+    },
+    {
+      path: '/manage-user/add',
+      element: (
+        <Layout showHeader={true}>
+          <RequireAuth>
+            <AddUserScreen />
+          </RequireAuth>
+        </Layout>
+      ),
+    },
+    {
+      path: '/manage-user/edit/:id',
+      element: (
+        <Layout showHeader={true}>
+          <RequireAuth>
+            <EditUserScreen />
+          </RequireAuth>
+        </Layout>
+      ),
+    },
+    {
+      path: '/manage-book',
+      element: (
+        <Layout showHeader={true}>
+          <RequireAuth>
+            <ManageBookScreen />
+          </RequireAuth>
+        </Layout>
+      ),
+    },
+    {
+      path: '/manage-book/add',
+      element: (
+        <Layout showHeader={true}>
+          <RequireAuth>
+            <AddBookScreen />
+          </RequireAuth>
+        </Layout>
+      ),
+    },
+    {
+      path: '/manage-book/edit/:id',
+      element: (
+        <Layout showHeader={true}>
+          <RequireAuth>
+            <EditBookScreen />
+          </RequireAuth>
+        </Layout>
+      ),
+    },
+    {
+      path: '/manage-lending',
+      element: (
+        <Layout showHeader={true}>
+          <RequireAuth>
+            <ManageLendingScreen />
+          </RequireAuth>
+        </Layout>
+      ),
+    },
+    {
+      path: '/manage-lending/add',
+      element: (
+        <Layout showHeader={true}>
+          <RequireAuth>
+            <AddLendingScreen />
+          </RequireAuth>
+        </Layout>
+      ),
+    },
+    {
+      path: '/manage-lending/edit/:id',
+      element: (
+        <Layout showHeader={true}>
+          <RequireAuth>
+            <EditLendingScreen />
+          </RequireAuth>
+        </Layout>
+      ),
+    },
+    {
+      path: '/view-profile',
+      element: (
+        <Layout showHeader={true}>
+          <RequireAuth>
+            <ViewProfileScreen />
+          </RequireAuth>
+        </Layout>
+      ),
+    },
+    {
+      path: '*',
+      element: <Page404Screen />, // 404 page for unmatched routes
     },
   ];
 

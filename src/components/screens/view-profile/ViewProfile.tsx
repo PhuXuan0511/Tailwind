@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
-import { doc, getDoc, getFirestore } from 'firebase/firestore';
+import { doc, getDoc, getFirestore, onSnapshot } from 'firebase/firestore'; // Add onSnapshot import
 import { useNavigate } from 'react-router-dom';
 import { signOut } from "firebase/auth";
 
@@ -38,12 +38,14 @@ const ViewProfile: React.FC = () => {
   };
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       if (currentUser) {
-        try {
-          const userDoc = await getDoc(doc(db, "users", currentUser.uid));
-          if (userDoc.exists()) {
-            const userData = userDoc.data() as Omit<
+        const userDocRef = doc(db, "users", currentUser.uid);
+
+        // Use onSnapshot to listen for real-time updates
+        const unsubscribeUserDoc = onSnapshot(userDocRef, (docSnapshot) => {
+          if (docSnapshot.exists()) {
+            const userData = docSnapshot.data() as Omit<
               UserProfile,
               "displayName" | "email" | "photoURL" | "uid"
             >;
@@ -65,16 +67,15 @@ const ViewProfile: React.FC = () => {
               uid: currentUser.uid,
             });
           }
-        } catch (error) {
-          console.error("Error fetching user data:", error);
-        }
+        });
+
+        return () => unsubscribeUserDoc(); // Cleanup Firestore listener
       } else {
         navigate("/login");
       }
-      setLoading(false);
     });
 
-    return () => unsubscribe();
+    return () => unsubscribe(); // Cleanup Auth listener
   }, [auth, db, navigate]);
 
   if (loading) {

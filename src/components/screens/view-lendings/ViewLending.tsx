@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { collection, getDocs, query, where, doc, getDoc } from "firebase/firestore";
+import { collection, query, where, doc, getDoc, onSnapshot } from "firebase/firestore"; // Add onSnapshot import
 import { firestore } from "~/lib/firebase";
 import { getAuth } from "firebase/auth";
 import { Head } from "~/components/shared/Head";
@@ -11,55 +11,49 @@ function ViewLending() {
   const navigate = useNavigate(); // Initialize navigate for navigation
 
   useEffect(() => {
-    const fetchLendings = async () => {
-      try {
-        const auth = getAuth(); // Get Firebase Auth instance
-        const currentUser = auth.currentUser; // Get the currently logged-in user
+    const auth = getAuth(); // Get Firebase Auth instance
+    const currentUser = auth.currentUser; // Get the currently logged-in user
 
-        if (!currentUser) {
-          alert("You must be logged in to view your lendings.");
-          return;
-        }
+    if (!currentUser) {
+      alert("You must be logged in to view your lendings.");
+      return;
+    }
 
-        const userId = currentUser.uid; // Get the user ID of the logged-in user
+    const userId = currentUser.uid; // Get the user ID of the logged-in user
+    const lendingsCollection = collection(firestore, "lendings");
+    const userLendingsQuery = query(lendingsCollection, where("userId", "==", userId));
 
-        // Query the "lendings" collection for lendings associated with the current user
-        const lendingsCollection = collection(firestore, "lendings");
-        const userLendingsQuery = query(lendingsCollection, where("userId", "==", userId));
-        const snapshot = await getDocs(userLendingsQuery);
+    // Use onSnapshot to listen for real-time updates
+    const unsubscribe = onSnapshot(userLendingsQuery, async (snapshot) => {
+      const lendingsWithDetails = await Promise.all(
+        snapshot.docs.map(async (docSnapshot) => {
+          const lending = docSnapshot.data();
 
-        const lendingsWithDetails = await Promise.all(
-          snapshot.docs.map(async (docSnapshot) => {
-            const lending = docSnapshot.data();
+          // Fetch book title
+          const bookDoc = await getDoc(doc(firestore, "books", lending.bookId));
+          const bookTitle = bookDoc.exists() ? bookDoc.data().title : "Unknown Book";
 
-            // Fetch book title
-            const bookDoc = await getDoc(doc(firestore, "books", lending.bookId));
-            const bookTitle = bookDoc.exists() ? bookDoc.data().title : "Unknown Book";
+          // Fetch borrower name
+          const userDoc = await getDoc(doc(firestore, "users", lending.userId));
+          const borrowerName = userDoc.exists() ? userDoc.data().name : "Unknown User";
 
-            // Fetch borrower name
-            const userDoc = await getDoc(doc(firestore, "users", lending.userId));
-            const borrowerName = userDoc.exists() ? userDoc.data().name : "Unknown User";
+          return {
+            id: docSnapshot.id,
+            bookTitle,
+            borrowerName,
+            requestDate: lending.requestDate, // Use requestDate instead of borrowDate
+            returnDate: lending.returnDate, // Keep returnDate as is
+            status: lending.status,
+          };
+        })
+      );
 
-            return {
-              id: docSnapshot.id,
-              bookTitle,
-              borrowerName,
-              borrowDate: lending.borrowDate,
-              returnDate: lending.returnDate,
-              status: lending.status,
-            };
-          })
-        );
+      setLendings(lendingsWithDetails);
+      setLoading(false);
+    });
 
-        setLendings(lendingsWithDetails);
-        setLoading(false);
-      } catch (error) {
-        console.error("Error fetching lendings:", error);
-        setLoading(false);
-      }
-    };
-
-    fetchLendings();
+    // Cleanup the listener when the component unmounts
+    return () => unsubscribe();
   }, []);
 
   if (loading) {
@@ -87,7 +81,7 @@ function ViewLending() {
               <tr>
                 <th className="border-b border-gray-700 p-2">Title</th>
                 <th className="border-b border-gray-700 p-2">Borrower</th>
-                <th className="border-b border-gray-700 p-2">Date Borrowed</th>
+                <th className="border-b border-gray-700 p-2">Request Date</th> {/* Updated */}
                 <th className="border-b border-gray-700 p-2">Due Date</th>
                 <th className="border-b border-gray-700 p-2">Status</th>
               </tr>
@@ -97,8 +91,8 @@ function ViewLending() {
                 <tr key={lending.id}>
                   <td className="border-b border-gray-700 p-2">{lending.bookTitle}</td>
                   <td className="border-b border-gray-700 p-2">{lending.borrowerName}</td>
-                  <td className="border-b border-gray-700 p-2">{lending.borrowDate}</td>
-                  <td className="border-b border-gray-700 p-2">{lending.returnDate || "N/A"}</td>
+                  <td className="border-b border-gray-700 p-2">{lending.requestDate}</td> {/* Updated */}
+                  <td className="border-b border-gray-700 p-2">{lending.returnDate || null}</td> {/* Explicitly handle null */}
                   <td className="border-b border-gray-700 p-2">{lending.status}</td>
                 </tr>
               ))}

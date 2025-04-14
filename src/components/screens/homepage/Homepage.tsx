@@ -1,6 +1,6 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import libraryImage from "~/components/image/library.jpeg"; // Import the image
+import libraryImage from "~/components/image/library.jpg"; // Import the image
 
 function Homepage() {
   const navigate = useNavigate();

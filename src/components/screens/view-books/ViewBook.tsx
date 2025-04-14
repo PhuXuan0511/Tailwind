@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { collection, getDocs, addDoc } from "firebase/firestore"; // Added addDoc
+import { collection, getDocs, addDoc, onSnapshot } from "firebase/firestore"; // Added onSnapshot
 import { firestore } from "~/lib/firebase";
 import { Head } from "~/components/shared/Head";
 import { getAuth } from "firebase/auth"; // Import Firebase Auth
@@ -25,24 +25,21 @@ function ViewBook() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const fetchBooks = async () => {
-      try {
-        const booksCollection = collection(firestore, "books");
-        const snapshot = await getDocs(booksCollection);
-        const booksData = snapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        })) as Book[];
-        setBooks(booksData);
-        setFilteredBooks(booksData);
-        setLoading(false);
-      } catch (error) {
-        console.error("Error fetching books:", error);
-        setLoading(false);
-      }
-    };
+    const booksCollection = collection(firestore, "books");
 
-    fetchBooks();
+    // Use onSnapshot to listen for real-time updates
+    const unsubscribe = onSnapshot(booksCollection, (snapshot) => {
+      const booksData = snapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      })) as Book[];
+      setBooks(booksData);
+      setFilteredBooks(booksData); // Initialize filteredBooks with all books
+      setLoading(false);
+    });
+
+    // Cleanup the listener when the component unmounts
+    return () => unsubscribe();
   }, []);
 
   const handleRequestToBorrow = async (book: Book) => {
@@ -62,9 +59,9 @@ function ViewBook() {
       await addDoc(lendingsCollection, {
         bookId: book.id, // Store the book ID
         userId: userId, // Store the current user's ID
-        borrowDate: new Date().toISOString().split("T")[0], // Current date
-        returnDate: null,
-        status: "Requesting",
+        requestDate: new Date().toISOString().split("T")[0], // Current date as the request date
+        returnDate: null, // Return date is null by default
+        status: "Requesting", // Initial status
       });
 
       alert(`Book "${book.title}" has been requested for borrowing!`);

@@ -1,7 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useFirestore } from "~/lib/firebase";
+<<<<<<< HEAD
 import { collection, getDocs, deleteDoc, doc, setDoc } from "firebase/firestore"; // Add `setDoc` for adding/editing books
+=======
+import { collection, onSnapshot, deleteDoc, doc } from "firebase/firestore"; // Replaced `getDocs` with `onSnapshot`
+>>>>>>> ba90d09403577c4d255a45e41d7f8e874439e42b
 import { Head } from "~/components/shared/Head";
 import { showToastFromLocalStorage } from "~/components/shared/toastUtils";
 import { ToastContainer } from "react-toastify"
@@ -19,65 +23,34 @@ type Book = {
 };
 
 function ManageBook() {
-  // Initialize Firestore instance
   const firestore = useFirestore();
-
-  // State to store all books fetched from Firestore
   const [books, setBooks] = useState<Book[]>([]);
-
-  // State to store filtered books based on search input
   const [filteredBooks, setFilteredBooks] = useState<Book[]>([]);
-
-  // State to store the current search term
   const [searchTerm, setSearchTerm] = useState("");
-
-  // State to track whether data is still loading
-  const [loading, setLoading] = useState(true);
-
-  // React Router's navigate function for programmatic navigation
   const navigate = useNavigate();
 
-  // Fetch books from Firestore when the component mounts
+  // Use `onSnapshot` to listen for real-time updates
   useEffect(() => {
-    const fetchBooks = async () => {
-      try {
-        // Reference the "books" collection in Firestore
-        const booksCollection = collection(firestore, "books");
+    const booksCollection = collection(firestore, "books");
 
-        // Fetch all documents in the "books" collection
-        const snapshot = await getDocs(booksCollection);
+    // Set up the real-time listener
+    const unsubscribe = onSnapshot(booksCollection, (snapshot) => {
+      const booksData = snapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      })) as Book[];
+      setBooks(booksData);
+      setFilteredBooks(booksData); // Initialize filteredBooks with all books
+    });
 
-        // Map the documents to an array of Book objects
-        const booksData = snapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        })) as Book[];
-
-        // Update state with the fetched books
-        setBooks(booksData);
-
-        // Initialize filteredBooks with all books
-        setFilteredBooks(booksData);
-
-        // Set loading to false after data is fetched
-        setLoading(false);
-      } catch (error) {
-        console.error("Error fetching books:", error);
-
-        // Set loading to false if an error occurs
-        setLoading(false);
-      }
-      
-    };
-
-    fetchBooks();
+    // Cleanup the listener when the component unmounts
+    return () => unsubscribe();
   }, [firestore]);
 
   useEffect(() => {
     showToastFromLocalStorage("showToast", "📚 Book added successfully!");
   }, []);
 
-  // Handle search input and filter books based on the search term
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     const term = e.target.value.toLowerCase();
     setSearchTerm(term);
@@ -96,14 +69,8 @@ function ManageBook() {
 
   const handleDeleteBook = async (bookId: string) => {
     try {
-      // Delete the book document from Firestore
       const bookDoc = doc(firestore, "books", bookId);
       await deleteDoc(bookDoc);
-
-      // Update the UI after deletion
-      setBooks((prevBooks) => prevBooks.filter((book) => book.id !== bookId));
-      setFilteredBooks((prevFilteredBooks) => prevFilteredBooks.filter((book) => book.id !== bookId));
-
       alert("Book deleted successfully.");
     } catch (error) {
       console.error("Error deleting book:", error);
@@ -152,15 +119,8 @@ function ManageBook() {
     }
   };
 
-  // Show a loading message while data is being fetched
-  if (loading) {
-    return <p className="text-center text-gray-300">Loading books...</p>;
-  }
-
-  // Render the ManageBook UI
   return (
     <div className="min-h-screen bg-gray-900 text-white">
-      {/* Set the page title */}
       <Head title="Manage Books" />
       <ToastContainer />
       <div className="container mx-auto px-4 py-6">

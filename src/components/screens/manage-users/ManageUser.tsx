@@ -7,14 +7,6 @@ import { showToastFromLocalStorage } from "~/components/shared/toastUtils";
 import { ToastContainer } from "react-toastify";
 
 type User = {
-<<<<<<< HEAD
-    id: "",
-    name: "",
-    email: "",
-    role: "",
-    password: "",
-}
-=======
   id: string;
   name: string;
   birthyear: string;
@@ -24,7 +16,6 @@ type User = {
   role: string;
   password: string;
 };
->>>>>>> ba90d09403577c4d255a45e41d7f8e874439e42b
 
 function ManageUser() {
   const firestore = useFirestore();
@@ -96,74 +87,6 @@ function ManageUser() {
       console.error("Error deleting user and related data:", error);
       alert("Failed to delete user. Please try again.");
     }
-<<<<<<< HEAD
-    return (
-        <div className="min-h-screen bg-gray-900 text-white">
-          <Head title="Manage Users" />
-          <ToastContainer /> 
-          <div className="container mx-auto px-4 py-6">
-            {/* Back to Homepage Button */}
-            <div className="mb-4">
-              <button
-                onClick={() => navigate(-1)}
-                className="bg-gray-500 text-white px-3 py-1 rounded text-sm hover:bg-gray-600"
-              >
-                Back
-              </button>
-            </div>
-            <h1 className="text-3xl font-bold mb-6">Manage Users</h1>
-            <div className="mb-4 flex items-center space-x-4">
-              {/* Search Box */}
-              <input
-                type="text"
-                placeholder="Search by ID, Name, Email, or Role"
-                value={searchTerm}
-                onChange={handleSearch}
-                className="p-2 border border-gray-600 rounded w-full max-w-lg bg-gray-700 text-white"
-              />
-              {/* Add New User Button */}
-              <button
-                onClick={() => navigate("/manage-user/add")}
-                className="bg-blue-500 text-white px-3 py-1 rounded text-sm hover:bg-blue-600"
-              >
-                Add New User
-              </button>
-            </div>
-            <div className="bg-gray-800 shadow rounded-lg p-6 border border-gray-700">
-              <table className="w-full text-left border-collapse">
-                <thead>
-                  <tr>
-                    <th className="border-b border-gray-700 p-2">ID</th>
-                    <th className="border-b border-gray-700 p-2">Name</th>
-                    <th className="border-b border-gray-700 p-2">Email</th>
-                    <th className="border-b border-gray-700 p-2">Role</th>
-                    <th className="border-b border-gray-700 p-2">Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {filteredUsers.map((user) => (
-                    <tr key={user.id}>
-                      <td className="border-b border-gray-700 p-2">{user.id}</td>
-                      <td className="border-b border-gray-700 p-2">{user.name}</td>
-                      <td className="border-b border-gray-700 p-2">{user.email}</td>
-                      <td className="border-b border-gray-700 p-2">{user.role}</td>
-                      <td className="border-b border-gray-700 p-2">
-                        <select
-                          onChange={(e) => handleUserAction(e.target.value, user.id)}
-                          className="bg-gray-700 text-white p-2 rounded"
-                        >
-                          <option value="">Select Action</option>
-                          <option value="edit">Edit</option>
-                          <option value="delete">Delete</option>
-                        </select>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-=======
   };
 
   const handleUserAction = (action: string, userId: string) => {
@@ -193,7 +116,6 @@ function ManageUser() {
           >
             Back
           </button>
->>>>>>> ba90d09403577c4d255a45e41d7f8e874439e42b
         </div>
         <h1 className="text-3xl font-bold mb-6">Manage Users</h1>
         <div className="mb-4 flex items-center space-x-4">

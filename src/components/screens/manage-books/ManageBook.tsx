@@ -1,11 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useFirestore } from "~/lib/firebase";
-<<<<<<< HEAD
-import { collection, getDocs, deleteDoc, doc, setDoc } from "firebase/firestore"; // Add `setDoc` for adding/editing books
-=======
-import { collection, onSnapshot, deleteDoc, doc } from "firebase/firestore"; // Replaced `getDocs` with `onSnapshot`
->>>>>>> ba90d09403577c4d255a45e41d7f8e874439e42b
+import { collection, onSnapshot, deleteDoc, doc, setDoc } from "firebase/firestore"; // Updated import statement
 import { Head } from "~/components/shared/Head";
 import { showToastFromLocalStorage } from "~/components/shared/toastUtils";
 import { ToastContainer } from "react-toastify"

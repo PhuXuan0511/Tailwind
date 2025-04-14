@@ -9,9 +9,6 @@ import { ToastContainer } from "react-toastify";
 type User = {
     id: "",
     name: "",
-    birthyear: "",
-    address: "",
-    phone: "",
     email: "",
     role: "",
     password: "",
@@ -146,9 +143,6 @@ function ManageUser(){
                   <tr>
                     <th className="border-b border-gray-700 p-2">ID</th>
                     <th className="border-b border-gray-700 p-2">Name</th>
-                    <th className="border-b border-gray-700 p-2">Birth Year</th>
-                    <th className="border-b border-gray-700 p-2">Address</th>
-                    <th className="border-b border-gray-700 p-2">Phone</th>
                     <th className="border-b border-gray-700 p-2">Email</th>
                     <th className="border-b border-gray-700 p-2">Role</th>
                     <th className="border-b border-gray-700 p-2">Actions</th>
@@ -159,9 +153,6 @@ function ManageUser(){
                     <tr key={user.id}>
                       <td className="border-b border-gray-700 p-2">{user.id}</td>
                       <td className="border-b border-gray-700 p-2">{user.name}</td>
-                      <td className="border-b border-gray-700 p-2">{user.birthyear}</td>
-                      <td className="border-b border-gray-700 p-2">{user.address}</td>
-                      <td className="border-b border-gray-700 p-2">{user.phone}</td>
                       <td className="border-b border-gray-700 p-2">{user.email}</td>
                       <td className="border-b border-gray-700 p-2">{user.role}</td>
                       <td className="border-b border-gray-700 p-2">

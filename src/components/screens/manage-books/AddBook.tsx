@@ -21,7 +21,6 @@ function AddBookScreen() {
     edition: "",
     category: "",
     quantity: "",
-    restrictions: "",
   });
 
   // Handle changes in form inputs and update the state
@@ -126,17 +125,22 @@ function AddBookScreen() {
             />
           </div>
 
-          {/* Category Input */}
+          {/* Category Dropdown */}
           <div className="mb-4">
             <label className="block text-sm font-medium mb-1">Category</label>
-            <input
-              type="text"
+            <select
               name="category"
               value={formData.category}
-              onChange={handleChange}
+              onChange={(e) => setFormData((prev) => ({ ...prev, category: e.target.value }))}
               className="p-2 border border-gray-600 rounded w-full bg-gray-700 text-white"
               required
-            />
+            >
+              <option value="">Select Category</option>
+              <option value="horror">Horror</option>
+              <option value="action">Action</option>
+              <option value="romance">Romance</option>
+              <option value="education">Education</option>
+            </select>
           </div>
 
           {/* Quantity Input */}
@@ -149,18 +153,6 @@ function AddBookScreen() {
               onChange={handleChange}
               className="p-2 border border-gray-600 rounded w-full bg-gray-700 text-white"
               required
-            />
-          </div>
-
-          {/* Restrictions Input */}
-          <div className="mb-4">
-            <label className="block text-sm font-medium mb-1">Restrictions</label>
-            <textarea
-              name="restrictions"
-              value={formData.restrictions}
-              onChange={handleChange}
-              className="p-2 border border-gray-600 rounded w-full bg-gray-700 text-white"
-              rows={3}
             />
           </div>
 

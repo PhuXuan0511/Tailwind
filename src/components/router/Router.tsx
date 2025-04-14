@@ -25,6 +25,7 @@ const LoginScreen = lazy(() => import('~/components/screens/login/Login')); // L
 const ViewProfileScreen = lazy(() => import('~/components/screens/view-profile/ViewProfile')); // View Profile page
 const ViewBook = lazy(() => import('~/components/screens/view-books/ViewBook')); // Lazy load ViewBook
 const ViewLending = lazy(() => import('~/components/screens/view-lendings/ViewLending')); // Lazy load ViewLending
+import AboutUsScreen from '~/components/screens/homepage/AboutUs'; // Import the About Us screen
 
 function Layout({ showHeader = true, children }: { showHeader?: boolean; children: React.ReactNode }) {
   const navigate = useNavigate(); // Import useNavigate for navigation
@@ -218,6 +219,14 @@ const InnerRouter = () => {
           <RequireAuth>
             <ViewProfileScreen />
           </RequireAuth>
+        </Layout>
+      ),
+    },
+    {
+      path: '/about-us', // Add the About Us path
+      element: (
+        <Layout showHeader={true}>
+          <AboutUsScreen />
         </Layout>
       ),
     },

@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useFirestore } from "~/lib/firebase";
-import { collection, getDocs, deleteDoc, doc } from "firebase/firestore"; // Add `deleteDoc` and `doc` for deletion
+import { collection, getDocs, deleteDoc, doc, setDoc } from "firebase/firestore"; // Add `setDoc` for adding/editing books
 import { Head } from "~/components/shared/Head";
 import { showToastFromLocalStorage } from "~/components/shared/toastUtils";
-import { ToastContainer } from "react-toastify";
+import { ToastContainer } from "react-toastify"
 
 // Define the structure of a Book object
 type Book = {
@@ -16,7 +16,6 @@ type Book = {
   edition: string;
   category: string;
   quantity: number;
-  restrictions: string;
 };
 
 function ManageBook() {
@@ -112,6 +111,36 @@ function ManageBook() {
     }
   };
 
+  const handleAddOrEditBook = async (book: Book) => {
+    if (!["horror", "action", "romance", "education"].includes(book.category.toLowerCase())) {
+      alert("Invalid category. Please select one of the following: horror, action, romance, education.");
+      return;
+    }
+
+    try {
+      // Add or update the book in Firestore
+      const bookDoc = book.id
+        ? doc(firestore, "books", book.id) // Update existing book
+        : doc(collection(firestore, "books")); // Add new book
+
+      await setDoc(bookDoc, {
+        isbn: book.isbn,
+        title: book.title,
+        author: book.author,
+        year: book.year,
+        edition: book.edition,
+        category: book.category.toLowerCase(), // Ensure category is lowercase
+        quantity: book.quantity,
+      });
+
+      alert(book.id ? "Book updated successfully." : "Book added successfully.");
+      navigate("/manage-books");
+    } catch (error) {
+      console.error("Error saving book:", error);
+      alert("Failed to save book. Please try again.");
+    }
+  };
+
   const handleBookAction = (action: string, bookId: string) => {
     if (action === "edit") {
       navigate(`/manage-book/edit/${bookId}`);
@@ -173,7 +202,6 @@ function ManageBook() {
                 <th className="border-b border-gray-700 p-2">Edition</th>
                 <th className="border-b border-gray-700 p-2">Category</th>
                 <th className="border-b border-gray-700 p-2">Quantity</th>
-                <th className="border-b border-gray-700 p-2">Restrictions</th>
                 <th className="border-b border-gray-700 p-2">Actions</th>
               </tr>
             </thead>
@@ -187,7 +215,6 @@ function ManageBook() {
                   <td className="border-b border-gray-700 p-2">{book.edition}</td>
                   <td className="border-b border-gray-700 p-2">{book.category}</td>
                   <td className="border-b border-gray-700 p-2">{book.quantity}</td>
-                  <td className="border-b border-gray-700 p-2">{book.restrictions}</td>
                   <td className="border-b border-gray-700 p-2">
                     <select
                       onChange={(e) => handleBookAction(e.target.value, book.id)}

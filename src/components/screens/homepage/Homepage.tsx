@@ -25,7 +25,7 @@ function Homepage() {
     {
       title: "About Us",
       description: "Learn more about our mission, vision, and the team behind the library.",
-      path: "/about-us",
+      path: "/about-us", 
     },
   ];
 

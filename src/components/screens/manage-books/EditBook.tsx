@@ -1,20 +1,14 @@
 import React, { useEffect, useState } from "react";
 import { useFirestore } from "~/lib/firebase";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
+import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage"; // Import Firebase Storage
 import { useNavigate, useParams } from "react-router-dom";
 
-// Component for editing an existing book
 function EditBookScreen() {
-  // Initialize Firestore instance
   const firestore = useFirestore();
-
-  // Initialize navigation hook to redirect users after editing a book
   const navigate = useNavigate();
-
-  // Get the book ID from the URL parameters
   const { id } = useParams<{ id: string }>();
 
-  // State to manage form data for the book being edited
   const [formData, setFormData] = useState({
     isbn: "",
     title: "",
@@ -24,23 +18,19 @@ function EditBookScreen() {
     category: "",
     quantity: "",
     restrictions: "",
+    imageUrl: "", // Add imageUrl to the form data
   });
 
-  // State to manage the loading state while fetching book details
   const [loading, setLoading] = useState(true);
+  const [imageFile, setImageFile] = useState<File | null>(null); // State for the new image file
 
-  // Fetch the book details from Firestore when the component mounts
   useEffect(() => {
     const fetchBook = async () => {
       try {
-        // Reference the specific book document in Firestore
         const bookDoc = doc(firestore, "books", id!);
-
-        // Fetch the book document
         const bookSnapshot = await getDoc(bookDoc);
 
         if (bookSnapshot.exists()) {
-          // If the book exists, populate the form with its data
           const bookData = bookSnapshot.data();
           setFormData({
             isbn: bookData.isbn || "",
@@ -51,18 +41,16 @@ function EditBookScreen() {
             category: bookData.category || "",
             quantity: bookData.quantity?.toString() || "",
             restrictions: bookData.restrictions || "",
+            imageUrl: bookData.imageUrl || "", // Populate imageUrl
           });
         } else {
-          // If the book doesn't exist, show an alert and redirect to the homepage
           alert("Book not found!");
-          navigate("/"); // Redirect back to ManageBook if the book doesn't exist
+          navigate("/"); // Redirect if the book doesn't exist
         }
       } catch (error) {
-        // Handle errors during the Firestore operation
         console.error("Error fetching book:", error);
         alert("Failed to fetch book details. Check the console for details.");
       } finally {
-        // Set loading to false after fetching the book
         setLoading(false);
       }
     };
@@ -70,42 +58,50 @@ function EditBookScreen() {
     fetchBook();
   }, [firestore, id, navigate]);
 
-  // Handle changes in form inputs and update the state
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  // Handle form submission to update the book in Firestore
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    setImageFile(file || null);
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault(); // Prevent default form submission behavior
+    e.preventDefault();
     try {
-      // Reference the specific book document in Firestore
       const bookDoc = doc(firestore, "books", id!);
 
-      // Update the book document with the new form data
+      // Upload the new image to Firebase Storage if a new image is selected
+      let imageUrl = formData.imageUrl; // Keep the existing imageUrl if no new image is uploaded
+      if (imageFile) {
+        const storage = getStorage();
+        const storageRef = ref(storage, `books/${formData.isbn}`); // Use ISBN as the file name
+        await uploadBytes(storageRef, imageFile);
+        imageUrl = await getDownloadURL(storageRef); // Get the new image URL
+      }
+
+      // Update the book document in Firestore
       await updateDoc(bookDoc, {
         ...formData,
-        year: parseInt(formData.year, 10), // Convert year to a number
-        quantity: parseInt(formData.quantity, 10), // Convert quantity to a number
+        year: parseInt(formData.year, 10),
+        quantity: parseInt(formData.quantity, 10),
+        imageUrl, // Update the imageUrl
       });
 
-      // Show success message and redirect to the ManageBook page
       alert("Book updated successfully!");
       navigate("/manage-book");
     } catch (error) {
-      // Handle errors during the Firestore operation
       console.error("Error updating book:", error);
       alert("Failed to update book. Check the console for details.");
     }
   };
 
-  // Show a loading message while fetching book details
   if (loading) {
     return <p className="text-center text-gray-300">Loading book details...</p>;
   }
 
-  // Render the form for editing the book
   return (
     <div className="min-h-screen bg-gray-900 text-white">
       <div className="container mx-auto px-4 py-6">
@@ -211,6 +207,24 @@ function EditBookScreen() {
               onChange={handleChange}
               className="p-2 border border-gray-600 rounded w-full bg-gray-700 text-white"
               rows={3}
+            />
+          </div>
+
+          {/* Image Input */}
+          <div className="mb-4">
+            <label className="block text-sm font-medium mb-1">Image</label>
+            {formData.imageUrl && (
+              <img
+                src={formData.imageUrl}
+                alt={formData.title}
+                className="w-32 h-32 object-cover rounded mb-2"
+              />
+            )}
+            <input
+              type="file"
+              accept="image/*"
+              onChange={handleImageChange}
+              className="p-2 border border-gray-600 rounded w-full bg-gray-700 text-white"
             />
           </div>
 

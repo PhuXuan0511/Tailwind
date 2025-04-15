@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from "react";
-import { collection, getDocs, addDoc, onSnapshot } from "firebase/firestore"; // Added onSnapshot
+import { collection, getDocs, addDoc, onSnapshot, doc, setDoc } from "firebase/firestore"; // Added doc and setDoc
 import { firestore } from "~/lib/firebase";
 import { Head } from "~/components/shared/Head";
 import { getAuth } from "firebase/auth"; // Import Firebase Auth
 import { useNavigate } from "react-router-dom"; // Import useNavigate for navigation
+import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage"; // Import Firebase Storage
 
 type Book = {
   id: string;
@@ -57,6 +58,7 @@ function ViewBook() {
               category: categoryMap[data.category] || "Unknown Category", // Map category
               quantity: data.quantity,
               restrictions: data.restrictions,
+              imageUrl: data.imageUrl, // Include imageUrl
             };
           });
   
@@ -75,7 +77,27 @@ function ViewBook() {
   
     fetchBooksAuthorsAndCategories();
   }, []);
-  
+
+  const fetchBooks = async () => {
+    const booksCollection = collection(firestore, "books");
+    const snapshot = await getDocs(booksCollection);
+    const booksData = snapshot.docs.map((doc) => {
+      const data = doc.data();
+      return {
+        id: doc.id,
+        isbn: data.isbn || "",
+        title: data.title || "",
+        author: data.author || "Unknown Author",
+        year: data.year || 0,
+        edition: data.edition || "",
+        category: data.category || "Unknown Category",
+        quantity: data.quantity || 0,
+        restrictions: data.restrictions || "",
+        imageUrl: data.imageUrl || "",
+      };
+    });
+    setBooks(booksData);
+  };
 
   const handleRequestToBorrow = async (book: Book) => {
     try {
@@ -118,7 +140,7 @@ function ViewBook() {
     );
   };
 
-
+ 
 
   if (loading) {
     return <p className="text-center text-gray-300">Loading books...</p>;
@@ -145,6 +167,13 @@ function ViewBook() {
             value={searchTerm}
             onChange={handleSearch}
             className="p-2 border border-gray-600 rounded w-full max-w-lg bg-gray-700 text-white"
+          />
+          <input
+            type="file"
+            accept="image/*"
+            onChange={(e) => {
+              const bookId = "bookId"; // Replace with actual book ID
+            }}
           />
         </div>
         <div className="bg-gray-800 shadow rounded-lg p-6 border border-gray-700">
@@ -176,7 +205,7 @@ function ViewBook() {
                   <td className="border-b border-gray-700 p-2">{book.restrictions}</td>
                   <td className="border-b border-gray-700 p-2">
                     <img
-                      src={book.imageUrl || "https://via.placeholder.com/150"} // Fallback to a placeholder image
+                      src={book.imageUrl || "https://console.firebase.google.com/u/0/project/new1-4bca7/storage/new1-4bca7.firebasestorage.app/files?fb_gclid=Cj0KCQjwh_i_BhCzARIsANimeoEqktiktQ0pRDUQTtNaOcjXGRBTHOtKYfdXjfUGVfp5GjnOCwy2XKoaAlu4EALw_wcB"} // Fallback to a placeholder image
                       alt={book.title}
                       className="w-16 h-16 object-cover rounded"
                     />

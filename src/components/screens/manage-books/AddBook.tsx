@@ -1,9 +1,11 @@
 import React, { useState } from "react";
 import { useFirestore } from "~/lib/firebase";
 import { collection, addDoc } from "firebase/firestore";
+import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage"; // Import Firebase Storage
 import { useNavigate } from "react-router-dom";
 import { Bounce, ToastContainer } from 'react-toastify';
 import { toast } from 'react-toastify';
+
 // Component for adding a new book
 function AddBookScreen() {
   // Initialize Firestore instance
@@ -23,12 +25,18 @@ function AddBookScreen() {
     quantity: "",
   });
 
+  const [imageFile, setImageFile] = useState<File | null>(null); // State for the image file
+
   // Handle changes in form inputs and update the state
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
-   
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    setImageFile(file || null);
+  };
 
   // Handle form submission to add a new book to Firestore
   const handleSubmit = async (e: React.FormEvent) => {
@@ -37,11 +45,21 @@ function AddBookScreen() {
       // Reference the "books" collection in Firestore
       const booksCollection = collection(firestore, "books");
 
-      // Add a new document to the "books" collection with the form data
+      // Upload the image to Firebase Storage if an image is selected
+      let imageUrl = "";
+      if (imageFile) {
+        const storage = getStorage();
+        const storageRef = ref(storage, `books/${formData.isbn}`); // Use ISBN as the file name
+        await uploadBytes(storageRef, imageFile);
+        imageUrl = await getDownloadURL(storageRef); // Get the image URL
+      }
+
+      // Add the book to Firestore with the imageUrl
       await addDoc(booksCollection, {
         ...formData,
         year: parseInt(formData.year, 10), // Convert year to a number
         quantity: parseInt(formData.quantity, 10), // Convert quantity to a number
+        imageUrl, // Save the image URL
       });
 
       // Set flag for toast
@@ -153,6 +171,17 @@ function AddBookScreen() {
               onChange={handleChange}
               className="p-2 border border-gray-600 rounded w-full bg-gray-700 text-white"
               required
+            />
+          </div>
+
+          {/* Image Input */}
+          <div className="mb-4">
+            <label className="block text-sm font-medium mb-1">Image</label>
+            <input
+              type="file"
+              accept="image/*"
+              onChange={handleImageChange}
+              className="p-2 border border-gray-600 rounded w-full bg-gray-700 text-white"
             />
           </div>
 

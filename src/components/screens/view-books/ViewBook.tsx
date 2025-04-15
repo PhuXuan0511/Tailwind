@@ -1,16 +1,15 @@
 import React, { useEffect, useState } from "react";
-import { collection, getDocs, addDoc, onSnapshot, doc, setDoc } from "firebase/firestore"; // Added doc and setDoc
+import { collection, getDocs, addDoc, onSnapshot } from "firebase/firestore"; // Added onSnapshot
 import { firestore } from "~/lib/firebase";
 import { Head } from "~/components/shared/Head";
 import { getAuth } from "firebase/auth"; // Import Firebase Auth
 import { useNavigate } from "react-router-dom"; // Import useNavigate for navigation
-import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage"; // Import Firebase Storage
 
 type Book = {
   id: string;
   isbn: string;
   title: string;
-  author: string;
+  author: string; // This will store author name after mapping
   year: number;
   edition: string;
   category: string;
@@ -27,49 +26,81 @@ function ViewBook() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const booksCollection = collection(firestore, "books");
-
-    // Use onSnapshot to listen for real-time updates
-    const unsubscribe = onSnapshot(booksCollection, (snapshot) => {
-      const booksData = snapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      })) as Book[];
-      setBooks(booksData);
-      setFilteredBooks(booksData); // Initialize filteredBooks with all books
-      setLoading(false);
-    });
-
-    // Cleanup the listener when the component unmounts
-    return () => unsubscribe();
+    const fetchBooksAuthorsAndCategories = async () => {
+      try {
+        // Step 1: Get all authors and build a mapping
+        const authorsSnapshot = await getDocs(collection(firestore, "authors"));
+        const authorMap: Record<string, string> = {};
+        authorsSnapshot.forEach((doc) => {
+          authorMap[doc.id] = doc.data().name;
+        });
+  
+        // Step 2: Get all categories and build a mapping
+        const categoriesSnapshot = await getDocs(collection(firestore, "categories"));
+        const categoryMap: Record<string, string> = {};
+        categoriesSnapshot.forEach((doc) => {
+          categoryMap[doc.id] = doc.data().name;
+        });
+  
+        // Step 3: Real-time listen to books collection
+        const booksCollection = collection(firestore, "books");
+        const unsubscribe = onSnapshot(booksCollection, (snapshot) => {
+          const booksData = snapshot.docs.map((doc) => {
+            const data = doc.data();
+            return {
+              id: doc.id,
+              isbn: data.isbn,
+              title: data.title,
+              author: authorMap[data.author] || "Unknown Author",
+              year: data.year,
+              edition: data.edition,
+              category: categoryMap[data.category] || "Unknown Category", // Map category
+              quantity: data.quantity,
+              restrictions: data.restrictions,
+            };
+          });
+  
+          setBooks(booksData);
+          setFilteredBooks(booksData);
+          setLoading(false);
+        });
+  
+        // Cleanup listener on component unmount
+        return () => unsubscribe();
+      } catch (error) {
+        console.error("Error fetching data:", error);
+        setLoading(false);
+      }
+    };
+  
+    fetchBooksAuthorsAndCategories();
   }, []);
+  
 
   const handleRequestToBorrow = async (book: Book) => {
     try {
-      const auth = getAuth(); // Get the Firebase Auth instance
-      const currentUser = auth.currentUser; // Get the currently logged-in user
+      const auth = getAuth();
+      const currentUser = auth.currentUser;
 
       if (!currentUser) {
         alert("You must be logged in to request a book.");
         return;
       }
 
-      const userId = currentUser.uid; // Get the user ID from the logged-in user
+      const userId = currentUser.uid;
 
-      // Add a new document to the "lendings" collection
-      const lendingsCollection = collection(firestore, "lendings");
-      await addDoc(lendingsCollection, {
-        bookId: book.id, // Store the book ID
-        userId: userId, // Store the current user's ID
-        requestDate: new Date().toISOString().split("T")[0], // Current date as the request date
-        returnDate: null, // Return date is null by default
-        status: "Requesting", // Initial status
+      await addDoc(collection(firestore, "lendings"), {
+        bookId: book.id,
+        userId,
+        requestDate: new Date().toISOString().split("T")[0],
+        returnDate: null,
+        status: "Requesting",
       });
 
       alert(`Book "${book.title}" has been requested for borrowing!`);
     } catch (error) {
-      console.error("Error adding book to lendings:", error);
-      alert("Failed to request book for borrowing. Please try again.");
+      console.error("Error requesting book:", error);
+      alert("Failed to request book. Please try again.");
     }
   };
 
@@ -87,28 +118,7 @@ function ViewBook() {
     );
   };
 
-  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
 
-    try {
-      const storage = getStorage();
-      const storageRef = ref(storage, `books/${file.name}`); // Save the file in the "books" folder
-      await uploadBytes(storageRef, file);
-
-      const imageUrl = await getDownloadURL(storageRef); // Get the image URL
-      console.log("Image URL:", imageUrl);
-
-      // Save the imageUrl to Firestore (example)
-      const bookDoc = doc(firestore, "books", "bookId"); // Replace "bookId" with the actual book ID
-      await setDoc(bookDoc, { imageUrl }, { merge: true });
-
-      alert("Image uploaded and URL saved successfully!");
-    } catch (error) {
-      console.error("Error uploading image:", error);
-      alert("Failed to upload image. Please try again.");
-    }
-  };
 
   if (loading) {
     return <p className="text-center text-gray-300">Loading books...</p>;
@@ -118,10 +128,9 @@ function ViewBook() {
     <div className="min-h-screen bg-gray-900 text-white">
       <Head title="View Books" />
       <div className="container mx-auto px-4 py-6">
-        {/* Back Button */}
         <div className="mb-4">
           <button
-            onClick={() => navigate(-1)} // Navigate to the previous page
+            onClick={() => navigate(-1)}
             className="bg-gray-500 text-white px-3 py-1 rounded text-sm hover:bg-gray-600"
           >
             Back
@@ -130,7 +139,6 @@ function ViewBook() {
 
         <h1 className="text-3xl font-bold mb-6">View Books</h1>
         <div className="mb-4 flex items-center space-x-4">
-          {/* Search Box */}
           <input
             type="text"
             placeholder="Search by ISBN, Title, Author, or Category"

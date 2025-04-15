@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from "react";
-import { collection, getDocs, addDoc, onSnapshot } from "firebase/firestore"; // Added onSnapshot
+import { collection, getDocs, addDoc, onSnapshot, doc, setDoc } from "firebase/firestore"; // Added doc and setDoc
 import { firestore } from "~/lib/firebase";
 import { Head } from "~/components/shared/Head";
 import { getAuth } from "firebase/auth"; // Import Firebase Auth
 import { useNavigate } from "react-router-dom"; // Import useNavigate for navigation
+import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage"; // Import Firebase Storage
 
 type Book = {
   id: string;
@@ -15,6 +16,7 @@ type Book = {
   category: string;
   quantity: number;
   restrictions: string;
+  imageUrl?: string; // Added imageUrl property
 };
 
 function ViewBook() {
@@ -85,6 +87,29 @@ function ViewBook() {
     );
   };
 
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    try {
+      const storage = getStorage();
+      const storageRef = ref(storage, `books/${file.name}`); // Save the file in the "books" folder
+      await uploadBytes(storageRef, file);
+
+      const imageUrl = await getDownloadURL(storageRef); // Get the image URL
+      console.log("Image URL:", imageUrl);
+
+      // Save the imageUrl to Firestore (example)
+      const bookDoc = doc(firestore, "books", "bookId"); // Replace "bookId" with the actual book ID
+      await setDoc(bookDoc, { imageUrl }, { merge: true });
+
+      alert("Image uploaded and URL saved successfully!");
+    } catch (error) {
+      console.error("Error uploading image:", error);
+      alert("Failed to upload image. Please try again.");
+    }
+  };
+
   if (loading) {
     return <p className="text-center text-gray-300">Loading books...</p>;
   }
@@ -126,6 +151,7 @@ function ViewBook() {
                 <th className="border-b border-gray-700 p-2">Category</th>
                 <th className="border-b border-gray-700 p-2">Quantity</th>
                 <th className="border-b border-gray-700 p-2">Restrictions</th>
+                <th className="border-b border-gray-700 p-2">Image</th>
                 <th className="border-b border-gray-700 p-2">Actions</th>
               </tr>
             </thead>
@@ -140,6 +166,13 @@ function ViewBook() {
                   <td className="border-b border-gray-700 p-2">{book.category}</td>
                   <td className="border-b border-gray-700 p-2">{book.quantity}</td>
                   <td className="border-b border-gray-700 p-2">{book.restrictions}</td>
+                  <td className="border-b border-gray-700 p-2">
+                    <img
+                      src={book.imageUrl || "https://via.placeholder.com/150"} // Fallback to a placeholder image
+                      alt={book.title}
+                      className="w-16 h-16 object-cover rounded"
+                    />
+                  </td>
                   <td className="border-b border-gray-700 p-2">
                     <button
                       onClick={() => handleRequestToBorrow(book)}

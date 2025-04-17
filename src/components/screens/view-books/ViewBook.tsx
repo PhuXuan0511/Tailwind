@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { collection, addDoc, onSnapshot } from "firebase/firestore";
+import { collection, addDoc, onSnapshot, getDocs } from "firebase/firestore";
 import { firestore } from "~/lib/firebase";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
@@ -26,7 +26,6 @@ function ViewBook() {
 
   useEffect(() => {
     let unsubscribe: (() => void) | undefined;
-
     const fetchBooks = async () => {
       try {
         const booksCollection = collection(firestore, "books");
@@ -43,14 +42,61 @@ function ViewBook() {
         console.error("Error fetching books:", error);
         setLoading(false);
       }
-    };
+      
+        const fetchBooksAuthorsAndCategories = async () => {
+          try {
+            // Step 1: Get all authors and build a mapping
+            const authorsSnapshot = await getDocs(collection(firestore, "authors"));
+            const authorMap: Record<string, string> = {};
+            authorsSnapshot.forEach((doc) => {
+              authorMap[doc.id] = doc.data().name;
+            });
+      
+            // Step 2: Get all categories and build a mapping
+            const categoriesSnapshot = await getDocs(collection(firestore, "categories"));
+            const categoryMap: Record<string, string> = {};
+            categoriesSnapshot.forEach((doc) => {
+              categoryMap[doc.id] = doc.data().name;
+            });
+      
+            // Step 3: Real-time listen to books collection
+            const booksCollection = collection(firestore, "books");
+            const unsubscribe = onSnapshot(booksCollection, (snapshot) => {
+              const booksData = snapshot.docs.map((doc) => {
+                const data = doc.data();
+                return {
+                  id: doc.id,
+                  isbn: data.isbn,
+                  title: data.title,
+                  author: authorMap[data.author] || "Unknown Author",
+                  year: data.year,
+                  edition: data.edition,
+                  category: categoryMap[data.category] || "Unknown Category", // Map category
+                  quantity: data.quantity,
+                  restrictions: data.restrictions,
+                  imageUrl: data.imageUrl || "https://firebasestorage.googleapis.com/v0/b/your-project-id.appspot.com/o/images%2Fbook-cover.jpg?alt=media", // Default image URL
+                };
+              });
+      
+              setBooks(booksData);
+              setFilteredBooks(booksData);
+              setLoading(false);
+            });
+      
+            // Cleanup listener on component unmount
+            return () => unsubscribe();
+          } catch (error) {
+            console.error("Error fetching data:", error);
+            setLoading(false);
+          }
+        };
+      
+          fetchBooksAuthorsAndCategories();
+        };
+  
+        fetchBooks();
+      }, []);
 
-    fetchBooks();
-
-    return () => {
-      if (unsubscribe) unsubscribe();
-    };
-  }, []);
 
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     const term = e.target.value.toLowerCase();
@@ -101,29 +147,36 @@ function ViewBook() {
           {filteredBooks.map((book) => (
             <div
               key={book.id}
-              className="bg-gray-800 p-4 rounded-lg shadow-lg hover:shadow-xl transition"
+              className="bg-gray-800 p-4 rounded-lg shadow-lg hover:shadow-xl transition flex flex-col sm:flex-row"
             >
+              {/* Book Image */}
               <img
                 src={book.imageUrl || "https://via.placeholder.com/150"}
                 alt={book.title}
-                className="w-full h-48 object-cover rounded"
+                className="w-32 h-48 object-cover rounded sm:mr-6"
               />
-              <h2 className="text-xl font-bold mt-4">{book.title}</h2>
-              <p className="text-gray-400">by {book.author}</p>
-              <p className="text-gray-400 text-sm">Category: {book.category}</p>
-              <div className="mt-4 flex space-x-2">
-                <button
-                  onClick={() => navigate(`/user-dashboard/book-detail/${book.id}`)}
-                  className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-                >
-                  Preview
-                </button>
-                <button
-                  onClick={() => handleRequestToBorrow(book)}
-                  className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
-                >
-                  Request to Borrow
-                </button>
+              {/* Book Details */}
+              <div className="flex-1">
+                <h2 className="text-2xl font-bold mb-2">{book.title}</h2>
+                <p className="text-gray-400 mb-1">by {book.author}</p>
+                <p className="text-gray-400 mb-1">Category: {book.category}</p>
+                <p className="text-gray-400 mb-1">Year: {book.year}</p>
+                <p className="text-gray-400 mb-1">Edition: {book.edition}</p>
+                <p className="text-gray-400 mb-1">Quantity: {book.quantity}</p>
+                <div className="mt-4 flex space-x-2">
+                  <button
+                    onClick={() => navigate(`/user-dashboard/book-detail/${book.id}`)}
+                    className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+                  >
+                    Preview
+                  </button>
+                  <button
+                    onClick={() => handleRequestToBorrow(book)}
+                    className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
+                  >
+                    Request to Borrow
+                  </button>
+                </div>
               </div>
             </div>
           ))}

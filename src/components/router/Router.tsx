@@ -26,6 +26,7 @@ const ViewProfileScreen = lazy(() => import('~/components/screens/view-profile/V
 const ViewBook = lazy(() => import('~/components/screens/view-books/ViewBook')); // Lazy load ViewBook
 const ViewLending = lazy(() => import('~/components/screens/view-lendings/ViewLending')); // Lazy load ViewLending
 import AboutUsScreen from '~/components/screens/homepage/AboutUs'; // Import the About Us screen
+const BookDetail = lazy(() => import('~/components/screens/view-books/BookDetailScreen')); // Lazy load BookDetailScreen
 
 function Layout({ showHeader = true, children }: { showHeader?: boolean; children: React.ReactNode }) {
   const navigate = useNavigate(); // Import useNavigate for navigation
@@ -108,6 +109,16 @@ const InnerRouter = () => {
         <Layout showHeader={true}>
           <RequireAuth>
             <ViewBook />
+          </RequireAuth>
+        </Layout>
+      ),
+    },
+    {
+      path: '/user-dashboard/book-detail/:id',
+      element: (
+        <Layout showHeader={true}>
+          <RequireAuth>
+            <BookDetail />
           </RequireAuth>
         </Layout>
       ),

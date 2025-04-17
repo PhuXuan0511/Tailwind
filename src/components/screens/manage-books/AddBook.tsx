@@ -1,33 +1,47 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useFirestore } from "~/lib/firebase";
-import { collection, addDoc } from "firebase/firestore";
-import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage"; // Import Firebase Storage
+import { collection, addDoc, getDocs } from "firebase/firestore";
+import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { useNavigate } from "react-router-dom";
-import { Bounce, ToastContainer } from 'react-toastify';
-import { toast } from 'react-toastify';
+import { ToastContainer, toast } from 'react-toastify';
 
-// Component for adding a new book
 function AddBookScreen() {
-  // Initialize Firestore instance
   const firestore = useFirestore();
-
-  // Initialize navigation hook to redirect users after adding a book
   const navigate = useNavigate();
 
-  // State to manage form data for the new book
   const [formData, setFormData] = useState({
     isbn: "",
     title: "",
     author: "",
     year: "",
     edition: "",
-    category: "",
     quantity: "",
   });
 
-  const [imageFile, setImageFile] = useState<File | null>(null); // State for the image file
+  const [selectedCategories, setSelectedCategories] = useState<{ id: string; name: string }[]>([]);
+  const [categories, setCategories] = useState<{ id: string; name: string }[]>([]); // State for categories with both id and name
+  const [imageFile, setImageFile] = useState<File | null>(null);
 
-  // Handle changes in form inputs and update the state
+  // Fetch categories from Firestore
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const categoriesCollection = collection(firestore, "categories");
+        const categorySnapshot = await getDocs(categoriesCollection);
+        const categoryList = categorySnapshot.docs.map(doc => ({
+          id: doc.id,
+          name: doc.data().name, // Assuming the category name is stored in the "name" field
+        }));
+        setCategories(categoryList);
+      } catch (error) {
+        console.error("Error fetching categories:", error);
+        toast.error("Failed to load categories.");
+      }
+    };
+
+    fetchCategories();
+  }, [firestore]);
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
@@ -38,41 +52,49 @@ function AddBookScreen() {
     setImageFile(file || null);
   };
 
-  // Handle form submission to add a new book to Firestore
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault(); // Prevent default form submission behavior
-    try {
-      // Reference the "books" collection in Firestore
-      const booksCollection = collection(firestore, "books");
-
-      // Upload the image to Firebase Storage if an image is selected
-      let imageUrl = "";
-      if (imageFile) {
-        const storage = getStorage();
-        const storageRef = ref(storage, `books/${formData.isbn}`); // Use ISBN as the file name
-        await uploadBytes(storageRef, imageFile);
-        imageUrl = await getDownloadURL(storageRef); // Get the image URL
-      }
-
-      // Add the book to Firestore with the imageUrl
-      await addDoc(booksCollection, {
-        ...formData,
-        year: parseInt(formData.year, 10), // Convert year to a number
-        quantity: parseInt(formData.quantity, 10), // Convert quantity to a number
-        imageUrl, // Save the image URL
-      });
-
-      // Set flag for toast
-      localStorage.setItem("showToast", "true");
-      navigate("/manage-book");
-    } catch (error) {
-      // Handle errors during the Firestore operation
-      console.error("Error adding book:", error);
-      alert("Failed to add book. Check the console for details.");
+  // Handle category selection and add it to the list
+  const handleCategorySelect = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const selectedValue = e.target.value;
+    const selectedCategory = categories.find((category) => category.id === selectedValue);
+    if (selectedCategory && !selectedCategories.some((cat) => cat.id === selectedCategory.id)) {
+      setSelectedCategories((prev) => [...prev, selectedCategory]);
     }
   };
 
-  // Render the form for adding a new book
+  // Remove category from selected list
+  const handleCategoryRemove = (categoryId: string) => {
+    setSelectedCategories((prev) => prev.filter((item) => item.id !== categoryId));
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      const booksCollection = collection(firestore, "books");
+
+      let imageUrl = "";
+      if (imageFile) {
+        const storage = getStorage();
+        const storageRef = ref(storage, `books/${formData.isbn}`);
+        await uploadBytes(storageRef, imageFile);
+        imageUrl = await getDownloadURL(storageRef);
+      }
+
+      await addDoc(booksCollection, {
+        ...formData,
+        year: parseInt(formData.year, 10),
+        quantity: parseInt(formData.quantity, 10),
+        categories: selectedCategories.map((category) => category.id), // Send only the category IDs to Firestore
+        imageUrl,
+      });
+
+      toast.success("Book added successfully!");
+      navigate("/manage-book");
+    } catch (error) {
+      console.error("Error adding book:", error);
+      toast.error("Failed to add book.");
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-900 text-white">
       <div className="container mx-auto px-4 py-6">
@@ -145,20 +167,38 @@ function AddBookScreen() {
 
           {/* Category Dropdown */}
           <div className="mb-4">
-            <label className="block text-sm font-medium mb-1">Category</label>
+            <label className="block text-sm font-medium mb-1">Select Category</label>
             <select
-              name="category"
-              value={formData.category}
-              onChange={(e) => setFormData((prev) => ({ ...prev, category: e.target.value }))}
+              value=""
+              onChange={handleCategorySelect}
               className="p-2 border border-gray-600 rounded w-full bg-gray-700 text-white"
-              required
             >
-              <option value="">Select Category</option>
-              <option value="horror">Horror</option>
-              <option value="action">Action</option>
-              <option value="romance">Romance</option>
-              <option value="education">Education</option>
+              <option value="">Choose a category</option>
+              {categories.map((category) => (
+                <option key={category.id} value={category.id}>
+                  {category.name}
+                </option>
+              ))}
             </select>
+          </div>
+
+          {/* Display Selected Categories */}
+          <div className="mb-4">
+            <h3 className="text-sm font-medium">Selected Categories:</h3>
+            <ul className="list-disc pl-6">
+              {selectedCategories.map((category) => (
+                <li key={category.id} className="flex items-center justify-between">
+                  <span>{category.name}</span>
+                  <button
+                    type="button"
+                    onClick={() => handleCategoryRemove(category.id)}
+                    className="text-red-500 hover:text-red-700"
+                  >
+                    Remove
+                  </button>
+                </li>
+              ))}
+            </ul>
           </div>
 
           {/* Quantity Input */}
@@ -194,6 +234,8 @@ function AddBookScreen() {
           </button>
         </form>
       </div>
+
+      <ToastContainer />
     </div>
   );
 }

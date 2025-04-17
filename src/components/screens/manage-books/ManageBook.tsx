@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useFirestore } from "~/lib/firebase";
-import { collection, onSnapshot, deleteDoc, doc, setDoc } from "firebase/firestore"; // Updated import statement
+import { collection, onSnapshot, deleteDoc, doc, setDoc, getDocs } from "firebase/firestore"; // Updated import statement
 import { Head } from "~/components/shared/Head";
 import { showToastFromLocalStorage } from "~/components/shared/toastUtils";
 import { ToastContainer } from "react-toastify"
@@ -18,12 +18,53 @@ type Book = {
   quantity: number;
 };
 
+type Category = {
+  id: string;
+  name: string;
+};
+
+type Author = {
+  id: string;
+  name: string;
+};
+
 function ManageBook() {
   const firestore = useFirestore();
   const [books, setBooks] = useState<Book[]>([]);
   const [filteredBooks, setFilteredBooks] = useState<Book[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [authors, setAuthors] = useState<Author[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const navigate = useNavigate();
+
+  // Fetch categories and authors from Firestore
+  useEffect(() => {
+    const fetchCategoriesAndAuthors = async () => {
+      try {
+        // Fetch categories
+        const categoriesCollection = collection(firestore, "categories");
+        const categorySnapshot = await getDocs(categoriesCollection);
+        const categoryList = categorySnapshot.docs.map((doc) => ({
+          id: doc.id,
+          name: doc.data().name,
+        }));
+        setCategories(categoryList);
+
+        // Fetch authors
+        const authorsCollection = collection(firestore, "authors");
+        const authorSnapshot = await getDocs(authorsCollection);
+        const authorList = authorSnapshot.docs.map((doc) => ({
+          id: doc.id,
+          name: doc.data().name,
+        }));
+        setAuthors(authorList);
+      } catch (error) {
+        console.error("Error fetching categories and authors:", error);
+      }
+    };
+
+    fetchCategoriesAndAuthors();
+  }, [firestore]);
 
   // Use `onSnapshot` to listen for real-time updates
   useEffect(() => {
@@ -115,6 +156,18 @@ function ManageBook() {
     }
   };
 
+  // Helper function to get category name from category ID
+  const getCategoryName = (categoryId: string) => {
+    const category = categories.find((cat) => cat.id === categoryId);
+    return category ? category.name : "Unknown";
+  };
+
+  // Helper function to get author name from author ID
+  const getAuthorName = (authorId: string) => {
+    const author = authors.find((auth) => auth.id === authorId);
+    return author ? author.name : "Unknown";
+  };
+
   return (
     <div className="min-h-screen bg-gray-900 text-white">
       <Head title="Manage Books" />
@@ -166,10 +219,10 @@ function ManageBook() {
                 <tr key={book.id}>
                   <td className="border-b border-gray-700 p-2">{book.isbn}</td>
                   <td className="border-b border-gray-700 p-2">{book.title}</td>
-                  <td className="border-b border-gray-700 p-2">{book.author}</td>
+                  <td className="border-b border-gray-700 p-2">{getAuthorName(book.author)}</td>
                   <td className="border-b border-gray-700 p-2">{book.year}</td>
                   <td className="border-b border-gray-700 p-2">{book.edition}</td>
-                  <td className="border-b border-gray-700 p-2">{book.category}</td>
+                  <td className="border-b border-gray-700 p-2">{getCategoryName(book.category)}</td>
                   <td className="border-b border-gray-700 p-2">{book.quantity}</td>
                   <td className="border-b border-gray-700 p-2">
                     <select

@@ -70,7 +70,9 @@ function AddBookScreen() {
     e.preventDefault();
     try {
       const booksCollection = collection(firestore, "books");
-
+      const authorsCollection = collection(firestore, "authors");
+  
+      // Handle image upload
       let imageUrl = "";
       if (imageFile) {
         const storage = getStorage();
@@ -78,15 +80,36 @@ function AddBookScreen() {
         await uploadBytes(storageRef, imageFile);
         imageUrl = await getDownloadURL(storageRef);
       }
-
+  
+      // Check if author exists or create new one
+      let authorId = "";
+      const authorsSnapshot = await getDocs(authorsCollection);
+      const existingAuthor = authorsSnapshot.docs.find(
+        doc => doc.data().name.toLowerCase() === formData.author.trim().toLowerCase()
+      );
+      if (existingAuthor) {
+        authorId = existingAuthor.id;
+      } else {
+        const newAuthorDoc = await addDoc(authorsCollection, {
+          name: formData.author.trim(),
+        });
+        authorId = newAuthorDoc.id;
+      }
+  
+      // Add the new book
       await addDoc(booksCollection, {
-        ...formData,
+        isbn: formData.isbn,
+        title: formData.title,
+        author: authorId,
         year: parseInt(formData.year, 10),
+        edition: formData.edition,
         quantity: parseInt(formData.quantity, 10),
-        categories: selectedCategories.map((category) => category.id), // Send only the category IDs to Firestore
+        restrictions: "",
         imageUrl,
+        category: selectedCategories[0]?.id || "", // If using one category
+        // For multiple: categories: selectedCategories.map(c => c.id)
       });
-
+  
       toast.success("Book added successfully!");
       navigate("/manage-book");
     } catch (error) {
@@ -94,6 +117,8 @@ function AddBookScreen() {
       toast.error("Failed to add book.");
     }
   };
+  
+  
 
   return (
     <div className="min-h-screen bg-gray-900 text-white">

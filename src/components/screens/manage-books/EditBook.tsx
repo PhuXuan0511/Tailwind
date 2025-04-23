@@ -15,7 +15,6 @@ function EditBookScreen() {
     author: "",
     year: "",
     edition: "",
-    category: "",
     quantity: "",
     restrictions: "",
     imageUrl: "",
@@ -25,6 +24,7 @@ function EditBookScreen() {
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [authors, setAuthors] = useState<{ id: string; name: string }[]>([]);
   const [categories, setCategories] = useState<{ id: string; name: string }[]>([]);
+  const [selectedCategories, setSelectedCategories] = useState<{ id: string; name: string }[]>([]);
 
   useEffect(() => {
     const fetchBookAndOptions = async () => {
@@ -48,11 +48,18 @@ function EditBookScreen() {
             author: bookData.author || "",
             year: bookData.year?.toString() || "",
             edition: bookData.edition || "",
-            category: bookData.category || "",
             quantity: bookData.quantity?.toString() || "",
             restrictions: bookData.restrictions || "",
             imageUrl: bookData.imageUrl || "",
           });
+
+          // Set selected categories
+          if (bookData.category) {
+            const matchedCategory = categoriesList.find(cat => cat.id === bookData.category);
+            if (matchedCategory) {
+              setSelectedCategories([matchedCategory]);
+            }
+          }
         } else {
           alert("Book not found!");
           navigate("/");
@@ -78,6 +85,18 @@ function EditBookScreen() {
     setImageFile(file || null);
   };
 
+  const handleCategorySelect = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const selectedValue = e.target.value;
+    const selectedCategory = categories.find((category) => category.id === selectedValue);
+    if (selectedCategory && !selectedCategories.some((cat) => cat.id === selectedCategory.id)) {
+      setSelectedCategories((prev) => [...prev, selectedCategory]);
+    }
+  };
+
+  const handleCategoryRemove = (categoryId: string) => {
+    setSelectedCategories((prev) => prev.filter((item) => item.id !== categoryId));
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
@@ -96,6 +115,7 @@ function EditBookScreen() {
         year: parseInt(formData.year, 10),
         quantity: parseInt(formData.quantity, 10),
         imageUrl,
+        category: selectedCategories[0]?.id || "",
       });
 
       alert("Book updated successfully!");
@@ -180,19 +200,37 @@ function EditBookScreen() {
           </div>
 
           <div className="mb-4">
-            <label className="block text-sm font-medium mb-1">Category</label>
+            <label className="block text-sm font-medium mb-1">Select Category</label>
             <select
-              name="category"
-              value={formData.category}
-              onChange={handleChange}
+              value=""
+              onChange={handleCategorySelect}
               className="p-2 border border-gray-600 rounded w-full bg-gray-700 text-white"
-              required
             >
-              <option value="">Select Category</option>
-              {categories.map(cat => (
-                <option key={cat.id} value={cat.id}>{cat.name}</option>
+              <option value="">Choose a category</option>
+              {categories.map((category) => (
+                <option key={category.id} value={category.id}>
+                  {category.name}
+                </option>
               ))}
             </select>
+          </div>
+
+          <div className="mb-4">
+            <h3 className="text-sm font-medium">Selected Categories:</h3>
+            <ul className="list-disc pl-6">
+              {selectedCategories.map((category) => (
+                <li key={category.id} className="flex items-center justify-between">
+                  <span>{category.name}</span>
+                  <button
+                    type="button"
+                    onClick={() => handleCategoryRemove(category.id)}
+                    className="text-red-500 hover:text-red-700"
+                  >
+                    Remove
+                  </button>
+                </li>
+              ))}
+            </ul>
           </div>
 
           <div className="mb-4">

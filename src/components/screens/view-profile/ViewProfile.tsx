@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
-import { doc, getDoc, getFirestore, onSnapshot } from 'firebase/firestore'; // Add onSnapshot import
+import { doc, getDoc, getFirestore } from 'firebase/firestore';
 import { useNavigate } from 'react-router-dom';
 import { signOut } from "firebase/auth";
 
@@ -38,14 +38,15 @@ const ViewProfile: React.FC = () => {
   };
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-      if (currentUser) {
-        const userDocRef = doc(db, "users", currentUser.uid);
+    const fetchUserProfile = async () => {
+      try {
+        const currentUser = auth.currentUser;
+        if (currentUser) {
+          const userDocRef = doc(db, "users", currentUser.uid);
+          const userDoc = await getDoc(userDocRef);
 
-        // Use onSnapshot to listen for real-time updates
-        const unsubscribeUserDoc = onSnapshot(userDocRef, (docSnapshot) => {
-          if (docSnapshot.exists()) {
-            const userData = docSnapshot.data() as Omit<
+          if (userDoc.exists()) {
+            const userData = userDoc.data() as Omit<
               UserProfile,
               "displayName" | "email" | "photoURL" | "uid"
             >;
@@ -53,8 +54,7 @@ const ViewProfile: React.FC = () => {
             setUser({
               displayName: currentUser.displayName || "No Name",
               email: currentUser.email || "No Email",
-              photoURL:
-                currentUser.photoURL || "https://via.placeholder.com/150",
+              photoURL: currentUser.photoURL || "https://via.placeholder.com/150",
               uid: currentUser.uid,
               ...userData,
             });
@@ -62,20 +62,21 @@ const ViewProfile: React.FC = () => {
             setUser({
               displayName: currentUser.displayName || "No Name",
               email: currentUser.email || "No Email",
-              photoURL:
-                currentUser.photoURL || "https://via.placeholder.com/150",
+              photoURL: currentUser.photoURL || "https://via.placeholder.com/150",
               uid: currentUser.uid,
             });
           }
-        });
-
-        return () => unsubscribeUserDoc(); // Cleanup Firestore listener
-      } else {
-        navigate("/login");
+        } else {
+          navigate("/login");
+        }
+      } catch (error) {
+        console.error("Error fetching user profile:", error);
+      } finally {
+        setLoading(false);
       }
-    });
+    };
 
-    return () => unsubscribe(); // Cleanup Auth listener
+    fetchUserProfile();
   }, [auth, db, navigate]);
 
   if (loading) {

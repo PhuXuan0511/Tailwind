@@ -8,25 +8,27 @@ import 'react-toastify/dist/ReactToastify.css'; // Import CSS for toast notifica
 const Loading = () => <p className="p-4 w-full h-full text-center">Loading...</p>;
 
 // Lazy load screens
-const HomepageScreen = lazy(() => import('~/components/screens/homepage/Homepage')); // Unified Homepage
-const AdminDashboardScreen = lazy(() => import('~/components/screens/homepage/AdminDashboard')); // Admin Dashboard
-const UserDashboardScreen = lazy(() => import('~/components/screens/homepage/UserDashboard')); // User Dashboard
-const ManageBookScreen = lazy(() => import('~/components/screens/manage-books/ManageBook'));
-const AddBookScreen = lazy(() => import('~/components/screens/manage-books/AddBook')); // AddBook page
-const EditBookScreen = lazy(() => import('~/components/screens/manage-books/EditBook')); // EditBook page
-const ManageUserScreen = lazy(() => import('~/components/screens/manage-users/ManageUser')); // Manage User page
-const AddUserScreen = lazy(() => import('~/components/screens/manage-users/AddUser')); // Add User page
-const EditUserScreen = lazy(() => import('~/components/screens/manage-users/EditUser')); // Edit User page
+const HomepageScreen = lazy(() => import('~/components/screens/Homepage')); // Unified Homepage
+const AdminDashboardScreen = lazy(() => import('~/components/screens/drive-thru/admin/AdminDashboard')); // Admin Dashboard
+const UserDashboardScreen = lazy(() => import('~/components/screens/drive-thru/user/UserDashboard')); // User Dashboard
+const ManageBookScreen = lazy(() => import('~/components/screens/drive-thru/admin/manage-books/ManageBook'));
+const AddBookScreen = lazy(() => import('~/components/screens/drive-thru/admin/manage-books/AddBook')); // AddBook page
+const EditBookScreen = lazy(() => import('~/components/screens/drive-thru/admin/manage-books/EditBook')); // EditBook page
+const ManageUserScreen = lazy(() => import('~/components/screens/drive-thru/admin/manage-users/ManageUser')); // Manage User page
+const AddUserScreen = lazy(() => import('~/components/screens/drive-thru/admin/manage-users/AddUser')); // Add User page
+const EditUserScreen = lazy(() => import('~/components/screens/drive-thru/admin/manage-users/EditUser')); // Edit User page
 const Page404Screen = lazy(() => import('~/components/screens/404')); // 404 page
-const ManageLendingScreen = lazy(() => import('~/components/screens/manage-lendings/ManageLending')); // Manage Lending page
-const AddLendingScreen = lazy(() => import('~/components/screens/manage-lendings/AddLending')); // Add Lending page
-const EditLendingScreen = lazy(() => import('~/components/screens/manage-lendings/EditLending')); // Edit Lending page
-const LoginScreen = lazy(() => import('~/components/screens/login/Login')); // Login page
-const ViewProfileScreen = lazy(() => import('~/components/screens/view-profile/ViewProfile')); // View Profile page
-const ViewBook = lazy(() => import('~/components/screens/view-books/ViewBook')); // Lazy load ViewBook
-const ViewLending = lazy(() => import('~/components/screens/view-lendings/ViewLending')); // Lazy load ViewLending
-import AboutUsScreen from '~/components/screens/homepage/AboutUs'; // Import the About Us screen
-const BookDetail = lazy(() => import('~/components/screens/view-books/BookDetailScreen')); // Lazy load BookDetailScreen
+const ManageLendingScreen = lazy(() => import('~/components/screens/drive-thru/admin/manage-lendings/ManageLending')); // Manage Lending page
+const AddLendingScreen = lazy(() => import('~/components/screens/drive-thru/admin/manage-lendings/AddLending')); // Add Lending page
+const EditLendingScreen = lazy(() => import('~/components/screens/drive-thru/admin/manage-lendings/EditLending')); // Edit Lending page
+const LoginScreen = lazy(() => import('~/components/screens/Login')); // Login page
+const ViewProfileScreen = lazy(() => import('~/components/screens/drive-thru/view-profile/ViewProfile')); // View Profile page
+const ViewBook = lazy(() => import('~/components/screens/drive-thru/user/view-books/ViewBook')); // Lazy load ViewBook
+const ViewLending = lazy(() => import('~/components/screens/drive-thru/user/view-lendings/ViewLending')); // Lazy load ViewLending
+import AboutUsScreen from '~/components/screens/AboutUs'; // Import the About Us screen
+const BookDetail = lazy(() => import('~/components/screens/drive-thru/user/view-books/BookDetailScreen')); // Lazy load BookDetailScreen
+const ManageNewsScreen = lazy(() => import('~/components/screens/news/ManageNews')); // Admin Manage News page
+const AddNewsScreen = lazy(() => import('~/components/screens/news/AddNews')); // Add News page
 
 function Layout({ showHeader = true, children }: { showHeader?: boolean; children: React.ReactNode }) {
   const navigate = useNavigate(); // Import useNavigate for navigation
@@ -79,6 +81,26 @@ const InnerRouter = () => {
         <Layout showHeader={true}>
           <RequireAuth>
             <HomepageScreen />
+          </RequireAuth>
+        </Layout>
+      ),
+    },
+    {
+      path: '/admin-manage-news', // Admin Manage News route
+      element: (
+        <Layout showHeader={true}>
+          <RequireAuth> {/* No role restriction */}
+            <ManageNewsScreen />
+          </RequireAuth>
+        </Layout>
+      ),
+    },
+    {
+      path: '/admin-add-news', // Add News route
+      element: (
+        <Layout showHeader={true}>
+          <RequireAuth> {/* No role restriction */}
+            <AddNewsScreen />
           </RequireAuth>
         </Layout>
       ),

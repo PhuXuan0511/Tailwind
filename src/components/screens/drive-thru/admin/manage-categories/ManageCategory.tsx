@@ -74,14 +74,13 @@ function ManageCategory() {
             <thead>
               <tr>
                 <th className="border-b border-gray-700 p-2">Category Name</th>
-                <th className="border-b border-gray-700 p-2">Actions</th>
               </tr>
             </thead>
             <tbody>
               {categories.map((cat) => (
                 <tr key={cat.id}>
-                  <td className="border-b border-gray-700 p-2">{cat.name}</td>
-                  <td className="border-b border-gray-700 p-2">
+                  <td className="border-b border-gray-700 p-2 flex justify-between items-center">
+                    {cat.name}
                     <button
                       onClick={() => handleDeleteCategory(cat.id)}
                       className="bg-red-500 px-3 py-1 rounded text-sm hover:bg-red-600"

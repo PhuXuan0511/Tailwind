@@ -133,15 +133,17 @@ function EditUserScreen(){
                 />
               </div>
               <div className="mb-4">
-                <label className="block text-sm font-medium mb-1">Role</label> {/* Corrected label */}
-                <input
-                  type="text"
+                <label className="block text-sm font-medium mb-1">Role</label>
+                <select
                   name="role"
                   value={formData.role}
-                  onChange={handleChange}
+                  onChange={(e) => setFormData((prev) => ({ ...prev, role: e.target.value }))}
                   className="p-2 border border-gray-600 rounded w-full bg-gray-700 text-white"
                   required
-                />
+                >
+                  <option value="user">User</option>
+                  <option value="admin">Admin</option>
+                </select>
               </div>
               <button
                 type="submit"

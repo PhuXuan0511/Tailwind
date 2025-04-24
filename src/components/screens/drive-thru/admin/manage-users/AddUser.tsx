@@ -16,7 +16,7 @@ function AddUserScreen() {
         role: "user", // Default role
         password: "",
     });
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
         const { name, value } = e.target;
         setFormData((prev) => ({ ...prev, [name]: value }));
     };
@@ -96,14 +96,16 @@ function AddUserScreen() {
               </div>
               <div className="mb-4">
                 <label className="block text-sm font-medium mb-1">Role</label>
-                <input
-                  type="text"
+                <select
                   name="role"
                   value={formData.role}
                   onChange={handleChange}
                   className="p-2 border border-gray-600 rounded w-full bg-gray-700 text-white"
                   required
-                />
+                >
+                  <option value="user">User</option>
+                  <option value="admin">Admin</option>
+                </select>
               </div>
               <button
                 type="submit"

@@ -1,20 +1,20 @@
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useFirestore } from "~/lib/firebase";
-import { collection, onSnapshot, deleteDoc, doc, setDoc, getDocs } from "firebase/firestore"; // Updated import statement
+import { collection, onSnapshot, deleteDoc, doc, setDoc, getDocs } from "firebase/firestore";
 import { Head } from "~/components/shared/Head";
 import { showToastFromLocalStorage } from "~/components/shared/toastUtils";
-import { ToastContainer } from "react-toastify"
+import { ToastContainer } from "react-toastify";
 
 // Define the structure of a Book object
 type Book = {
   id: string;
   isbn: string;
   title: string;
-  author: string;
+  author: string[]; // Changed to array of author IDs
   year: number;
   edition: string;
-  category: string;
+  category: string[]; // Changed to array of category IDs
   quantity: number;
 };
 
@@ -98,8 +98,8 @@ function ManageBook() {
         (book) =>
           book.isbn.toLowerCase().includes(term) ||
           book.title.toLowerCase().includes(term) ||
-          book.author.toLowerCase().includes(term) ||
-          book.category.toLowerCase().includes(term)
+          book.author.some((author) => author.toLowerCase().includes(term)) ||
+          book.category.some((category) => category.toLowerCase().includes(term))
       )
     );
   };
@@ -116,7 +116,7 @@ function ManageBook() {
   };
 
   const handleAddOrEditBook = async (book: Book) => {
-    if (!["horror", "action", "romance", "education"].includes(book.category.toLowerCase())) {
+    if (!["horror", "action", "romance", "education"].every((category) => book.category.includes(category))) {
       alert("Invalid category. Please select one of the following: horror, action, romance, education.");
       return;
     }
@@ -130,10 +130,10 @@ function ManageBook() {
       await setDoc(bookDoc, {
         isbn: book.isbn,
         title: book.title,
-        author: book.author,
+        authors: book.author,
         year: book.year,
         edition: book.edition,
-        category: book.category.toLowerCase(), // Ensure category is lowercase
+        categories: book.category,
         quantity: book.quantity,
       });
 
@@ -156,16 +156,20 @@ function ManageBook() {
     }
   };
 
-  // Helper function to get category name from category ID
-  const getCategoryName = (categoryId: string) => {
-    const category = categories.find((cat) => cat.id === categoryId);
-    return category ? category.name : "Unknown";
+  // Helper function to get category names from category IDs
+  const getCategoryNames = (categoryIds: string[]) => {
+    return categoryIds
+      .map((categoryId) => categories.find((cat) => cat.id === categoryId)?.name)
+      .filter((name) => name)
+      .join(", ");
   };
 
-  // Helper function to get author name from author ID
-  const getAuthorName = (authorId: string) => {
-    const author = authors.find((auth) => auth.id === authorId);
-    return author ? author.name : "Unknown";
+  // Helper function to get author names from author IDs
+  const getAuthorNames = (authorIds: string[]) => {
+    return authorIds
+      .map((authorId) => authors.find((auth) => auth.id === authorId)?.name)
+      .filter((name) => name)
+      .join(", ");
   };
 
   return (
@@ -219,15 +223,15 @@ function ManageBook() {
                 <tr key={book.id}>
                   <td className="border-b border-gray-700 p-2">{book.isbn}</td>
                   <td className="border-b border-gray-700 p-2">{book.title}</td>
-                  <td className="border-b border-gray-700 p-2">{getAuthorName(book.author)}</td>
+                  <td className="border-b border-gray-700 p-2">{getAuthorNames(book.author)}</td>
                   <td className="border-b border-gray-700 p-2">{book.year}</td>
                   <td className="border-b border-gray-700 p-2">{book.edition}</td>
-                  <td className="border-b border-gray-700 p-2">{getCategoryName(book.category)}</td>
+                  <td className="border-b border-gray-700 p-2">{getCategoryNames(book.category)}</td>
                   <td className="border-b border-gray-700 p-2">{book.quantity}</td>
                   <td className="border-b border-gray-700 p-2">
                     <select
                       onChange={(e) => handleBookAction(e.target.value, book.id)}
-                      className="bg-gray-700 text-white p-2 rounded"
+                      className="bg-gray-700 text-white p-2 rounded"  
                     >
                       <option value="">Select Action</option>
                       <option value="edit">Edit</option>

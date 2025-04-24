@@ -1,45 +1,84 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useFirestore } from "~/lib/firebase";
-import { collection, addDoc } from "firebase/firestore";
-import { useNavigate } from "react-router-dom";
-import { ToastContainer } from "react-toastify";
+import { doc, getDoc, updateDoc } from "firebase/firestore";
+import { useNavigate, useParams } from "react-router-dom";
 
-function AddUserScreen() {
+function EditUserScreen(){
     const firestore = useFirestore();
     const navigate = useNavigate();
+    const { id } = useParams<{ id: string }>(); // Get the user ID from the URL
     const [formData, setFormData] = useState({
         name: "",
         birthyear: "",
         address: "",
         phone: "",
         email: "",
-        role: "user", // Default role
+        role: "",
         password: "",
     });
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => { 
+        const fetchUser = async () => {
+          try {
+            const userDoc = doc(firestore, "users", id!);
+            const userSnapshot = await getDoc(userDoc);
+            if (userSnapshot.exists()) {
+              const userData = userSnapshot.data();
+              setFormData({
+                name: userData.name || "",
+                birthyear: userData.birthyear?.toString() || "",
+                address: userData.address || "",
+                phone: userData.phone || "",
+                email: userData.email || "",
+                role: userData.role || "",
+                password: userData.password || "",
+              });
+            } else {
+              alert("User not found!");
+              navigate("/"); // Redirect back to ManageUser if the user doesn't exist
+            }
+          } catch (error) {
+            console.error("Error fetching user:", error);
+            alert("Failed to fetch user details. Check the console for details.");
+          } finally {
+            setLoading(false);
+          }
+        };
+    
+        fetchUser();
+      }, [firestore, id, navigate]);
+
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target;
         setFormData((prev) => ({ ...prev, [name]: value }));
     };
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         try {
-          const usersCollection = collection(firestore, "users");
-          await addDoc(usersCollection, {
+          const userDoc = doc(firestore, "users", id!);
+          await updateDoc(userDoc, {
             ...formData,
-            birthyear: parseInt(formData.birthyear, 10),
+            birthyear: parseInt(formData.birthyear),
+            phone: parseInt(formData.phone),
           });
-          localStorage.setItem("showToast", "true"); // Set flag for toast
+          alert("User updated successfully!");
           navigate("/manage-user"); // Redirect to ManageUser page
         } catch (error) {
-          console.error("Error adding user:", error);
-          alert("Failed to add user. Check the console for details.");
+          console.error("Error updating user:", error);
+          alert("Failed to update user. Check the console for details.");
         }
       };
-      return (
+
+    if (loading) {
+        return <p className="text-center text-gray-300">Loading user details...</p>;
+    }   
+    
+    return (
         <div className="min-h-screen bg-gray-900 text-white">
-          <ToastContainer /> 
           <div className="container mx-auto px-4 py-6">
-            <h1 className="text-3xl font-bold mb-6">Add New User</h1>
+            <h1 className="text-3xl font-bold mb-6">Edit User</h1>
             <form onSubmit={handleSubmit} className="bg-gray-800 p-6 rounded-lg shadow">
               <div className="mb-4">
                 <label className="block text-sm font-medium mb-1">Name</label>
@@ -53,7 +92,7 @@ function AddUserScreen() {
                 />
               </div>
               <div className="mb-4">
-                <label className="block text-sm font-medium mb-1">Birth Year</label>
+                <label className="block text-sm font-medium mb-1">Birthyear</label>
                 <input
                   type="number"
                   name="birthyear"
@@ -80,11 +119,10 @@ function AddUserScreen() {
                   value={formData.phone}
                   onChange={handleChange}
                   className="p-2 border border-gray-600 rounded w-full bg-gray-700 text-white"
-                  required
                 />
               </div>
               <div className="mb-4">
-                <label className="block text-sm font-medium mb-1">Email</label>
+                <label className="block text-sm font-medium mb-1">E-Mail</label>
                 <input
                   type="text"
                   name="email"
@@ -96,25 +134,26 @@ function AddUserScreen() {
               </div>
               <div className="mb-4">
                 <label className="block text-sm font-medium mb-1">Role</label>
-                <input
-                  type="text"
+                <select
                   name="role"
                   value={formData.role}
-                  onChange={handleChange}
+                  onChange={(e) => setFormData((prev) => ({ ...prev, role: e.target.value }))}
                   className="p-2 border border-gray-600 rounded w-full bg-gray-700 text-white"
                   required
-                />
+                >
+                  <option value="user">User</option>
+                  <option value="admin">Admin</option>
+                </select>
               </div>
               <button
                 type="submit"
                 className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
               >
-                Add User
+                Update User
               </button>
             </form>
           </div>
         </div>
       );
 }
-
-export default AddUserScreen;
+export default EditUserScreen;

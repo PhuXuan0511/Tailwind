@@ -4,6 +4,8 @@ import { Head } from "~/components/shared/Head";
 import manageBookImage from "~/components/image/managebook.jpg";
 import manageUserImage from "~/components/image/manageuser.jpg";
 import manageLendingImage from "~/components/image/managelending.jpg";
+import manageCategoryImage from "~/components/image/managecategory.jpg";
+import manageAuthorImage from "~/components/image/manageauthor.jpg"; // Make sure this image exists
 
 function AdminDashboard() {
   const navigate = useNavigate();
@@ -27,6 +29,18 @@ function AdminDashboard() {
       path: "/manage-lending",
       image: manageLendingImage,
     },
+    {
+      title: "Manage Category",
+      description: "Add, edit, or remove book categories.",
+      path: "/manage-category",
+      image: manageCategoryImage,
+    },
+    {
+      title: "Manage Author",
+      description: "Add, edit, or delete book authors.",
+      path: "/manage-author",
+      image: manageAuthorImage,
+    },
   ];
 
   return (
@@ -43,13 +57,11 @@ function AdminDashboard() {
               onClick={() => navigate(card.path)}
               className="bg-gray-800 rounded-lg shadow-lg hover:shadow-xl cursor-pointer transition transform hover:scale-105 overflow-hidden"
             >
-              {/* Card Image */}
               <img
                 src={card.image}
                 alt={card.title}
                 className="w-full h-40 object-cover"
               />
-              {/* Card Content */}
               <div className="p-6">
                 <h2 className="text-2xl font-bold mb-2 text-blue-400">
                   {card.title}

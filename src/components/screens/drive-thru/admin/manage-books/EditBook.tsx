@@ -12,7 +12,6 @@ function EditBookScreen() {
   const [formData, setFormData] = useState({
     isbn: "",
     title: "",
-    author: "",
     year: "",
     edition: "",
     quantity: "",
@@ -24,6 +23,7 @@ function EditBookScreen() {
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [authors, setAuthors] = useState<{ id: string; name: string }[]>([]);
   const [categories, setCategories] = useState<{ id: string; name: string }[]>([]);
+  const [selectedAuthors, setSelectedAuthors] = useState<{ id: string; name: string }[]>([]);
   const [selectedCategories, setSelectedCategories] = useState<{ id: string; name: string }[]>([]);
 
   useEffect(() => {
@@ -45,7 +45,6 @@ function EditBookScreen() {
           setFormData({
             isbn: bookData.isbn || "",
             title: bookData.title || "",
-            author: bookData.author || "",
             year: bookData.year?.toString() || "",
             edition: bookData.edition || "",
             quantity: bookData.quantity?.toString() || "",
@@ -53,12 +52,16 @@ function EditBookScreen() {
             imageUrl: bookData.imageUrl || "",
           });
 
+          // Set selected authors
+          if (bookData.author && Array.isArray(bookData.author)) {
+            const matchedAuthors = authorsList.filter(author => bookData.author.includes(author.id));
+            setSelectedAuthors(matchedAuthors);
+          }
+
           // Set selected categories
-          if (bookData.category) {
-            const matchedCategory = categoriesList.find(cat => cat.id === bookData.category);
-            if (matchedCategory) {
-              setSelectedCategories([matchedCategory]);
-            }
+          if (bookData.category && Array.isArray(bookData.category)) {
+            const matchedCategories = categoriesList.filter(category => bookData.category.includes(category.id));
+            setSelectedCategories(matchedCategories);
           }
         } else {
           alert("Book not found!");
@@ -85,11 +88,23 @@ function EditBookScreen() {
     setImageFile(file || null);
   };
 
+  const handleAuthorSelect = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const selectedValue = e.target.value;
+    const selectedAuthor = authors.find((author) => author.id === selectedValue);
+    if (selectedAuthor && !selectedAuthors.some((auth) => auth.id === selectedAuthor.id)) {
+      setSelectedAuthors((prev) => [...prev, selectedAuthor]); // Allow multiple authors
+    }
+  };
+
+  const handleAuthorRemove = (authorId: string) => {
+    setSelectedAuthors((prev) => prev.filter((item) => item.id !== authorId));
+  };
+
   const handleCategorySelect = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const selectedValue = e.target.value;
     const selectedCategory = categories.find((category) => category.id === selectedValue);
     if (selectedCategory && !selectedCategories.some((cat) => cat.id === selectedCategory.id)) {
-      setSelectedCategories((prev) => [...prev, selectedCategory]);
+      setSelectedCategories((prev) => [...prev, selectedCategory]); // Allow multiple categories
     }
   };
 
@@ -110,12 +125,17 @@ function EditBookScreen() {
         imageUrl = await getDownloadURL(storageRef);
       }
 
+      // Save all selected authors and categories as arrays
+      const authorIds = selectedAuthors.map((author) => author.id);
+      const categoryIds = selectedCategories.map((category) => category.id);
+
       await updateDoc(bookDoc, {
         ...formData,
         year: parseInt(formData.year, 10),
         quantity: parseInt(formData.quantity, 10),
         imageUrl,
-        category: selectedCategories[0]?.id || "",
+        author: authorIds, // Save authors as an array
+        category: categoryIds, // Save categories as an array
       });
 
       alert("Book updated successfully!");
@@ -160,19 +180,41 @@ function EditBookScreen() {
           </div>
 
           <div className="mb-4">
-            <label className="block text-sm font-medium mb-1">Author</label>
+            <label className="block text-sm font-medium mb-1">Select Author</label>
             <select
-              name="author"
-              value={formData.author}
-              onChange={handleChange}
+              value=""
+              onChange={handleAuthorSelect}
               className="p-2 border border-gray-600 rounded w-full bg-gray-700 text-white"
-              required
             >
-              <option value="">Select Author</option>
-              {authors.map(author => (
-                <option key={author.id} value={author.id}>{author.name}</option>
+              <option value="">Choose an author</option>
+              {authors.map((author) => (
+                <option key={author.id} value={author.id}>
+                  {author.name}
+                </option>
               ))}
             </select>
+          </div>
+
+          <div className="mb-4">
+            <h3 className="text-sm font-medium">Selected Authors:</h3>
+            {selectedAuthors.length > 0 ? (
+              <ul className="list-disc pl-6">
+                {selectedAuthors.map((author) => (
+                  <li key={author.id} className="flex items-center justify-between">
+                    <span>{author.name}</span>
+                    <button
+                      type="button"
+                      onClick={() => handleAuthorRemove(author.id)}
+                      className="text-red-500 hover:text-red-700"
+                    >
+                      Remove
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="text-gray-400">No authors selected.</p>
+            )}
           </div>
 
           <div className="mb-4">
@@ -217,20 +259,24 @@ function EditBookScreen() {
 
           <div className="mb-4">
             <h3 className="text-sm font-medium">Selected Categories:</h3>
-            <ul className="list-disc pl-6">
-              {selectedCategories.map((category) => (
-                <li key={category.id} className="flex items-center justify-between">
-                  <span>{category.name}</span>
-                  <button
-                    type="button"
-                    onClick={() => handleCategoryRemove(category.id)}
-                    className="text-red-500 hover:text-red-700"
-                  >
-                    Remove
-                  </button>
-                </li>
-              ))}
-            </ul>
+            {selectedCategories.length > 0 ? (
+              <ul className="list-disc pl-6">
+                {selectedCategories.map((category) => (
+                  <li key={category.id} className="flex items-center justify-between">
+                    <span>{category.name}</span>
+                    <button
+                      type="button"
+                      onClick={() => handleCategoryRemove(category.id)}
+                      className="text-red-500 hover:text-red-700"
+                    >
+                      Remove
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="text-gray-400">No categories selected.</p>
+            )}
           </div>
 
           <div className="mb-4">

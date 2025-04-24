@@ -1,68 +1,75 @@
-import React from "react";
-import { signInWithPopup, GoogleAuthProvider } from "firebase/auth";
-import { useNavigate } from "react-router-dom";
-import { auth, firestore } from "~/lib/firebase";
-import { doc, getDoc, setDoc } from "firebase/firestore";
-import { showToastFromLocalStorage } from "~/components/shared/toastUtils"; // Import toast utility
-import { ToastContainer } from "react-toastify";
+import React, { useState } from "react";
+import { SignInButton } from "~/components/domain/auth/SignInButton";
+import library5 from "~/components/image/library5.jpg";
 
-function LoginScreen() {
-  const navigate = useNavigate();
+function Login() {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
 
-  const handleLogin = async () => {
-    try {
-      const provider = new GoogleAuthProvider();
-      const result = await signInWithPopup(auth, provider);
-      const user = result.user;
-
-      // Check if the user exists in Firestore
-      const userDocRef = doc(firestore, "users", user.uid);
-      const userDoc = await getDoc(userDocRef);
-
-      if (!userDoc.exists()) {
-        // If the user doesn't exist, create a new document with a default role
-        await setDoc(userDocRef, {
-          uid: user.uid,
-          email: user.email,
-          name: user.displayName || "Unknown",
-          role: "user", // Default role
-          createdAt: new Date().toISOString(),
-        });
-      }
-
-      // Store user role in localStorage for dynamic card paths
-      const userData = userDoc.exists() ? userDoc.data() : { role: "user" };
-      localStorage.setItem("userRole", userData.role);
-
-      // Redirect to the homepage
-      navigate("/homepage");
-    } catch (error) {
-      console.error("Error logging in:", error);
-      alert("Login failed. Try again.");
-    }
+  const handleLogin = (e: React.FormEvent) => {
+    e.preventDefault();
+    // Handle login logic here (e.g., Firebase authentication)
+    console.log("Email:", email);
+    console.log("Password:", password);
   };
 
-  React.useEffect(() => {
-    showToastFromLocalStorage("loginSuccess", "Logout successful!"); // Show toast if login was successful
-  }, []);
-
   return (
-    <>
-      <ToastContainer />
-      <div className="min-h-screen flex items-center justify-center bg-gray-900 text-gray-300">
-        <div className="bg-gray-800 p-6 rounded-lg shadow-lg text-center w-80">
-          <h1 className="text-2xl font-semibold mb-4">Welcome</h1>
-          <p className="text-sm mb-6 text-gray-400">Sign in to continue</p>
+    <div
+      className="min-h-screen bg-gray-900 text-gray-100 flex items-center justify-center"
+      style={{
+        backgroundImage: `url(${library5})`,
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        backgroundRepeat: "no-repeat",
+      }}
+    >
+      <div className="bg-gray-800 bg-opacity-90 p-6 rounded-lg shadow-lg w-full [width:600px] max-w-md">
+        <h1 className="text-3xl font-bold text-center mb-6">Welcome Back</h1>
+        <p className="text-gray-400 text-center mb-8">
+          Sign in to access your account and explore our library.
+        </p>
+        <form onSubmit={handleLogin} className="space-y-6">
+          <div>
+            <label htmlFor="email" className="block text-sm font-medium text-gray-300">
+              Email
+            </label>
+            <input
+              type="email"
+              id="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="mt-1 block w-full px-4 py-2 bg-gray-700 text-gray-100 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+              placeholder="Enter your email"
+              required
+            />
+          </div>
+          <div>
+            <label htmlFor="password" className="block text-sm font-medium text-gray-300">
+              Password
+            </label>
+            <input
+              type="password"
+              id="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="mt-1 block w-full px-4 py-2 bg-gray-700 text-gray-100 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+              placeholder="Enter your password"
+              required
+            />
+          </div>
           <button
-            onClick={handleLogin}
-            className="bg-blue-500 text-white text-sm px-3 py-1 rounded hover:bg-blue-600 transition"
+            type="submit"
+            className="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition normal-case min-w-60"
           >
-            Sign in with Google
+            Login
           </button>
+        </form>
+        <div className="flex justify-center mt-6">
+          <SignInButton />
         </div>
       </div>
-    </>
+    </div>
   );
 }
 
-export default LoginScreen;
+export default Login;

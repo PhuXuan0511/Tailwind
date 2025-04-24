@@ -32,6 +32,7 @@ const AddNewsScreen = lazy(() => import('~/components/screens/news/AddNews')); /
 const ViewNewsScreen = lazy(() => import('~/components/screens/news/ViewNews'));
 const ManageCategoryScreen = lazy(() => import('~/components/screens/drive-thru/admin/manage-categories/ManageCategory'));
 const ManageAuthorScreen = lazy(() => import('~/components/screens/drive-thru/admin/manage-authors/ManageAuthor')); // ✅ Lazy load ManageAuthor
+const SignUpScreen = lazy(() => import('~/components/screens/SignUp')); // Lazy load SignUpScreen
 
 function Layout({ showHeader = true, children }: { showHeader?: boolean; children: React.ReactNode }) {
   const navigate = useNavigate(); // Import useNavigate for navigation
@@ -293,6 +294,14 @@ const InnerRouter = () => {
           <RequireAuth>
             <ManageAuthorScreen />
           </RequireAuth>
+        </Layout>
+      ),
+    },
+    {
+      path: '/signup', // Add the SignUp path
+      element: (
+        <Layout showHeader={true}>
+          <SignUpScreen />
         </Layout>
       ),
     },

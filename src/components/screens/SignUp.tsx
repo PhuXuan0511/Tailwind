@@ -1,18 +1,33 @@
 import React, { useState } from "react";
-import { SignInButton } from "~/components/domain/auth/SignInButton";
 import { useNavigate } from "react-router-dom";
+import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
 import library5 from "~/components/image/library5.jpg";
+import { Layout } from "../shared/Layout";
 
-function Login() {
+function SignUp() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [error, setError] = useState("");
   const navigate = useNavigate();
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Handle login logic here (e.g., Firebase authentication)
-    console.log("Email:", email);
-    console.log("Password:", password);
+
+    if (password !== confirmPassword) {
+      setError("Passwords do not match!");
+      return;
+    }
+
+    try {
+      const auth = getAuth();
+      await createUserWithEmailAndPassword(auth, email, password);
+      console.log("User signed up successfully:", email);
+      navigate("/login"); // Navigate back to the login screen
+    } catch (err: any) {
+      console.error("Error during sign-up:", err.message);
+      setError(err.message);
+    }
   };
 
   return (
@@ -26,11 +41,12 @@ function Login() {
       }}
     >
       <div className="bg-gray-800 bg-opacity-90 p-6 rounded-lg shadow-lg w-full [width:600px] max-w-md">
-        <h1 className="text-3xl font-bold text-center mb-6">Welcome Back</h1>
+        <h1 className="text-3xl font-bold text-center mb-6">Create an Account</h1>
         <p className="text-gray-400 text-center mb-8">
-          Sign in to access your account and explore our library.
+          Sign up to explore our library and access exclusive features.
         </p>
-        <form onSubmit={handleLogin} className="space-y-6">
+        {error && <p className="text-red-500 text-center mb-4">{error}</p>}
+        <form onSubmit={handleSignUp} className="space-y-6">
           <div>
             <label htmlFor="email" className="block text-sm font-medium text-gray-300">
               Email
@@ -59,21 +75,34 @@ function Login() {
               required
             />
           </div>
+          <div>
+            <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-300">
+              Confirm Password
+            </label>
+            <input
+              type="password"
+              id="confirmPassword"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              className="mt-1 block w-full px-4 py-2 bg-gray-700 text-gray-100 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+              placeholder="Confirm your password"
+              required
+            />
+          </div>
           <button
             type="submit"
             className="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition normal-case min-w-60"
           >
-            Login
+            Sign Up
           </button>
         </form>
-        <div className="flex flex-col items-center mt-6 space-y-4">
-          <SignInButton />
+        <div className="flex justify-center mt-6">
           <button
-            onClick={() => navigate("/signup")}
+            onClick={() => navigate("/login")}
             type="button"
-            className="w-full bg-gray-700 text-white py-2 px-4 rounded-lg hover:bg-gray-600 transition normal-case min-w-60"
+            className="text-blue-400 hover:underline"
           >
-            Sign Up
+            Already have an account? Login
           </button>
         </div>
       </div>
@@ -81,4 +110,5 @@ function Login() {
   );
 }
 
-export default Login;
+export default SignUp;
+

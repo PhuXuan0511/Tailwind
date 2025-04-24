@@ -31,6 +31,7 @@ const ManageNewsScreen = lazy(() => import('~/components/screens/news/ManageNews
 const AddNewsScreen = lazy(() => import('~/components/screens/news/AddNews')); // Add News page
 const ViewNewsScreen = lazy(() => import('~/components/screens/news/ViewNews'));
 const ManageCategoryScreen = lazy(() => import('~/components/screens/drive-thru/admin/manage-categories/ManageCategory'));
+const ManageAuthorScreen = lazy(() => import('~/components/screens/drive-thru/admin/manage-authors/ManageAuthor')); // ✅ Lazy load ManageAuthor
 
 function Layout({ showHeader = true, children }: { showHeader?: boolean; children: React.ReactNode }) {
   const navigate = useNavigate(); // Import useNavigate for navigation
@@ -281,6 +282,16 @@ const InnerRouter = () => {
         <Layout showHeader={true}>
           <RequireAuth>
             <ManageCategoryScreen />
+          </RequireAuth>
+        </Layout>
+      ),
+    },
+    {
+      path: '/manage-author',
+      element: (
+        <Layout showHeader={true}>
+          <RequireAuth>
+            <ManageAuthorScreen />
           </RequireAuth>
         </Layout>
       ),

@@ -4,6 +4,7 @@ import { Head } from "~/components/shared/Head";
 import manageBookImage from "~/components/image/managebook.jpg";
 import manageUserImage from "~/components/image/manageuser.jpg";
 import manageLendingImage from "~/components/image/managelending.jpg";
+import manageCategoryImage from "~/components/image/managecategory.jpg"; // Add this image to your project
 
 function AdminDashboard() {
   const navigate = useNavigate();
@@ -26,6 +27,12 @@ function AdminDashboard() {
       description: "Track and manage book lending records.",
       path: "/manage-lending",
       image: manageLendingImage,
+    },
+    {
+      title: "Manage Category",
+      description: "Add, edit, or remove book categories.",
+      path: "/manage-category",
+      image: manageCategoryImage,
     },
   ];
 

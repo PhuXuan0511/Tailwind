@@ -30,6 +30,7 @@ const BookDetail = lazy(() => import('~/components/screens/drive-thru/user/view-
 const ManageNewsScreen = lazy(() => import('~/components/screens/news/ManageNews')); // Admin Manage News page
 const AddNewsScreen = lazy(() => import('~/components/screens/news/AddNews')); // Add News page
 const ViewNewsScreen = lazy(() => import('~/components/screens/news/ViewNews'));
+const ManageCategoryScreen = lazy(() => import('~/components/screens/drive-thru/admin/manage-categories/ManageCategory'));
 
 function Layout({ showHeader = true, children }: { showHeader?: boolean; children: React.ReactNode }) {
   const navigate = useNavigate(); // Import useNavigate for navigation
@@ -270,6 +271,16 @@ const InnerRouter = () => {
         <Layout showHeader={true}>
           <RequireAuth>
             <ViewNewsScreen />
+          </RequireAuth>
+        </Layout>
+      ),
+    },
+    {
+      path: '/manage-category',
+      element: (
+        <Layout showHeader={true}>
+          <RequireAuth>
+            <ManageCategoryScreen />
           </RequireAuth>
         </Layout>
       ),

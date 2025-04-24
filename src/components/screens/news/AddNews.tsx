@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { collection, addDoc } from "firebase/firestore";
 import { useFirestore } from "~/lib/firebase"; // Use Firestore from your firebase.ts
 import { useNavigate } from "react-router-dom";
+import { Head } from "~/components/shared/Head"; // Import Head for consistent headers
 
 const AddNews = () => {
   const firestore = useFirestore();
@@ -33,49 +34,61 @@ const AddNews = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-900 text-white p-6">
-      <h1 className="text-4xl font-bold mb-6 text-center">Add News</h1>
+    <div className="min-h-screen bg-gray-900 text-white">
+      <Head title="Add News" />
+      <div className="container mx-auto px-4 py-6">
+        {/* Back to Manage News Button */}
+        <div className="mb-4">
+          <button
+            onClick={() => navigate(-1)}
+            className="bg-gray-500 text-white px-3 py-1 rounded text-sm hover:bg-gray-600"
+          >
+            Back
+          </button>
+        </div>
+        <h1 className="text-3xl font-bold mb-6">Add News</h1>
 
-      <form
-        onSubmit={handleAddNews}
-        className="max-w-3xl mx-auto bg-gray-800 p-6 rounded-lg shadow-lg"
-      >
-        <div className="mb-4">
-          <label htmlFor="title" className="block text-lg font-medium mb-2">
-            Title
-          </label>
-          <input
-            type="text"
-            id="title"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            className="w-full p-3 rounded bg-gray-700 text-white border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            placeholder="Enter news title"
-            required
-          />
-        </div>
-        <div className="mb-4">
-          <label htmlFor="content" className="block text-lg font-medium mb-2">
-            Content
-          </label>
-          <textarea
-            id="content"
-            value={content}
-            onChange={(e) => setContent(e.target.value)}
-            className="w-full p-3 rounded bg-gray-700 text-white border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            placeholder="Enter news content"
-            rows={5}
-            required
-          ></textarea>
-        </div>
-        <button
-          type="submit"
-          className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-lg transition"
-          disabled={loading}
+        <form
+          onSubmit={handleAddNews}
+          className="max-w-3xl mx-auto bg-gray-800 p-6 rounded-lg shadow-lg"
         >
-          {loading ? "Adding News..." : "Add News"}
-        </button>
-      </form>
+          <div className="mb-4">
+            <label htmlFor="title" className="block text-lg font-medium mb-2">
+              Title
+            </label>
+            <input
+              type="text"
+              id="title"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              className="w-full p-3 rounded bg-gray-700 text-white border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="Enter news title"
+              required
+            />
+          </div>
+          <div className="mb-4">
+            <label htmlFor="content" className="block text-lg font-medium mb-2">
+              Content
+            </label>
+            <textarea
+              id="content"
+              value={content}
+              onChange={(e) => setContent(e.target.value)}
+              className="w-full p-3 rounded bg-gray-700 text-white border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="Enter news content"
+              rows={5}
+              required
+            ></textarea>
+          </div>
+          <button
+            type="submit"
+            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-lg transition"
+            disabled={loading}
+          >
+            {loading ? "Adding News..." : "Add News"}
+          </button>
+        </form>
+      </div>
     </div>
   );
 };

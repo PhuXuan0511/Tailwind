@@ -29,6 +29,7 @@ import AboutUsScreen from '~/components/screens/AboutUs'; // Import the About Us
 const BookDetail = lazy(() => import('~/components/screens/drive-thru/user/view-books/BookDetailScreen')); // Lazy load BookDetailScreen
 const ManageNewsScreen = lazy(() => import('~/components/screens/news/ManageNews')); // Admin Manage News page
 const AddNewsScreen = lazy(() => import('~/components/screens/news/AddNews')); // Add News page
+const ViewNewsScreen = lazy(() => import('~/components/screens/news/ViewNews'));
 
 function Layout({ showHeader = true, children }: { showHeader?: boolean; children: React.ReactNode }) {
   const navigate = useNavigate(); // Import useNavigate for navigation
@@ -260,6 +261,16 @@ const InnerRouter = () => {
       element: (
         <Layout showHeader={true}>
           <AboutUsScreen />
+        </Layout>
+      ),
+    },
+    {
+      path: '/news',
+      element: (
+        <Layout showHeader={true}>
+          <RequireAuth>
+            <ViewNewsScreen />
+          </RequireAuth>
         </Layout>
       ),
     },

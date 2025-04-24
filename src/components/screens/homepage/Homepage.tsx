@@ -1,6 +1,6 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import Slider from "react-slick";
+import Slider from "react-slick/dist/react-slick";
 import library1 from "~/components/image/library1.jpg";
 import library2 from "~/components/image/library2.jpg";
 import library3 from "~/components/image/library3.jpg";
@@ -12,32 +12,34 @@ import "slick-carousel/slick/slick-theme.css";
 
 function Homepage() {
   const navigate = useNavigate();
+
+  // Dynamically determine the path based on the user's role
   const userRole = localStorage.getItem("userRole") || "user"; // Default to "user" if no role is found
 
   const cards = [
     {
       title: "Drive-Thru Model",
       description: "Experience our convenient drive-thru service to borrow and return books without leaving your car.",
-      path: userRole === "admin" ? "/admin-dashboard" : "/user-dashboard",
-      icon: <AcademicCapIcon className="h-12 w-12 text-blue-400 mb-4" />, // Adjusted for dark theme
+      path: userRole === "admin" ? "/admin-dashboard" : "/user-dashboard", // Navigate based on role
+      icon: <AcademicCapIcon className="h-12 w-12 text-blue-400 mb-4" />,
     },
     {
       title: "News",
       description: "Stay updated with the latest news and announcements from our library.",
       path: "/news",
-      icon: <NewspaperIcon className="h-12 w-12 text-blue-400 mb-4" />, // Adjusted for dark theme
+      icon: <NewspaperIcon className="h-12 w-12 text-blue-400 mb-4" />,
     },
     {
       title: "Information",
       description: "Find detailed information about our library services, policies, and resources.",
       path: "/information",
-      icon: <InformationCircleIcon className="h-12 w-12 text-blue-400 mb-4" />, // Adjusted for dark theme
+      icon: <InformationCircleIcon className="h-12 w-12 text-blue-400 mb-4" />,
     },
     {
       title: "About Us",
       description: "Learn more about our mission, vision, and the team behind the library.",
       path: "/about-us",
-      icon: <UserGroupIcon className="h-12 w-12 text-blue-400 mb-4" />, // Adjusted for dark theme
+      icon: <UserGroupIcon className="h-12 w-12 text-blue-400 mb-4" />,
     },
   ];
 
@@ -120,17 +122,15 @@ function Homepage() {
             key={index}
             className="bg-gray-800 p-6 rounded-lg shadow-md hover:shadow-lg transition text-center border border-gray-700 flex flex-col justify-between"
           >
-            {/* Icon Box */}
-            <div>
-              <div className="flex items-center justify-center w-16 h-16 bg-blue-900 mx-auto mb-4 rounded-full">
-                {card.icon}
-              </div>
-              <h2 className="text-2xl font-bold mb-4 text-gray-100">{card.title}</h2>
-              <p className="text-gray-400 mb-4">{card.description}</p>
+            {/* Icon */}
+            <div className="flex items-center justify-center mb-4">
+              {card.icon}
             </div>
+            <h2 className="text-2xl font-bold mb-4 text-gray-100">{card.title}</h2>
+            <p className="text-gray-400 mb-4">{card.description}</p>
             {/* Button */}
             <button
-              onClick={() => navigate(card.path)}
+              onClick={() => navigate(card.path)} // Navigate to the appropriate path
               className="mt-auto px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
             >
               More Info

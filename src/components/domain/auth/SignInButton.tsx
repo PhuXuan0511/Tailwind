@@ -1,14 +1,24 @@
-import { GoogleAuthProvider, signInWithRedirect } from "firebase/auth";
-import { getAuth } from "firebase/auth";
+import { GoogleAuthProvider, signInWithPopup, getAuth } from "firebase/auth";
+import { useNavigate } from "react-router-dom";
 
 export const SignInButton = () => {
-  const handleClick = () => {
+  const navigate = useNavigate();
+
+  const handleClick = async () => {
     const provider = new GoogleAuthProvider();
     const auth = getAuth();
-    // @see https://firebase.google.com/docs/auth/web/google-signin
-    auth.languageCode = "ja";
+    auth.languageCode = "en";
 
-    signInWithRedirect(auth, provider);
+    try {
+      const result = await signInWithPopup(auth, provider);
+      const user = result.user;
+
+      // Handle successful sign-in
+      console.log("Signed in user:", user);
+      navigate("/homepage");
+    } catch (error) {
+      console.error("Error during sign-in:", error);
+    }
   };
 
   return (

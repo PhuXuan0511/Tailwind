@@ -71,7 +71,7 @@ function Login() {
           <button
             onClick={() => navigate("/signup")}
             type="button"
-            className="w-full bg-gray-700 text-white py-2 px-4 rounded-lg hover:bg-gray-600 transition normal-case min-w-60"
+            className="w-full bg-green-600 text-white py-2 px-4 rounded-lg hover:bg-green-700 transition normal-case min-w-60"
           >
             Sign Up
           </button>

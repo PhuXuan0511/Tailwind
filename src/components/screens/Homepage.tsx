@@ -24,7 +24,7 @@ function Homepage() {
     {
       title: "News",
       description: "Stay updated with the latest news and announcements from our library.",
-      path: "/news",
+      path: userRole === "admin" ? "/admin-manage-news" : "/news", // Admins go to ManageNews, others go to News
       icon: <NewspaperIcon className="h-12 w-12 text-blue-400 mb-4" />, // Adjusted for dark theme
     },
     {

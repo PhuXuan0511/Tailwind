@@ -1,7 +1,35 @@
 import React, { useState } from "react";
-import { SignInButton } from "~/components/domain/auth/SignInButton";
 import { useNavigate } from "react-router-dom";
 import library6 from "~/components/image/library6.jpg"; // Correctly importing library6
+import { getAuth, GoogleAuthProvider, signInWithPopup } from "firebase/auth";
+
+const SignInButton = () => {
+  const navigate = useNavigate();
+
+  const handleGoogleSignIn = async () => {
+    try {
+      const auth = getAuth();
+      const provider = new GoogleAuthProvider();
+      const result = await signInWithPopup(auth, provider);
+      const user = result.user;
+
+      console.log("Google Sign-In successful:", user.uid); // Log the user's UID
+      navigate("/homepage"); // Redirect to the homepage or another page after login
+    } catch (error: any) {
+      console.error("Error during Google Sign-In:", error.message);
+      alert("Failed to sign in with Google. Please try again.");
+    }
+  };
+
+  return (
+    <button
+      onClick={handleGoogleSignIn}
+      className="bg-red-500 text-white py-2 px-4 rounded-lg hover:bg-red-600 transition normal-case max-w-xs w-full"
+    >
+      Sign in with Google
+    </button>
+  );
+};
 
 function Login() {
   const [email, setEmail] = useState("");

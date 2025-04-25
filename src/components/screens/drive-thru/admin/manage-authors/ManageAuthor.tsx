@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { collection, addDoc, deleteDoc, doc, onSnapshot } from "firebase/firestore";
 import { useFirestore } from "~/lib/firebase";
 import { Head } from "~/components/shared/Head";
+import { useNavigate } from "react-router-dom"; // Import useNavigate
 
 type Author = {
   id: string;
@@ -10,6 +11,7 @@ type Author = {
 
 function ManageAuthor() {
   const firestore = useFirestore();
+  const navigate = useNavigate(); // Initialize navigate
   const [authors, setAuthors] = useState<Author[]>([]);
   const [newAuthor, setNewAuthor] = useState("");
   const [error, setError] = useState<string | null>(null); // Add error state
@@ -67,6 +69,16 @@ function ManageAuthor() {
     <div className="min-h-screen bg-gray-900 text-white">
       <Head title="Manage Authors" />
       <div className="container mx-auto px-4 py-6">
+        {/* Back Button */}
+        <div className="mb-4">
+          <button
+            onClick={() => navigate(-1)}
+            className="bg-gray-500 text-white px-3 py-1 rounded text-sm hover:bg-gray-600"
+          >
+            Back
+          </button>
+        </div>
+
         <h1 className="text-3xl font-bold mb-6">Manage Authors</h1>
 
         {error && <p className="text-red-500 mb-4">{error}</p>} {/* Display error message */}

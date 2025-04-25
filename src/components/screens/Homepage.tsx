@@ -1,6 +1,6 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import Slider from "react-slick/dist/react-slick";
+import Slider from "react-slick";
 import library1 from "~/components/image/library1.jpg";
 import library2 from "~/components/image/library2.jpg";
 import library3 from "~/components/image/library3.jpg";

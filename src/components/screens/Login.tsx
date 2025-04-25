@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { SignInButton } from "~/components/domain/auth/SignInButton";
 import { useNavigate } from "react-router-dom";
-import library5 from "~/components/image/library5.jpg";
+import library6 from "~/components/image/library6.jpg"; // Correctly importing library6
 
 function Login() {
   const [email, setEmail] = useState("");
@@ -19,14 +19,16 @@ function Login() {
     <div
       className="min-h-screen bg-gray-900 text-gray-100 flex items-center justify-center"
       style={{
-        backgroundImage: `url(${library5})`,
+        backgroundImage: `url(${library6})`, // Using library6 as the background image
         backgroundSize: "cover",
         backgroundPosition: "center",
         backgroundRepeat: "no-repeat",
       }}
     >
       <div className="bg-gray-800 bg-opacity-90 p-6 rounded-lg shadow-lg w-full [width:600px] max-w-md">
-        <h1 className="text-3xl font-bold text-center mb-6">Welcome Back</h1>
+        <h1 className="text-3xl font-bold text-center mb-6 text-purple-500">
+          Welcome Back
+        </h1>
         <p className="text-gray-400 text-center mb-8">
           Sign in to access your account and explore our library.
         </p>
@@ -59,21 +61,23 @@ function Login() {
               required
             />
           </div>
-          <button
-            type="submit"
-            className="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition normal-case min-w-60"
-          >
-            Login
-          </button>
+          <div className="flex justify-center">
+            <button
+              type="submit"
+              className="bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition normal-case max-w-xs w-full"
+            >
+              Login
+            </button>
+          </div>
         </form>
         <div className="flex flex-col items-center mt-6 space-y-4">
           <SignInButton />
           <button
             onClick={() => navigate("/signup")}
             type="button"
-            className="w-full bg-gray-700 text-white py-2 px-4 rounded-lg hover:bg-gray-600 transition normal-case min-w-60"
+            className="text-blue-400 hover:underline"
           >
-            Sign Up
+            Don't have an account? Sign Up
           </button>
         </div>
       </div>

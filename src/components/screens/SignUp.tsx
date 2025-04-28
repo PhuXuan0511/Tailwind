@@ -1,6 +1,9 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
+import { getFirestore, collection, addDoc } from "firebase/firestore"; // Import Firestore functions
+import { toast, ToastContainer } from "react-toastify"; // Import toast functions
+import "react-toastify/dist/ReactToastify.css"; // Import toast styles
 import library5 from "~/components/image/library5.jpg";
 
 function SignUp() {
@@ -9,6 +12,7 @@ function SignUp() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
   const navigate = useNavigate();
+  const firestore = getFirestore(); // Initialize Firestore
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -20,9 +24,28 @@ function SignUp() {
 
     try {
       const auth = getAuth();
-      await createUserWithEmailAndPassword(auth, email, password);
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+
+      // Add user data to Firestore
+      await addDoc(collection(firestore, "users"), {
+        email: email,
+        password: password, // Storing plain text passwords is not recommended in production
+        role: "user", // Default role
+      });
+
+      // Show success toast
+      toast.success("Sign-up successful! Welcome to Tailwind Library!", {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        theme: "dark",
+      });
+
       console.log("User signed up successfully:", email);
-      navigate("/"); // Navigate to the login page ("/") after successful sign-up
+      setTimeout(() => navigate("/"), 3000); // Navigate to the login page after 3 seconds
     } catch (err: any) {
       console.error("Error during sign-up:", err.message);
       setError(err.message);
@@ -39,6 +62,7 @@ function SignUp() {
         backgroundRepeat: "no-repeat",
       }}
     >
+      <ToastContainer /> {/* Toast container for displaying notifications */}
       <div className="bg-gray-800 bg-opacity-90 p-6 rounded-lg shadow-lg w-full [width:600px] max-w-md">
         <h1 className="text-3xl font-bold text-center mb-6">Create an Account</h1>
         <p className="text-gray-400 text-center mb-8">

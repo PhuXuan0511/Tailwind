@@ -1,14 +1,14 @@
 import React, { useEffect, useState } from "react";
-import { collection, query, where, doc, getDoc, onSnapshot } from "firebase/firestore"; // Add onSnapshot import
+import { collection, query, where, doc, getDoc, onSnapshot, addDoc } from "firebase/firestore";
 import { firestore } from "~/lib/firebase";
 import { getAuth } from "firebase/auth";
 import { Head } from "~/components/shared/Head";
-import { useNavigate } from "react-router-dom"; // Import useNavigate for navigation
+import { useNavigate } from "react-router-dom";
 
 function ViewLending() {
   const [lendings, setLendings] = useState<any[]>([]); // Use `any[]` to handle Firestore data dynamically
   const [loading, setLoading] = useState(true);
-  const navigate = useNavigate(); // Initialize navigate for navigation
+  const navigate = useNavigate();
 
   useEffect(() => {
     const auth = getAuth(); // Get Firebase Auth instance
@@ -33,9 +33,12 @@ function ViewLending() {
           const bookDoc = await getDoc(doc(firestore, "books", lending.bookId));
           const bookTitle = bookDoc.exists() ? bookDoc.data().title : "Unknown Book";
 
-          // Fetch borrower name
-          const userDoc = await getDoc(doc(firestore, "users", lending.userId));
-          const borrowerName = userDoc.exists() ? userDoc.data().name : "Unknown User";
+          // Fetch borrower name dynamically using userId
+          let borrowerName = "Unknown User";
+          if (lending.userId) {
+            const userDoc = await getDoc(doc(firestore, "users", lending.userId));
+            borrowerName = userDoc.exists() && userDoc.data().name ? userDoc.data().name : "Unknown User";
+          }
 
           return {
             id: docSnapshot.id,
@@ -55,6 +58,32 @@ function ViewLending() {
     // Cleanup the listener when the component unmounts
     return () => unsubscribe();
   }, []);
+
+  const handleRequestToBorrow = async (book: any) => {
+    try {
+      const auth = getAuth(); // Get Firebase Auth instance
+      const currentUser = auth.currentUser; // Get the currently logged-in user
+
+      if (!currentUser) {
+        alert("You must be logged in to borrow a book.");
+        return;
+      }
+
+      const lendingRequest = {
+        bookId: book.id,
+        userId: currentUser.uid, // Use the logged-in user's ID
+        requestDate: new Date().toISOString().split("T")[0],
+        returnDate: null,
+        status: "Requesting",
+      };
+
+      await addDoc(collection(firestore, "lendings"), lendingRequest);
+      alert(`Request to borrow "${book.title}" submitted successfully!`);
+    } catch (error) {
+      console.error("Error creating lending request:", error);
+      alert("Failed to submit request. Please try again.");
+    }
+  };
 
   if (loading) {
     return <p className="text-center text-gray-300">Loading lendings...</p>;
@@ -81,7 +110,7 @@ function ViewLending() {
               <tr>
                 <th className="border-b border-gray-700 p-2">Title</th>
                 <th className="border-b border-gray-700 p-2">Borrower</th>
-                <th className="border-b border-gray-700 p-2">Request Date</th> {/* Updated */}
+                <th className="border-b border-gray-700 p-2">Request Date</th>
                 <th className="border-b border-gray-700 p-2">Due Date</th>
                 <th className="border-b border-gray-700 p-2">Status</th>
               </tr>
@@ -91,8 +120,8 @@ function ViewLending() {
                 <tr key={lending.id}>
                   <td className="border-b border-gray-700 p-2">{lending.bookTitle}</td>
                   <td className="border-b border-gray-700 p-2">{lending.borrowerName}</td>
-                  <td className="border-b border-gray-700 p-2">{lending.requestDate}</td> {/* Updated */}
-                  <td className="border-b border-gray-700 p-2">{lending.returnDate || null}</td> {/* Explicitly handle null */}
+                  <td className="border-b border-gray-700 p-2">{lending.requestDate}</td>
+                  <td className="border-b border-gray-700 p-2">{lending.returnDate || "N/A"}</td>
                   <td className="border-b border-gray-700 p-2">{lending.status}</td>
                 </tr>
               ))}

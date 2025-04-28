@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
 import library5 from "~/components/image/library5.jpg";
-import { Layout } from "../shared/Layout";
 
 function SignUp() {
   const [email, setEmail] = useState("");
@@ -23,7 +22,7 @@ function SignUp() {
       const auth = getAuth();
       await createUserWithEmailAndPassword(auth, email, password);
       console.log("User signed up successfully:", email);
-      navigate("/login"); // Navigate back to the login screen
+      navigate("/"); // Navigate to the login page ("/") after successful sign-up
     } catch (err: any) {
       console.error("Error during sign-up:", err.message);
       setError(err.message);
@@ -98,7 +97,7 @@ function SignUp() {
         </form>
         <div className="flex justify-center mt-6">
           <button
-            onClick={() => navigate("/login")}
+            onClick={() => navigate("/")} // Navigate to the login page ("/") when clicked
             type="button"
             className="text-blue-400 hover:underline"
           >

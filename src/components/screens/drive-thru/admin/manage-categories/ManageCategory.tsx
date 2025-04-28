@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { collection, addDoc, deleteDoc, doc, onSnapshot } from "firebase/firestore";
 import { useFirestore } from "~/lib/firebase";
 import { Head } from "~/components/shared/Head";
+import { useNavigate } from "react-router-dom"; // Import useNavigate
 
 type Category = {
   id: string;
@@ -10,6 +11,7 @@ type Category = {
 
 function ManageCategory() {
   const firestore = useFirestore();
+  const navigate = useNavigate(); // Initialize navigate
   const [categories, setCategories] = useState<Category[]>([]);
   const [newCategory, setNewCategory] = useState("");
 
@@ -51,6 +53,16 @@ function ManageCategory() {
     <div className="min-h-screen bg-gray-900 text-white">
       <Head title="Manage Categories" />
       <div className="container mx-auto px-4 py-6">
+        {/* Back Button */}
+        <div className="mb-4">
+          <button
+            onClick={() => navigate(-1)}
+            className="bg-gray-500 text-white px-3 py-1 rounded text-sm hover:bg-gray-600"
+          >
+            Back
+          </button>
+        </div>
+
         <h1 className="text-3xl font-bold mb-6">Manage Categories</h1>
 
         <div className="mb-4 flex gap-2">

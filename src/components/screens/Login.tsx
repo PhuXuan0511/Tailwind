@@ -1,7 +1,9 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import library6 from "~/components/image/library6.jpg"; // Correctly importing library6
-import { getAuth, GoogleAuthProvider, signInWithPopup } from "firebase/auth";
+import { getAuth, signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup } from "firebase/auth";
+import { toast, ToastContainer } from "react-toastify"; // Import toast functions
+import "react-toastify/dist/ReactToastify.css"; // Import toast styles
 
 const SignInButton = () => {
   const navigate = useNavigate();
@@ -14,10 +16,27 @@ const SignInButton = () => {
       const user = result.user;
 
       console.log("Google Sign-In successful:", user.uid); // Log the user's UID
-      navigate("/homepage"); // Redirect to the homepage or another page after login
+      toast.success("Google Sign-In successful!", {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        theme: "dark",
+      });
+      navigate("/homepage"); // Redirect to the homepage after login
     } catch (error: any) {
       console.error("Error during Google Sign-In:", error.message);
-      alert("Failed to sign in with Google. Please try again.");
+      toast.error("Failed to sign in with Google. Please try again.", {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        theme: "dark",
+      });
     }
   };
 
@@ -36,11 +55,37 @@ function Login() {
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Handle login logic here (e.g., Firebase authentication)
-    console.log("Email:", email);
-    console.log("Password:", password);
+
+    try {
+      const auth = getAuth();
+      await signInWithEmailAndPassword(auth, email, password);
+
+      toast.success("Login successful! Redirecting to homepage...", {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        theme: "dark",
+      });
+
+      console.log("Login successful:", email);
+      setTimeout(() => navigate("/homepage"), 3000); // Navigate to the homepage after 3 seconds
+    } catch (error: any) {
+      console.error("Error during login:", error.message);
+      toast.error("Failed to log in. Please check your credentials and try again.", {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        theme: "dark",
+      });
+    }
   };
 
   return (
@@ -53,6 +98,7 @@ function Login() {
         backgroundRepeat: "no-repeat",
       }}
     >
+      <ToastContainer /> {/* Toast container for displaying notifications */}
       <div className="bg-gray-800 bg-opacity-90 p-6 rounded-lg shadow-lg w-full [width:600px] max-w-md">
         <h1 className="text-3xl font-bold text-center mb-6 text-purple-500">
           Welcome Back

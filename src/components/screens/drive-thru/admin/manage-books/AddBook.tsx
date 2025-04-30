@@ -3,7 +3,7 @@ import { useFirestore } from "~/lib/firebase";
 import { collection, addDoc, getDocs } from "firebase/firestore";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { useNavigate } from "react-router-dom";
-import { ToastContainer, toast } from 'react-toastify';
+import { ToastContainer, toast } from "react-toastify";
 
 function AddBookScreen() {
   const firestore = useFirestore();
@@ -12,34 +12,43 @@ function AddBookScreen() {
   const [formData, setFormData] = useState({
     isbn: "",
     title: "",
-    author: "",
     year: "",
     edition: "",
     quantity: "",
   });
 
+  const [selectedAuthors, setSelectedAuthors] = useState<{ id: string; name: string }[]>([]);
+  const [authors, setAuthors] = useState<{ id: string; name: string }[]>([]);
   const [selectedCategories, setSelectedCategories] = useState<{ id: string; name: string }[]>([]);
-  const [categories, setCategories] = useState<{ id: string; name: string }[]>([]); // State for categories with both id and name
+  const [categories, setCategories] = useState<{ id: string; name: string }[]>([]);
   const [imageFile, setImageFile] = useState<File | null>(null);
 
-  // Fetch categories from Firestore
+  // Fetch authors and categories from Firestore
   useEffect(() => {
-    const fetchCategories = async () => {
+    const fetchData = async () => {
       try {
-        const categoriesCollection = collection(firestore, "categories");
-        const categorySnapshot = await getDocs(categoriesCollection);
-        const categoryList = categorySnapshot.docs.map(doc => ({
+        const authorsCollection = collection(firestore, "authors");
+        const authorsSnapshot = await getDocs(authorsCollection);
+        const authorList = authorsSnapshot.docs.map((doc) => ({
           id: doc.id,
-          name: doc.data().name, // Assuming the category name is stored in the "name" field
+          name: doc.data().name,
+        }));
+        setAuthors(authorList);
+
+        const categoriesCollection = collection(firestore, "categories");
+        const categoriesSnapshot = await getDocs(categoriesCollection);
+        const categoryList = categoriesSnapshot.docs.map((doc) => ({
+          id: doc.id,
+          name: doc.data().name,
         }));
         setCategories(categoryList);
       } catch (error) {
-        console.error("Error fetching categories:", error);
-        toast.error("Failed to load categories.");
+        console.error("Error fetching data:", error);
+        toast.error("Failed to load authors or categories.");
       }
     };
 
-    fetchCategories();
+    fetchData();
   }, [firestore]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -52,7 +61,14 @@ function AddBookScreen() {
     setImageFile(file || null);
   };
 
-  // Handle category selection and add it to the list
+  const handleAuthorSelect = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const selectedValue = e.target.value;
+    const selectedAuthor = authors.find((author) => author.id === selectedValue);
+    if (selectedAuthor && !selectedAuthors.some((auth) => auth.id === selectedAuthor.id)) {
+      setSelectedAuthors((prev) => [...prev, selectedAuthor]);
+    }
+  };
+
   const handleCategorySelect = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const selectedValue = e.target.value;
     const selectedCategory = categories.find((category) => category.id === selectedValue);
@@ -61,7 +77,10 @@ function AddBookScreen() {
     }
   };
 
-  // Remove category from selected list
+  const handleAuthorRemove = (authorId: string) => {
+    setSelectedAuthors((prev) => prev.filter((item) => item.id !== authorId));
+  };
+
   const handleCategoryRemove = (categoryId: string) => {
     setSelectedCategories((prev) => prev.filter((item) => item.id !== categoryId));
   };
@@ -70,8 +89,7 @@ function AddBookScreen() {
     e.preventDefault();
     try {
       const booksCollection = collection(firestore, "books");
-      const authorsCollection = collection(firestore, "authors");
-  
+
       // Handle image upload
       let imageUrl = "";
       if (imageFile) {
@@ -80,36 +98,19 @@ function AddBookScreen() {
         await uploadBytes(storageRef, imageFile);
         imageUrl = await getDownloadURL(storageRef);
       }
-  
-      // Check if author exists or create new one
-      let authorId = "";
-      const authorsSnapshot = await getDocs(authorsCollection);
-      const existingAuthor = authorsSnapshot.docs.find(
-        doc => doc.data().name.toLowerCase() === formData.author.trim().toLowerCase()
-      );
-      if (existingAuthor) {
-        authorId = existingAuthor.id;
-      } else {
-        const newAuthorDoc = await addDoc(authorsCollection, {
-          name: formData.author.trim(),
-        });
-        authorId = newAuthorDoc.id;
-      }
-  
+
       // Add the new book
       await addDoc(booksCollection, {
         isbn: formData.isbn,
         title: formData.title,
-        author: authorId,
+        author: selectedAuthors.map((auth) => auth.id), // Save author as an array of IDs
         year: parseInt(formData.year, 10),
         edition: formData.edition,
         quantity: parseInt(formData.quantity, 10),
-        restrictions: "",
         imageUrl,
-        category: selectedCategories[0]?.id || "", // If using one category
-        // For multiple: categories: selectedCategories.map(c => c.id)
+        category: selectedCategories.map((cat) => cat.id), // Save category as an array of IDs
       });
-  
+
       toast.success("Book added successfully!");
       navigate("/manage-book");
     } catch (error) {
@@ -117,8 +118,6 @@ function AddBookScreen() {
       toast.error("Failed to add book.");
     }
   };
-  
-  
 
   return (
     <div className="min-h-screen bg-gray-900 text-white">
@@ -151,43 +150,40 @@ function AddBookScreen() {
             />
           </div>
 
-          {/* Author Input */}
+          {/* Author Dropdown */}
           <div className="mb-4">
-            <label className="block text-sm font-medium mb-1">Author</label>
-            <input
-              type="text"
-              name="author"
-              value={formData.author}
-              onChange={handleChange}
+            <label className="block text-sm font-medium mb-1">Select Author</label>
+            <select
+              value=""
+              onChange={handleAuthorSelect}
               className="p-2 border border-gray-600 rounded w-full bg-gray-700 text-white"
-              required
-            />
+            >
+              <option value="">Choose an author</option>
+              {authors.map((author) => (
+                <option key={author.id} value={author.id}>
+                  {author.name}
+                </option>
+              ))}
+            </select>
           </div>
 
-          {/* Year Input */}
+          {/* Display Selected Authors */}
           <div className="mb-4">
-            <label className="block text-sm font-medium mb-1">Year</label>
-            <input
-              type="number"
-              name="year"
-              value={formData.year}
-              onChange={handleChange}
-              className="p-2 border border-gray-600 rounded w-full bg-gray-700 text-white"
-              required
-            />
-          </div>
-
-          {/* Edition Input */}
-          <div className="mb-4">
-            <label className="block text-sm font-medium mb-1">Edition</label>
-            <input
-              type="text"
-              name="edition"
-              value={formData.edition}
-              onChange={handleChange}
-              className="p-2 border border-gray-600 rounded w-full bg-gray-700 text-white"
-              required
-            />
+            <h3 className="text-sm font-medium">Selected Authors:</h3>
+            <ul className="list-disc pl-6">
+              {selectedAuthors.map((author) => (
+                <li key={author.id} className="flex items-center justify-between">
+                  <span>{author.name}</span>
+                  <button
+                    type="button"
+                    onClick={() => handleAuthorRemove(author.id)}
+                    className="text-red-500 hover:text-red-700"
+                  >
+                    Remove
+                  </button>
+                </li>
+              ))}
+            </ul>
           </div>
 
           {/* Category Dropdown */}
@@ -224,6 +220,32 @@ function AddBookScreen() {
                 </li>
               ))}
             </ul>
+          </div>
+
+          {/* Year Input */}
+          <div className="mb-4">
+            <label className="block text-sm font-medium mb-1">Year</label>
+            <input
+              type="number"
+              name="year"
+              value={formData.year}
+              onChange={handleChange}
+              className="p-2 border border-gray-600 rounded w-full bg-gray-700 text-white"
+              required
+            />
+          </div>
+
+          {/* Edition Input */}
+          <div className="mb-4">
+            <label className="block text-sm font-medium mb-1">Edition</label>
+            <input
+              type="text"
+              name="edition"
+              value={formData.edition}
+              onChange={handleChange}
+              className="p-2 border border-gray-600 rounded w-full bg-gray-700 text-white"
+              required
+            />
           </div>
 
           {/* Quantity Input */}

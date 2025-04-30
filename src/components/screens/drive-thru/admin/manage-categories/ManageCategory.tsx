@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { collection, addDoc, deleteDoc, doc, onSnapshot } from "firebase/firestore";
+import { collection, addDoc, deleteDoc, doc, onSnapshot, query, where, getDocs } from "firebase/firestore";
 import { useFirestore } from "~/lib/firebase";
 import { Head } from "~/components/shared/Head";
 import { useNavigate } from "react-router-dom"; // Import useNavigate
@@ -43,6 +43,15 @@ function ManageCategory() {
     if (!confirmDelete) return;
 
     try {
+      // Check if the category is associated with any book
+      const booksQuery = query(collection(firestore, "books"), where("category", "array-contains", categoryId));
+      const booksSnapshot = await getDocs(booksQuery);
+
+      if (!booksSnapshot.empty) {
+        alert("This category is associated with one or more books and cannot be deleted.");
+        return;
+      }
+
       await deleteDoc(doc(firestore, "categories", categoryId));
     } catch (error) {
       console.error("Error deleting category:", error);

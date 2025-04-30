@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { collection, addDoc, deleteDoc, doc, onSnapshot } from "firebase/firestore";
+import { collection, addDoc, deleteDoc, doc, onSnapshot, query, where, getDocs } from "firebase/firestore";
 import { useFirestore } from "~/lib/firebase";
 import { Head } from "~/components/shared/Head";
 import { useNavigate } from "react-router-dom"; // Import useNavigate
@@ -58,6 +58,15 @@ function ManageAuthor() {
     if (!confirmDelete) return;
 
     try {
+      // Check if the author is associated with any book
+      const booksQuery = query(collection(firestore, "books"), where("author", "array-contains", authorId));
+      const booksSnapshot = await getDocs(booksQuery);
+
+      if (!booksSnapshot.empty) {
+        alert("This author is associated with one or more books and cannot be deleted.");
+        return;
+      }
+
       await deleteDoc(doc(firestore, "authors", authorId));
     } catch (error) {
       console.error("Error deleting author:", error);

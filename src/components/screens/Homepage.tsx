@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Slider from "react-slick";
 import library1 from "~/components/image/library1.jpg";
@@ -12,6 +12,11 @@ import "slick-carousel/slick/slick-theme.css";
 
 function Homepage() {
   const navigate = useNavigate();
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true); // Ensure the slider only renders on the client side
+  }, []);
 
   // Dynamically determine the path based on the user's role
   const userRole = localStorage.getItem("userRole") || "user"; // Default to "user" if no role is found
@@ -83,39 +88,41 @@ function Homepage() {
   return (
     <div className="min-h-screen bg-gray-900 text-gray-100">
       {/* Hero Slider */}
-      <div className="relative w-full h-[500px]">
-        <Slider {...sliderSettings}>
-          {slides.map((slide, index) => (
-            <div key={index} className="relative">
-              {/* Background Image */}
-              <img
-                src={slide.image}
-                alt={slide.title}
-                className="w-full h-[500px] object-cover"
-              />
-              {/* Overlay Content */}
-              <div className="absolute inset-0 bg-black bg-opacity-50 flex flex-col justify-center items-center text-center px-4">
-                <h1
-                  className="text-4xl sm:text-5xl font-bold text-white mb-4 drop-shadow-lg animate-fade-in"
-                  style={{
-                    textShadow: "2px 2px 6px rgba(0, 0, 0, 0.8)", // Deep border effect
-                  }}
-                >
-                  {slide.title}
-                </h1>
-                <p
-                  className="text-lg sm:text-xl text-gray-300 max-w-2xl animate-fade-in"
-                  style={{
-                    textShadow: "1px 1px 4px rgba(0, 0, 0, 0.8)", // Subtle border effect
-                  }}
-                >
-                  {slide.description}
-                </p>
+      {isClient && (
+        <div className="relative w-full h-[500px]">
+          <Slider {...sliderSettings}>
+            {slides.map((slide, index) => (
+              <div key={index} className="relative">
+                {/* Background Image */}
+                <img
+                  src={slide.image}
+                  alt={slide.title}
+                  className="w-full h-[500px] object-cover"
+                />
+                {/* Overlay Content */}
+                <div className="absolute inset-0 bg-black bg-opacity-50 flex flex-col justify-center items-center text-center px-4">
+                  <h1
+                    className="text-4xl sm:text-5xl font-bold text-white mb-4 drop-shadow-lg animate-fade-in"
+                    style={{
+                      textShadow: "2px 2px 6px rgba(0, 0, 0, 0.8)", // Deep border effect
+                    }}
+                  >
+                    {slide.title}
+                  </h1>
+                  <p
+                    className="text-lg sm:text-xl text-gray-300 max-w-2xl animate-fade-in"
+                    style={{
+                      textShadow: "1px 1px 4px rgba(0, 0, 0, 0.8)", // Subtle border effect
+                    }}
+                  >
+                    {slide.description}
+                  </p>
+                </div>
               </div>
-            </div>
-          ))}
-        </Slider>
-      </div>
+            ))}
+          </Slider>
+        </div>
+      )}
 
       {/* Cards Section */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mt-12 w-full max-w-6xl mx-auto px-4">

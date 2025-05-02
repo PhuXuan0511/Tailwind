@@ -103,7 +103,9 @@ function ViewBook() {
       const currentUser = auth.currentUser; // Get the currently logged-in user
 
       if (!currentUser) {
+        // Redirect to login if the user is not logged in
         toast.error("You must be logged in to borrow a book.");
+        navigate("/login"); // Redirect to the login page
         return;
       }
 

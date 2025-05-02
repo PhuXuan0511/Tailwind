@@ -33,7 +33,7 @@ const SignInButton = () => {
         await setDoc(userDocRef, {
           uid: user.uid,
           email: user.email,
-          displayName: user.displayName || "Anonymous",
+          name: user.displayName || "Anonymous", // Map displayName to name
           role: "user", // Default role
           createdAt: new Date().toISOString(),
         });

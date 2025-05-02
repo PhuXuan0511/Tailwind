@@ -14,18 +14,13 @@ const RequireAuth = ({ children, requiredRole }: { children: React.ReactNode; re
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
-  // Redirect users to the correct dashboard based on their role
-  if (role === "user" && location.pathname === "/") {
-    return <Navigate to="/user-dashboard" replace />;
-  }
+  // Debugging role
+  console.log("Current role:", role);
 
-  if (role === "admin" && location.pathname === "/") {
-    return <Navigate to="/admin-dashboard" replace />;
-  }
-
-  // Redirect if the user doesn't have the required role
+  // If a requiredRole is specified, check if the user's role matches
   if (requiredRole && role !== requiredRole) {
-    return <Navigate to="/" replace />;
+    // Redirect to the appropriate dashboard based on the user's role
+    return <Navigate to={role === "admin" ? "/admin-dashboard" : "/user-dashboard"} replace />;
   }
 
   return <>{children}</>;

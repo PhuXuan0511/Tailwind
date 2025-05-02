@@ -6,11 +6,13 @@ import library2 from "~/components/image/library2.jpg";
 import library3 from "~/components/image/library3.jpg";
 import library4 from "~/components/image/library4.jpg";
 import { NewspaperIcon, InformationCircleIcon, UserGroupIcon, AcademicCapIcon } from "@heroicons/react/24/solid";
+import { useAuth } from "~/lib/useAuth";
 
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 
 function Homepage() {
+  const { role, loading } = useAuth();
   const navigate = useNavigate();
   const [isClient, setIsClient] = useState(false);
 
@@ -18,23 +20,22 @@ function Homepage() {
     setIsClient(true); // Ensure the slider only renders on the client side
   }, []);
 
-  // Dynamically determine the path based on the user's role
-  const userRole = localStorage.getItem("userRole") || "user"; // Default to "user" if no role is found
+  if (loading) {
+    return <div>Loading...</div>; // Show a loading state while role is being fetched
+  }
 
   const cards = [
     {
       title: "Drive-Thru Model",
       description: "Experience our convenient drive-thru service to borrow and return books without leaving your car.",
-      path: userRole === "admin" ? "/admin-dashboard" : "/user-dashboard", // Navigate based on role
+      path: role === "admin" ? "/admin-dashboard" : "/user-dashboard", // Use role from useAuth
       icon: <AcademicCapIcon className="h-12 w-12 text-blue-400 mb-4" />,
     },
     {
       title: "News",
       description: "Stay updated with the latest news and announcements from our library.",
-
-      path: userRole === "admin" ? "/admin-manage-news" : "/news", // Admins go to ManageNews, others go to News
-      icon: <NewspaperIcon className="h-12 w-12 text-blue-400 mb-4" />, // Adjusted for dark theme
-
+      path: role === "admin" ? "/admin-manage-news" : "/news",
+      icon: <NewspaperIcon className="h-12 w-12 text-blue-400 mb-4" />,
     },
     {
       title: "Information",

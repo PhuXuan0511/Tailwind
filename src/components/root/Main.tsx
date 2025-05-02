@@ -1,25 +1,20 @@
 import { Router } from "~/components/router/Router";
-import { setupFirebase } from "~/lib/firebase";
 import { useEffect } from "react";
-import { getAuth, onAuthStateChanged } from "firebase/auth";
-import { useSignIn, useSignOut } from "~/components/contexts/UserContext";
+import { useAuth } from "~/lib/useAuth";
 
 function Main() {
-  const { signIn } = useSignIn();
-  const { signOut } = useSignOut();
+  const { user, role, loading } = useAuth();
+
   useEffect(() => {
-    setupFirebase();
+    console.log("Main component initialized");
+    console.log("User:", user);
+    console.log("Role:", role);
+  }, [user, role]);
 
-    const auth = getAuth();
+  if (loading) {
+    return <p>Loading...</p>;
+  }
 
-    onAuthStateChanged(auth, (user) => {
-      if (user) {
-        signIn(user);
-      } else {
-        signOut();
-      }
-    });
-  }, []);
   return (
     <main>
       <Router />

@@ -163,37 +163,41 @@ function ViewBook() {
           {filteredBooks.map((book) => (
             <div
               key={book.id}
-              className="bg-gray-800 p-4 rounded-lg shadow-lg hover:shadow-xl transition flex flex-col relative"
+              className="bg-gray-800 p-4 rounded-lg shadow-lg hover:shadow-xl transition relative flex flex-col min-h-[350px]" // Increased minimum height
             >
-              {/* Book Image */}
-              <img
-                src={book.imageUrl || "https://via.placeholder.com/150"}
-                alt={book.title}
-                className="w-32 h-48 object-cover rounded mb-4"
-              />
-              {/* Book Details */}
-              <div className="flex-1">
-                <h2 className="text-2xl font-bold mb-2">{book.title}</h2>
-                <p className="text-gray-400 mb-1">by {authorMap[book.author] || "Unknown Author"}</p>
-                <p className="text-gray-400 mb-1">Categories: {book.category.join(", ")}</p>
-                <p className="text-gray-400 mb-1">Year: {book.year}</p>
-                <p className="text-gray-400 mb-1">Edition: {book.edition}</p>
-                <p className="text-gray-400 mb-1">Quantity: {book.quantity}</p>
-                {/* Buttons */}
-                <div className="mt-4 flex space-x-2">
-                  <button
-                    onClick={() => navigate(`/user-dashboard/book-detail/${book.id}`)}
-                    className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-                  >
-                    Preview
-                  </button>
-                  <button
-                    onClick={() => handleRequestToBorrow(book)}
-                    className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
-                  >
-                    Request to Borrow
-                  </button>
+              <div className="flex">
+                {/* Book Image */}
+                <img
+                  src={book.imageUrl || "https://via.placeholder.com/150"}
+                  alt={book.title}
+                  className="w-32 h-48 object-cover rounded mr-4"
+                />
+                {/* Book Details */}
+                <div className="flex-1 flex flex-col">
+                  <div>
+                    <h2 className="text-2xl font-bold mb-2">{book.title}</h2>
+                    <p className="text-gray-400 mb-1">by {authorMap[book.author] || "Unknown Author"}</p>
+                    <p className="text-gray-400 mb-1">Categories: {book.category.join(", ")}</p>
+                    <p className="text-gray-400 mb-1">Year: {book.year}</p>
+                    <p className="text-gray-400 mb-1">Edition: {book.edition}</p>
+                    <p className="text-gray-400 mb-1">Quantity: {book.quantity}</p>
+                  </div>
                 </div>
+              </div>
+              {/* Buttons */}
+              <div className="mt-auto flex justify-end space-x-2">
+                <button
+                  onClick={() => navigate(`/user-dashboard/book-detail/${book.id}`)}
+                  className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+                >
+                  Preview
+                </button>
+                <button
+                  onClick={() => handleRequestToBorrow(book)}
+                  className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
+                >
+                  Request to Borrow
+                </button>
               </div>
             </div>
           ))}

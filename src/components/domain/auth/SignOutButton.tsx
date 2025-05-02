@@ -1,4 +1,4 @@
-import { useAuth } from "~/lib/firebase";
+import { useAuth } from "~/lib/useAuth";
 
 type Props = {};
 

@@ -106,7 +106,8 @@ function Login() {
           createdAt: new Date().toISOString(),
         });
         console.log("User document created in Firestore");
-      } else {
+      }
+      else {
         console.log("User document already exists in Firestore");
       }
 

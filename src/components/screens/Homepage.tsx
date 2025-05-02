@@ -1,7 +1,14 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import Slider from "react-slick";
 import library1 from "~/components/image/library1.jpg";
+import library2 from "~/components/image/library2.jpg";
+import library3 from "~/components/image/library3.jpg";
+import library4 from "~/components/image/library4.jpg";
 import { NewspaperIcon, InformationCircleIcon, UserGroupIcon, AcademicCapIcon } from "@heroicons/react/24/solid";
+
+import "slick-carousel/slick/slick.css";
+import "slick-carousel/slick/slick-theme.css";
 
 function Homepage() {
   const navigate = useNavigate();
@@ -24,8 +31,10 @@ function Homepage() {
     {
       title: "News",
       description: "Stay updated with the latest news and announcements from our library.",
+
       path: userRole === "admin" ? "/admin-manage-news" : "/news", // Admins go to ManageNews, others go to News
       icon: <NewspaperIcon className="h-12 w-12 text-blue-400 mb-4" />, // Adjusted for dark theme
+
     },
     {
       title: "Information",
@@ -41,34 +50,79 @@ function Homepage() {
     },
   ];
 
+  const slides = [
+    {
+      image: library1,
+      title: "Drive-Thru Model",
+      description:
+        "Experience our convenient drive-thru service to borrow and return books without leaving your car.",
+    },
+    {
+      image: library2,
+      title: "Explore Our Collection",
+      description: "Discover a wide range of books and resources available at our library.",
+    },
+    {
+      image: library3,
+      title: "Digital Access",
+      description: "Access e-books, audiobooks, and digital resources anytime, anywhere.",
+    },
+    {
+      image: library4,
+      title: "Community Events",
+      description: "Join exciting events and workshops hosted by our library.",
+    },
+  ];
+
+  const sliderSettings = {
+    dots: true,
+    infinite: true,
+    speed: 800,
+    fade: true,
+    autoplay: true,
+    autoplaySpeed: 5000,
+    arrows: false,
+    pauseOnHover: true,
+  };
+
   return (
     <div className="min-h-screen bg-gray-900 text-gray-100">
-      {/* Hero Section */}
-      <div className="relative w-full h-[500px]">
-        <img
-          src={library1}
-          alt="Library"
-          className="w-full h-[500px] object-cover"
-        />
-        <div className="absolute inset-0 bg-black bg-opacity-50 flex flex-col justify-center items-center text-center px-4">
-          <h1
-            className="text-4xl sm:text-5xl font-bold text-white mb-4 drop-shadow-lg"
-            style={{
-              textShadow: "2px 2px 6px rgba(0, 0, 0, 0.8)", // Deep border effect
-            }}
-          >
-            Welcome to Our Library
-          </h1>
-          <p
-            className="text-lg sm:text-xl text-gray-300 max-w-2xl"
-            style={{
-              textShadow: "1px 1px 4px rgba(0, 0, 0, 0.8)", // Subtle border effect
-            }}
-          >
-            Discover a world of knowledge and resources at your fingertips.
-          </p>
+      {/* Hero Slider */}
+      {isClient && (
+        <div className="relative w-full h-[500px]">
+          <Slider {...sliderSettings}>
+            {slides.map((slide, index) => (
+              <div key={index} className="relative">
+                {/* Background Image */}
+                <img
+                  src={slide.image}
+                  alt={slide.title}
+                  className="w-full h-[500px] object-cover"
+                />
+                {/* Overlay Content */}
+                <div className="absolute inset-0 bg-black bg-opacity-50 flex flex-col justify-center items-center text-center px-4">
+                  <h1
+                    className="text-4xl sm:text-5xl font-bold text-white mb-4 drop-shadow-lg animate-fade-in"
+                    style={{
+                      textShadow: "2px 2px 6px rgba(0, 0, 0, 0.8)", // Deep border effect
+                    }}
+                  >
+                    {slide.title}
+                  </h1>
+                  <p
+                    className="text-lg sm:text-xl text-gray-300 max-w-2xl animate-fade-in"
+                    style={{
+                      textShadow: "1px 1px 4px rgba(0, 0, 0, 0.8)", // Subtle border effect
+                    }}
+                  >
+                    {slide.description}
+                  </p>
+                </div>
+              </div>
+            ))}
+          </Slider>
         </div>
-      </div>
+      )}
 
       {/* Cards Section */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mt-12 w-full max-w-6xl mx-auto px-4">

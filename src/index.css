@@ -18,3 +18,15 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+
+.slick-slider {
+  display: block !important;
+}
+
+.slick-slide {
+  display: inline-block !important;
+}
+
+.slick-dots li button:before {
+  color: white !important;
+}

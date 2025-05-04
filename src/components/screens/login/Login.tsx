@@ -97,18 +97,18 @@ function Login() {
       const userDoc = await getDoc(userDocRef);
 
       if (!userDoc.exists()) {
-        // Create a new user document if it doesn't exist
-        await setDoc(userDocRef, {
-          uid: user.uid,
-          email: user.email,
-          displayName: user.displayName || "Anonymous",
-          role: "user", // Default role
-          createdAt: new Date().toISOString(),
+        // If the user document is missing, show an error
+        console.error("User document is missing in Firestore.");
+        toast.error("Your account is incomplete. Please contact support.", {
+          position: "top-right",
+          autoClose: 3000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          theme: "dark",
         });
-        console.log("User document created in Firestore");
-      }
-      else {
-        console.log("User document already exists in Firestore");
+        return; // Stop further execution
       }
 
       toast.success("Login successful! Redirecting to homepage...", {
@@ -194,13 +194,12 @@ function Login() {
         </form>
         <div className="flex flex-col items-center mt-6 space-y-4">
           <SignInButton />
-          <button
+          <a
             onClick={() => navigate("/signup")}
-            type="button"
-            className="w-full bg-gray-700 text-white py-2 px-4 rounded-lg hover:bg-gray-600 transition normal-case min-w-60"
+            className="text-blue-400 hover:underline cursor-pointer"
           >
             Don't have an account? Sign Up
-          </button>
+          </a>
         </div>
       </div>
     </div>

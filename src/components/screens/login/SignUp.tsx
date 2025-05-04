@@ -1,15 +1,16 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
-import { getFirestore, collection, addDoc } from "firebase/firestore"; // Import Firestore functions
+import { getFirestore, collection, addDoc, doc, setDoc } from "firebase/firestore"; // Import Firestore functions
 import { toast, ToastContainer } from "react-toastify"; // Import toast functions
 import "react-toastify/dist/ReactToastify.css"; // Import toast styles
-import library5 from "~/components/image/library5.jpg";
+import library6 from "~/components/image/library6.jpg";
 
 function SignUp() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [username, setUsername] = useState(""); // New state for username
   const [error, setError] = useState("");
   const navigate = useNavigate();
   const firestore = getFirestore(); // Initialize Firestore
@@ -25,12 +26,16 @@ function SignUp() {
     try {
       const auth = getAuth();
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      const user = userCredential.user;
 
-      // Add user data to Firestore
-      await addDoc(collection(firestore, "users"), {
+      // Add user data to Firestore with the `uid` as the document ID
+      const userDocRef = doc(firestore, "users", user.uid); // Use `uid` as the document ID
+      await setDoc(userDocRef, {
+        uid: user.uid,
         email: email,
-        password: password, // Storing plain text passwords is not recommended in production
+        name: username, // Store the username as "name"
         role: "user", // Default role
+        createdAt: new Date().toISOString(),
       });
 
       // Show success toast
@@ -56,7 +61,7 @@ function SignUp() {
     <div
       className="min-h-screen bg-gray-900 text-gray-100 flex items-center justify-center"
       style={{
-        backgroundImage: `url(${library5})`,
+        backgroundImage: `url(${library6})`,
         backgroundSize: "cover",
         backgroundPosition: "center",
         backgroundRepeat: "no-repeat",
@@ -70,6 +75,20 @@ function SignUp() {
         </p>
         {error && <p className="text-red-500 text-center mb-4">{error}</p>}
         <form onSubmit={handleSignUp} className="space-y-6">
+          <div>
+            <label htmlFor="username" className="block text-sm font-medium text-gray-300">
+              Username
+            </label>
+            <input
+              type="text"
+              id="username"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              className="mt-1 block w-full px-4 py-2 bg-gray-700 text-gray-100 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+              placeholder="Enter your username"
+              required
+            />
+          </div>
           <div>
             <label htmlFor="email" className="block text-sm font-medium text-gray-300">
               Email

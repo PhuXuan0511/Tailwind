@@ -45,6 +45,7 @@ const ViewProfile: React.FC = () => {
           const userDocRef = doc(db, "users", currentUser.uid);
           const userDoc = await getDoc(userDocRef);
 
+          // "No..." as placeholders for unspecified user attributes
           if (userDoc.exists()) {
             const userData = userDoc.data() as Omit<
               UserProfile,

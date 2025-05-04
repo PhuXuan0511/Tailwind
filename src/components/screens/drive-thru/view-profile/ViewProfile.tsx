@@ -16,7 +16,6 @@ interface UserProfile {
   name?: string; // Add the name property
   phoneNumber?: string;
   role?: string;
-
   // Add any other user attributes you want to display
 }
 

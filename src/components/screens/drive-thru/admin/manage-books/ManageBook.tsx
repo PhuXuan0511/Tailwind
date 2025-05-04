@@ -159,16 +159,14 @@ function ManageBook() {
   // Helper function to get category names from category IDs
   const getCategoryNames = (categoryIds: string[]) => {
     return categoryIds
-      .map((categoryId) => categories.find((cat) => cat.id === categoryId)?.name)
-      .filter((name) => name)
+      .map((categoryId) => categories.find((cat) => cat.id === categoryId)?.name || "Unknown")
       .join(", ");
   };
 
   // Helper function to get author names from author IDs
   const getAuthorNames = (authorIds: string[]) => {
     return authorIds
-      .map((authorId) => authors.find((auth) => auth.id === authorId)?.name)
-      .filter((name) => name)
+      .map((authorId) => authors.find((auth) => auth.id === authorId)?.name || "Unknown")
       .join(", ");
   };
 

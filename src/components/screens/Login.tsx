@@ -1,7 +1,14 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import library6 from "~/components/image/library6.jpg"; // Correctly importing library6
-import { getAuth, signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup } from "firebase/auth";
+import {
+  getAuth,
+  signInWithEmailAndPassword,
+  GoogleAuthProvider,
+  signInWithPopup,
+} from "firebase/auth";
+import { doc, getDoc, setDoc } from "firebase/firestore"; // Firestore functions
+import { firestore } from "~/lib/firebase"; // Import Firestore instance
 import { toast, ToastContainer } from "react-toastify"; // Import toast functions
 import "react-toastify/dist/ReactToastify.css"; // Import toast styles
 
@@ -16,6 +23,25 @@ const SignInButton = () => {
       const user = result.user;
 
       console.log("Google Sign-In successful:", user.uid); // Log the user's UID
+
+      // Check if the user document exists in Firestore
+      const userDocRef = doc(firestore, "users", user.uid);
+      const userDoc = await getDoc(userDocRef);
+
+      if (!userDoc.exists()) {
+        // Create a new user document if it doesn't exist
+        await setDoc(userDocRef, {
+          uid: user.uid,
+          email: user.email,
+          name: user.displayName || "Anonymous", // Map displayName to name
+          role: "user", // Default role
+          createdAt: new Date().toISOString(),
+        });
+        console.log("User document created in Firestore");
+      } else {
+        console.log("User document already exists in Firestore");
+      }
+
       toast.success("Google Sign-In successful!", {
         position: "top-right",
         autoClose: 3000,
@@ -25,6 +51,7 @@ const SignInButton = () => {
         draggable: true,
         theme: "dark",
       });
+
       navigate("/homepage"); // Redirect to the homepage after login
     } catch (error: any) {
       console.error("Error during Google Sign-In:", error.message);
@@ -60,7 +87,29 @@ function Login() {
 
     try {
       const auth = getAuth();
-      await signInWithEmailAndPassword(auth, email, password);
+      const result = await signInWithEmailAndPassword(auth, email, password);
+      const user = result.user;
+
+      console.log("Login successful:", user.uid);
+
+      // Check if the user document exists in Firestore
+      const userDocRef = doc(firestore, "users", user.uid);
+      const userDoc = await getDoc(userDocRef);
+
+      if (!userDoc.exists()) {
+        // Create a new user document if it doesn't exist
+        await setDoc(userDocRef, {
+          uid: user.uid,
+          email: user.email,
+          displayName: user.displayName || "Anonymous",
+          role: "user", // Default role
+          createdAt: new Date().toISOString(),
+        });
+        console.log("User document created in Firestore");
+      }
+      else {
+        console.log("User document already exists in Firestore");
+      }
 
       toast.success("Login successful! Redirecting to homepage...", {
         position: "top-right",
@@ -72,7 +121,6 @@ function Login() {
         theme: "dark",
       });
 
-      console.log("Login successful:", email);
       setTimeout(() => navigate("/homepage"), 3000); // Navigate to the homepage after 3 seconds
     } catch (error: any) {
       console.error("Error during login:", error.message);

@@ -1,6 +1,4 @@
-import { getAuth } from "firebase/auth";
-
-const useAuth = () => getAuth();
+import { useAuth } from "~/lib/firebase";
 
 type Props = {};
 

@@ -82,25 +82,19 @@ function ManageLending() {
       // Decrease the book quantity by 1
       await updateDoc(bookDocRef, { quantity: currentQuantity - 1 });
 
-      // Calculate return date (7 days from today)
-      const today = new Date();
-      const returnDate = new Date(today);
-      returnDate.setDate(today.getDate() + 7);
-      const formattedReturnDate = returnDate.toISOString().split("T")[0];
 
       // Update the lending status to "Approved" and set the return date
       const lendingDocRef = doc(firestore, "lendings", lending.id);
-      await updateDoc(lendingDocRef, { status: LendStat.Ap, returnDate: formattedReturnDate });
 
       // Update the state
       setLendings((prev) =>
         prev.map((l) =>
-          l.id === lending.id ? { ...l, status: LendStat.Ap, returnDate: formattedReturnDate } : l
+          l.id === lending.id ? { ...l, status: LendStat.Ap} : l
         )
       );
       setFilteredLendings((prev) =>
         prev.map((l) =>
-          l.id === lending.id ? { ...l, status: LendStat.Ap, returnDate: formattedReturnDate } : l
+          l.id === lending.id ? { ...l, status: LendStat.Ap} : l
         )
       );
 
@@ -110,6 +104,38 @@ function ManageLending() {
       toast.error("Failed to approve lending. Please try again.");
     }
   };
+
+  // Mark a lending as borrowed (life: a client fetches the book)
+  const handleMarkAsBorrowed = async (lending: Lending) => {
+    try {
+      // Set the return date to 7 days from now
+      const today = new Date();
+      const returnDate = new Date(today);
+      returnDate.setDate(today.getDate() + 7);
+      const formattedReturnDate = returnDate.toISOString().split("T")[0];
+      
+      // Update the lending status to "Borrowed"
+      const lendingDocRef = doc(firestore, "lendings", lending.id);
+      await updateDoc(lendingDocRef, { status: LendStat.Br, returnDate: formattedReturnDate });
+
+      // Update the state
+      setLendings((prev) =>
+        prev.map((l) =>
+          l.id === lending.id ? { ...l, status: LendStat.Br, returnDate: formattedReturnDate} : l
+        )
+      );
+      setFilteredLendings((prev) =>
+        prev.map((l) =>
+          l.id === lending.id ? { ...l, status: LendStat.Br, returnDate: formattedReturnDate } : l
+        )
+      );
+
+      toast.success("Lending marked as borrowed!");
+    } catch (error) { 
+      console.error("Error marking lending as borrowed:", error);
+      toast.error("Failed to mark lending as borrowed. Please try again.");
+    }
+  }
 
   // Mark a lending as returned
   const handleMarkAsReturned = async (lending: Lending) => {
@@ -225,6 +251,8 @@ function ManageLending() {
 
     if (action === "approve") {
       await handleApprove(lending); // Call the handleApprove function
+    } else if (action === "markAsBorrowed") {
+      await handleMarkAsBorrowed(lending); // Call the handleMarkAsBorrowed function
     } else if (action === "markAsReturned") {
       await handleMarkAsReturned(lending); // Call the handleMarkAsReturned function
     } else if (action === "edit") {
@@ -311,6 +339,9 @@ function ManageLending() {
                       <option value="">Select Action</option>
                       {lending.status === LendStat.Rq && <option value="approve">Approve</option>}
                       {lending.status === LendStat.Ap && (
+                        <option value="markAsBorrowed">Mark as Borrowed</option>
+                      )}
+                      {lending.status === LendStat.Br && (
                         <option value="markAsReturned">Mark as Returned</option>
                       )}
                       <option value="edit">Edit</option>

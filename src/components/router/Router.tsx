@@ -21,7 +21,7 @@ const Page404Screen = lazy(() => import('~/components/screens/404')); // 404 pag
 const ManageLendingScreen = lazy(() => import('~/components/screens/drive-thru/admin/manage-lendings/ManageLending')); // Manage Lending page
 const AddLendingScreen = lazy(() => import('~/components/screens/drive-thru/admin/manage-lendings/AddLending')); // Add Lending page
 const EditLendingScreen = lazy(() => import('~/components/screens/drive-thru/admin/manage-lendings/EditLending')); // Edit Lending page
-const LoginScreen = lazy(() => import('~/components/screens/Login')); // Login page
+const LoginScreen = lazy(() => import('~/components/screens/login/Login')); // Login page
 const ViewProfileScreen = lazy(() => import('~/components/screens/drive-thru/view-profile/ViewProfile')); // View Profile page
 const ViewBook = lazy(() => import('~/components/screens/drive-thru/user/view-books/ViewBook')); // Lazy load ViewBook
 const ViewLending = lazy(() => import('~/components/screens/drive-thru/user/view-lendings/ViewLending')); // Lazy load ViewLending
@@ -32,7 +32,7 @@ const AddNewsScreen = lazy(() => import('~/components/screens/news/AddNews')); /
 const ViewNewsScreen = lazy(() => import('~/components/screens/news/ViewNews'));
 const ManageCategoryScreen = lazy(() => import('~/components/screens/drive-thru/admin/manage-categories/ManageCategory'));
 const ManageAuthorScreen = lazy(() => import('~/components/screens/drive-thru/admin/manage-authors/ManageAuthor')); // ✅ Lazy load ManageAuthor
-const SignUpScreen = lazy(() => import('~/components/screens/SignUp')); // Lazy load SignUpScreen
+const SignUpScreen = lazy(() => import('~/components/screens/login/SignUp')); // Lazy load SignUpScreen
 
 function Layout({ showHeader = true, children }: { showHeader?: boolean; children: React.ReactNode }) {
   const navigate = useNavigate(); // Import useNavigate for navigation

@@ -3,6 +3,7 @@ import { getAuth, onAuthStateChanged } from 'firebase/auth';
 import { doc, getDoc, getFirestore } from 'firebase/firestore';
 import { useNavigate } from 'react-router-dom';
 import { signOut } from "firebase/auth";
+import avatarFallback from "~/components/image/avatar.jpg";
 
 interface UserProfile {
   displayName: string;
@@ -12,9 +13,9 @@ interface UserProfile {
   createdAt?: string;
   birthyear?: string;
   address?: string;
+  name?: string; // Add the name property
   phoneNumber?: string;
   role?: string;
-
   // Add any other user attributes you want to display
 }
 
@@ -45,6 +46,7 @@ const ViewProfile: React.FC = () => {
           const userDocRef = doc(db, "users", currentUser.uid);
           const userDoc = await getDoc(userDocRef);
 
+          // "No..." as placeholders for unspecified user attributes
           if (userDoc.exists()) {
             const userData = userDoc.data() as Omit<
               UserProfile,
@@ -52,7 +54,7 @@ const ViewProfile: React.FC = () => {
             >;
 
             setUser({
-              displayName: currentUser.displayName || "No Name",
+              displayName: userData.name || currentUser.displayName || "No Name", // Prioritize Firestore's `name`
               email: currentUser.email || "No Email",
               photoURL: currentUser.photoURL || "https://via.placeholder.com/150",
               uid: currentUser.uid,
@@ -132,7 +134,7 @@ const ViewProfile: React.FC = () => {
                 className="w-full h-full object-cover"
                 onError={(e) => {
                   const target = e.target as HTMLImageElement;
-                  target.src = "https://via.placeholder.com/150?text=No+Image";
+                  target.src = avatarFallback; // Correct path to avatar.jpg
                 }}
               />
             </div>

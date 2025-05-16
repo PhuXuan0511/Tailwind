@@ -22,6 +22,10 @@ function AddBookScreen() {
   const [selectedCategories, setSelectedCategories] = useState<{ id: string; name: string }[]>([]);
   const [categories, setCategories] = useState<{ id: string; name: string }[]>([]);
   const [imageFile, setImageFile] = useState<File | null>(null);
+  const [newAuthor, setNewAuthor] = useState("");
+  const [newCategory, setNewCategory] = useState("");
+  const [isAddingAuthor, setIsAddingAuthor] = useState(false);
+  const [isAddingCategory, setIsAddingCategory] = useState(false);
 
   // Fetch authors and categories from Firestore
   useEffect(() => {
@@ -85,10 +89,44 @@ function AddBookScreen() {
     setSelectedCategories((prev) => prev.filter((item) => item.id !== categoryId));
   };
 
+  const handleAddNewAuthor = () => {
+    if (newAuthor.trim()) {
+      const newAuthorObj = { id: `new-${Date.now()}`, name: newAuthor };
+      setAuthors((prev) => [...prev, newAuthorObj]);
+      setSelectedAuthors((prev) => [...prev, newAuthorObj]);
+      setNewAuthor("");
+      setIsAddingAuthor(false);
+    }
+  };
+
+  const handleAddNewCategory = () => {
+    if (newCategory.trim()) {
+      const newCategoryObj = { id: `new-${Date.now()}`, name: newCategory };
+      setCategories((prev) => [...prev, newCategoryObj]);
+      setSelectedCategories((prev) => [...prev, newCategoryObj]);
+      setNewCategory("");
+      setIsAddingCategory(false);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
       const booksCollection = collection(firestore, "books");
+
+      // Save new authors to Firestore
+      const newAuthors = selectedAuthors.filter((auth) => auth.id.startsWith("new-"));
+      for (const author of newAuthors) {
+        const docRef = await addDoc(collection(firestore, "authors"), { name: author.name });
+        author.id = docRef.id; // Update the ID with the Firestore-generated ID
+      }
+
+      // Save new categories to Firestore
+      const newCategories = selectedCategories.filter((cat) => cat.id.startsWith("new-"));
+      for (const category of newCategories) {
+        const docRef = await addDoc(collection(firestore, "categories"), { name: category.name });
+        category.id = docRef.id; // Update the ID with the Firestore-generated ID
+      }
 
       // Handle image upload
       let imageUrl = "";
@@ -155,7 +193,13 @@ function AddBookScreen() {
             <label className="block text-sm font-medium mb-1">Select Author</label>
             <select
               value=""
-              onChange={handleAuthorSelect}
+              onChange={(e) => {
+                if (e.target.value === "others") {
+                  setIsAddingAuthor(true);
+                } else {
+                  handleAuthorSelect(e);
+                }
+              }}
               className="p-2 border border-gray-600 rounded w-full bg-gray-700 text-white"
             >
               <option value="">Choose an author</option>
@@ -164,7 +208,26 @@ function AddBookScreen() {
                   {author.name}
                 </option>
               ))}
+              <option value="others">Others</option>
             </select>
+            {isAddingAuthor && (
+              <div className="mt-2">
+                <input
+                  type="text"
+                  value={newAuthor}
+                  onChange={(e) => setNewAuthor(e.target.value)}
+                  placeholder="Enter new author name"
+                  className="p-2 border border-gray-600 rounded w-full bg-gray-700 text-white"
+                />
+                <button
+                  type="button"
+                  onClick={handleAddNewAuthor}
+                  className="mt-2 bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
+                >
+                  Add Author
+                </button>
+              </div>
+            )}
           </div>
 
           {/* Display Selected Authors */}
@@ -191,7 +254,13 @@ function AddBookScreen() {
             <label className="block text-sm font-medium mb-1">Select Category</label>
             <select
               value=""
-              onChange={handleCategorySelect}
+              onChange={(e) => {
+                if (e.target.value === "others") {
+                  setIsAddingCategory(true);
+                } else {
+                  handleCategorySelect(e);
+                }
+              }}
               className="p-2 border border-gray-600 rounded w-full bg-gray-700 text-white"
             >
               <option value="">Choose a category</option>
@@ -200,7 +269,26 @@ function AddBookScreen() {
                   {category.name}
                 </option>
               ))}
+              <option value="others">Others</option>
             </select>
+            {isAddingCategory && (
+              <div className="mt-2">
+                <input
+                  type="text"
+                  value={newCategory}
+                  onChange={(e) => setNewCategory(e.target.value)}
+                  placeholder="Enter new category name"
+                  className="p-2 border border-gray-600 rounded w-full bg-gray-700 text-white"
+                />
+                <button
+                  type="button"
+                  onClick={handleAddNewCategory}
+                  className="mt-2 bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
+                >
+                  Add Category
+                </button>
+              </div>
+            )}
           </div>
 
           {/* Display Selected Categories */}

@@ -9,7 +9,7 @@ type Book = {
   id: string;
   isbn: string;
   title: string;
-  author: string; // Author ID from Firestore
+  author: string[]; // Array of Author IDs from Firestore
   year: number;
   edition: string;
   category: string[]; // Array of category IDs
@@ -53,7 +53,9 @@ function ViewBook() {
               id: doc.id,
               isbn: data.isbn,
               title: data.title,
-              author: data.author || "Unknown Author", // Author ID
+              author: Array.isArray(data.author)
+                ? data.author.map((authorId: string) => authorMapping[authorId] || "Unknown Author")
+                : ["Unknown Author"], // Ensure `author` is an array
               year: data.year,
               edition: data.edition,
               category: Array.isArray(data.category)
@@ -178,7 +180,7 @@ function ViewBook() {
                 <div className="flex-1 flex flex-col">
                   <div>
                     <h2 className="text-2xl font-bold mb-2">{book.title}</h2>
-                    <p className="text-gray-400 mb-1">by {authorMap[book.author] || "Unknown Author"}</p>
+                    <p className="text-gray-400 mb-1">by {book.author.join(", ")}</p>
                     <p className="text-gray-400 mb-1">Categories: {book.category.join(", ")}</p>
                     <p className="text-gray-400 mb-1">Year: {book.year}</p>
                     <p className="text-gray-400 mb-1">Edition: {book.edition}</p>

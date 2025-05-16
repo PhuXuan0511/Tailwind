@@ -7,13 +7,21 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { showToastFromLocalStorage } from "~/components/shared/toastUtils";
 
+export enum LendStat { // Lending Statuses to avoid other strings
+  Rq = "Requesting",
+  Ap = "Approved",
+  Br = "Borrowed",
+  Rt = "Returned",
+  Od = "Overdue",
+}
+
 type Lending = {
   id: string;
   bookId: string; // Store only the book ID
   userId: string; // Store only the user ID
   requestDate: string; // Date when the user clicks "Request"
   returnDate: string | null; // Set to null by default, updated when approved
-  status: string; // e.g., "Requesting", "Approved", "Returned"
+  status: LendStat;
   bookTitle?: string; // Dynamically fetched
   borrowerName?: string; // Dynamically fetched
 };
@@ -82,17 +90,17 @@ function ManageLending() {
 
       // Update the lending status to "Approved" and set the return date
       const lendingDocRef = doc(firestore, "lendings", lending.id);
-      await updateDoc(lendingDocRef, { status: "Approved", returnDate: formattedReturnDate });
+      await updateDoc(lendingDocRef, { status: LendStat.Ap, returnDate: formattedReturnDate });
 
       // Update the state
       setLendings((prev) =>
         prev.map((l) =>
-          l.id === lending.id ? { ...l, status: "Approved", returnDate: formattedReturnDate } : l
+          l.id === lending.id ? { ...l, status: LendStat.Ap, returnDate: formattedReturnDate } : l
         )
       );
       setFilteredLendings((prev) =>
         prev.map((l) =>
-          l.id === lending.id ? { ...l, status: "Approved", returnDate: formattedReturnDate } : l
+          l.id === lending.id ? { ...l, status: LendStat.Ap, returnDate: formattedReturnDate } : l
         )
       );
 
@@ -123,17 +131,17 @@ function ManageLending() {
 
       // Update the lending status to "Returned"
       const lendingDocRef = doc(firestore, "lendings", lending.id);
-      await updateDoc(lendingDocRef, { status: "Returned" });
+      await updateDoc(lendingDocRef, { status: LendStat.Rt });
 
       // Update the state
       setLendings((prev) =>
         prev.map((l) =>
-          l.id === lending.id ? { ...l, status: "Returned" } : l
+          l.id === lending.id ? { ...l, status: LendStat.Rt } : l
         )
       );
       setFilteredLendings((prev) =>
         prev.map((l) =>
-          l.id === lending.id ? { ...l, status: "Returned" } : l
+          l.id === lending.id ? { ...l, status: LendStat.Rt } : l
         )
       );
 
@@ -166,6 +174,20 @@ function ManageLending() {
           };
         })
       );
+
+      lendingsWithDetails.forEach(async (lending) => {
+        if (
+          lending.status === LendStat.Ap &&
+          lending.returnDate &&
+          new Date(lending.returnDate) < new Date()
+        ) {
+          try {
+            await updateDoc(doc(firestore, "lendings", lending.id), { status: LendStat.Od });
+          } catch (error) {
+            console.error("Error updating overdue lending:", error);
+          }
+        }
+      });
 
       setLendings(lendingsWithDetails);
       setFilteredLendings(lendingsWithDetails);
@@ -287,8 +309,8 @@ function ManageLending() {
                       className="bg-gray-700 text-white p-2 rounded w-48" // Added consistent width
                     >
                       <option value="">Select Action</option>
-                      {lending.status === "Requesting" && <option value="approve">Approve</option>}
-                      {lending.status === "Approved" && (
+                      {lending.status === LendStat.Rq && <option value="approve">Approve</option>}
+                      {lending.status === LendStat.Ap && (
                         <option value="markAsReturned">Mark as Returned</option>
                       )}
                       <option value="edit">Edit</option>

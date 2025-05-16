@@ -3,6 +3,9 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useFirestore } from "~/lib/firebase";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { Head } from "~/components/shared/Head";
+import { LendStat } from "./ManageLending";
+
+const statusOptions = Object.values(LendStat);
 
 function EditLending() {
   const { id } = useParams<{ id: string }>();
@@ -52,7 +55,7 @@ function EditLending() {
     fetchLending();
   }, [firestore, id]);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
@@ -137,14 +140,19 @@ function EditLending() {
             {/* Status (Editable) */}
             <div>
               <label className="block text-sm font-medium mb-1">Status</label>
-              <input
-                type="text"
+              <select
                 name="status"
                 value={formData.status}
                 onChange={handleChange}
                 className="w-full p-2 bg-gray-700 border border-gray-600 rounded text-white"
                 required
-              />
+              >
+                {statusOptions.map((status) => (
+                  <option key={status} value={status}>
+                    {status}
+                  </option>
+                ))}
+              </select>
             </div>
           </div>
           <button

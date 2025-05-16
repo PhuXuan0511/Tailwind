@@ -344,6 +344,9 @@ function ManageLending() {
                       {lending.status === LendStat.Br && (
                         <option value="markAsReturned">Mark as Returned</option>
                       )}
+                      {lending.status === LendStat.Od && (
+                        <option value="markAsReturned">Mark as Returned</option>
+                      )}
                       <option value="edit">Edit</option>
                       <option value="delete">Delete</option>
                     </select>

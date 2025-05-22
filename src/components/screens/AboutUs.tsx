@@ -1,7 +1,10 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 import manageAuthorImg from "~/components/image/manageauthor.jpg";
 
 function AboutUs() {
+  const navigate = useNavigate();
+
   return (
     <div className="min-h-screen bg-gray-900 text-gray-100 flex flex-col items-center justify-start px-4 py-8">
       <div className="w-full max-w-4xl bg-gray-800 rounded-lg shadow-lg p-8 flex flex-col md:flex-row items-center">
@@ -35,6 +38,14 @@ function AboutUs() {
               <li>Database and network integration insights</li>
             </ul>
           </section>
+          <div className="mt-8 flex justify-center md:justify-start">
+            <button
+              onClick={() => navigate("/Homepage")}
+              className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
+            >
+              Back to Homepage
+            </button>
+          </div>
         </div>
       </div>
     </div>

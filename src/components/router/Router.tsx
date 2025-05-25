@@ -35,6 +35,7 @@ const ViewInfoRulesScreen = lazy(() => import('~/components/screens/information/
 const ManageCategoryScreen = lazy(() => import('~/components/screens/drive-thru/admin/manage-categories/ManageCategory'));
 const ManageAuthorScreen = lazy(() => import('~/components/screens/drive-thru/admin/manage-authors/ManageAuthor')); // ✅ Lazy load ManageAuthor
 const SignUpScreen = lazy(() => import('~/components/screens/login/SignUp')); // Lazy load SignUpScreen
+const InformationScreen = lazy(() => import('~/components/screens/Information'));
 
 function Layout({ showHeader = true, children }: { showHeader?: boolean; children: React.ReactNode }) {
   const navigate = useNavigate(); // Import useNavigate for navigation
@@ -327,6 +328,16 @@ const InnerRouter = () => {
         </Layout>
       ),
     },
+
+    {
+      path: '/information', // <-- Add this route
+      element: (
+        <Layout showHeader={true}>
+          <InformationScreen />
+        </Layout>
+      ),
+    },
+
     {
       path: '*',
       element: <Page404Screen />, // 404 page for unmatched routes

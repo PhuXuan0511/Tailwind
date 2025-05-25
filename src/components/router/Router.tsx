@@ -30,6 +30,8 @@ const BookDetail = lazy(() => import('~/components/screens/drive-thru/user/view-
 const ManageNewsScreen = lazy(() => import('~/components/screens/news/ManageNews')); // Admin Manage News page
 const AddNewsScreen = lazy(() => import('~/components/screens/news/AddNews')); // Add News page
 const ViewNewsScreen = lazy(() => import('~/components/screens/news/ViewNews'));
+const ViewInformationScreen = lazy(() => import('~/components/screens/information/Information')); // Information page
+const ViewInfoRulesScreen = lazy(() => import('~/components/screens/information/InfoRules')); // Info Rules page
 const ManageCategoryScreen = lazy(() => import('~/components/screens/drive-thru/admin/manage-categories/ManageCategory'));
 const ManageAuthorScreen = lazy(() => import('~/components/screens/drive-thru/admin/manage-authors/ManageAuthor')); // ✅ Lazy load ManageAuthor
 const SignUpScreen = lazy(() => import('~/components/screens/login/SignUp')); // Lazy load SignUpScreen
@@ -273,6 +275,26 @@ const InnerRouter = () => {
         <Layout showHeader={true}>
           <RequireAuth>
             <ViewNewsScreen />
+          </RequireAuth>
+        </Layout>
+      ),
+    },
+    {
+      path: '/information',
+      element: (
+        <Layout showHeader={true}>
+          <RequireAuth>
+            <ViewInformationScreen />
+          </RequireAuth>
+        </Layout>
+      ),
+    },
+    {
+      path: 'info-rules',
+      element: (
+        <Layout showHeader={true}>
+          <RequireAuth>
+            <ViewInfoRulesScreen />
           </RequireAuth>
         </Layout>
       ),

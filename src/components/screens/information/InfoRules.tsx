@@ -1,8 +1,19 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 
 const InfoRules: React.FC = () => {
+    const navigate = useNavigate();
     return (
         <div className="max-w-2xl mx-auto p-6 bg-black rounded-lg shadow-md mt-8">
+            {/* Back Button */}
+            <div className="mb-4">
+            <button
+                onClick={() => navigate(-1)}
+                className="bg-gray-500 text-white px-3 py-1 rounded text-sm hover:bg-gray-600"
+            >
+                Back
+            </button>
+            </div>
             <h1 className="text-2xl font-bold mb-6 text-center">Library Rules</h1>
 
             {/* Borrowing & Returning Books */}
@@ -49,8 +60,8 @@ const InfoRules: React.FC = () => {
                     <li>Access to certain websites may be restricted.</li>
                     <li>Printing services available at:
                         <ul className="list-none ml-20">
-                            <li><span className="font-medium">3 cents</span> per black-and-white page.</li>
-                            <li><span className="font-medium">15 cents</span> per colour page.</li>
+                            <li><span className="font-medium">5 cents</span> per black-and-white page.</li>
+                            <li><span className="font-medium">25 cents</span> per colour page.</li>
                         </ul>
                     </li>
                 </ul>

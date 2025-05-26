@@ -25,7 +25,7 @@ const InfoRules: React.FC = () => {
                     <li>Late return penalty: 
                         <ul className="list-none ml-20">
                             <li>First week overdue: <span className="font-medium">$1 per day</span> per book.</li>
-                            <li>Each next week adds <span className="font-medium">$1</span> to the rate above.</li>
+                            <li>Each next week adds <span className="font-medium">50 cents</span> to the rate above.</li>
                         </ul>
                     </li>
                     <li>Books must be returned in the same condition as borrowed.</li>

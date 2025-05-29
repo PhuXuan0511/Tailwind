@@ -232,7 +232,7 @@ function EditBookScreen() {
           <div className="mb-4">
             <label className="block text-sm font-medium mb-1">Edition</label>
             <input
-              type="text"
+              type="number"
               name="edition"
               value={formData.edition}
               onChange={handleChange}

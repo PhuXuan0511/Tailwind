@@ -13,7 +13,7 @@ type Book = {
   title: string;
   author: string[]; // Changed to array of author IDs
   year: number;
-  edition: string;
+  edition: number;
   category: string[]; // Changed to array of category IDs
   quantity: number;
 };

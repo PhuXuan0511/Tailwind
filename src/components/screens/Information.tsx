@@ -31,7 +31,7 @@ const InfoRules: React.FC = () => {
                     <li>Books must be returned in the same condition as borrowed.</li>
                     <li>Lost or damaged books must be replaced or paid for as follows:
                         <ul className="list-none ml-20">
-                            <li>Price of each book (<span className="font-medium">double</span>) if no longer published.</li>
+                            <li>Price of each book (<span className="font-medium">double</span> if no longer published).</li>
                             <li>Technical processing fee of <span className="font-medium">$10</span> each.</li>
                             <li>Shipping fee depending on the material.</li>
                         </ul>

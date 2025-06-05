@@ -47,6 +47,7 @@ function ViewLending() {
             requestDate: lending.requestDate, // Use requestDate instead of borrowDate
             returnDate: lending.returnDate, // Keep returnDate as is
             status: lending.status,
+            fee: lending.overdueFee, 
           };
         })
       );
@@ -75,6 +76,7 @@ function ViewLending() {
         requestDate: new Date().toISOString().split("T")[0],
         returnDate: null,
         status: "Requesting",
+        fee: 0, // Initialize fee to 0, can be updated later
       };
 
       await addDoc(collection(firestore, "lendings"), lendingRequest);
@@ -124,7 +126,7 @@ function ViewLending() {
                   <td className="border-b border-gray-700 p-2">{lending.requestDate}</td>
                   <td className="border-b border-gray-700 p-2">{lending.returnDate || "N/A"}</td>
                   <td className="border-b border-gray-700 p-2">{lending.status}</td>
-                  <td className="border-b border-gray-700 p-2">{lending.fee || "N/A"}</td>
+                  <td className="border-b border-gray-700 p-2">{lending.fee !== undefined ? `$${lending.fee.toFixed(2)}` : "N/A"}</td>
                 </tr>
               ))}
             </tbody>

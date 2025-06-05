@@ -5,6 +5,31 @@ import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { useNavigate } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 
+// --- ISBN validation function ---
+function isValidISBN(isbn: string): boolean {
+  const clean = isbn.replace(/[-\s]/g, "");
+
+  // ISBN-10: 10 digits, last can be X
+  if (/^\d{9}[\dX]$/.test(clean)) {
+    let sum = 0;
+    for (let i = 0; i < 9; i++) sum += (i + 1) * parseInt(clean[i]);
+    sum += clean[9] === "X" ? 10 * 10 : 10 * parseInt(clean[9]);
+    return sum % 11 === 0;
+  }
+
+  // ISBN-13: 13 digits
+  if (/^\d{13}$/.test(clean)) {
+    let sum = 0;
+    for (let i = 0; i < 12; i++) {
+      sum += parseInt(clean[i]) * (i % 2 === 0 ? 1 : 3);
+    }
+    const check = (10 - (sum % 10)) % 10;
+    return check === parseInt(clean[12]);
+  }
+
+  return false;
+}
+
 function AddBookScreen() {
   const firestore = useFirestore();
   const navigate = useNavigate();
@@ -111,6 +136,31 @@ function AddBookScreen() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // --- ISBN validation here ---
+    if (!isValidISBN(formData.isbn)) {
+      toast.error("Invalid ISBN. Please enter a valid ISBN-10 or ISBN-13.");
+      return;
+    }
+
+    // Year validation
+    if (!/^\d+$/.test(formData.year) || parseInt(formData.year, 10) <= 0) {
+      toast.error("Year must be a positive integer.");
+      return;
+    }
+
+    // Edition validation
+    if (!/^\d+$/.test(formData.edition) || parseInt(formData.edition, 10) <= 0) {
+      toast.error("Edition must be a positive integer.");
+      return;
+    }
+
+    // Quantity validation
+    if (!/^\d+$/.test(formData.quantity) || parseInt(formData.quantity, 10) <= 0) {
+      toast.error("Quantity must be a positive integer.");
+      return;
+    }
+
     try {
       const booksCollection = collection(firestore, "books");
 
@@ -157,6 +207,44 @@ function AddBookScreen() {
     }
   };
 
+  const handleISBNChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    // Only allow digits, and only allow X (uppercase) as the last character for ISBN-10
+    let value = e.target.value.replace(/[^0-9Xx]/g, "");
+    // Remove all X/x except possibly at the end if length is 10
+    if (value.length < 10) value = value.replace(/[Xx]/g, "");
+    if (value.length === 10) {
+      // Only allow X or x at the last position
+      value = value.slice(0, 9) + (value[9] === "x" ? "X" : value[9]);
+      // If X/X is not at the end, remove it
+      if (value.slice(0, 9).includes("X")) value = value.replace(/X/g, "");
+    } else if (value.length > 10) {
+      // For ISBN-13, remove any X
+      value = value.replace(/[Xx]/g, "");
+    }
+    setFormData((prev) => ({ ...prev, isbn: value }));
+  };
+
+  const handleYearChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    let value = e.target.value.replace(/[^0-9]/g, ""); // Only allow digits
+    // Prevent leading zeros
+    if (value.length > 1) value = value.replace(/^0+/, "");
+    setFormData((prev) => ({ ...prev, year: value }));
+  };
+
+  const handleEditionChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    let value = e.target.value.replace(/[^0-9]/g, ""); // Only allow digits
+    // Prevent leading zeros
+    if (value.length > 1) value = value.replace(/^0+/, "");
+    setFormData((prev) => ({ ...prev, edition: value }));
+  };
+
+  const handleQuantityChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    let value = e.target.value.replace(/[^0-9]/g, ""); // Only allow digits
+    // Prevent leading zeros
+    if (value.length > 1) value = value.replace(/^0+/, "");
+    setFormData((prev) => ({ ...prev, quantity: value }));
+  };
+
   return (
     <div className="min-h-screen bg-gray-900 text-white">
       <div className="container mx-auto px-4 py-6">
@@ -169,7 +257,7 @@ function AddBookScreen() {
               type="text"
               name="isbn"
               value={formData.isbn}
-              onChange={handleChange}
+              onChange={handleISBNChange}
               className="p-2 border border-gray-600 rounded w-full bg-gray-700 text-white"
               required
             />
@@ -314,10 +402,10 @@ function AddBookScreen() {
           <div className="mb-4">
             <label className="block text-sm font-medium mb-1">Year</label>
             <input
-              type="number"
+              type="text"
               name="year"
               value={formData.year}
-              onChange={handleChange}
+              onChange={handleYearChange}
               className="p-2 border border-gray-600 rounded w-full bg-gray-700 text-white"
               required
             />
@@ -327,10 +415,10 @@ function AddBookScreen() {
           <div className="mb-4">
             <label className="block text-sm font-medium mb-1">Edition</label>
             <input
-              type="number"
+              type="text"
               name="edition"
               value={formData.edition}
-              onChange={handleChange}
+              onChange={handleEditionChange}
               className="p-2 border border-gray-600 rounded w-full bg-gray-700 text-white"
               required
             />
@@ -340,10 +428,10 @@ function AddBookScreen() {
           <div className="mb-4">
             <label className="block text-sm font-medium mb-1">Quantity</label>
             <input
-              type="number"
+              type="text"
               name="quantity"
               value={formData.quantity}
-              onChange={handleChange}
+              onChange={handleQuantityChange}
               className="p-2 border border-gray-600 rounded w-full bg-gray-700 text-white"
               required
             />

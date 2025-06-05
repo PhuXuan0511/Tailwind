@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
 import { doc, getDoc, getFirestore } from 'firebase/firestore';
 import { useNavigate } from 'react-router-dom';
-import { signOut } from "firebase/auth";
 import avatarFallback from "~/components/image/avatar.jpg";
 
 interface UserProfile {
@@ -13,10 +12,9 @@ interface UserProfile {
   createdAt?: string;
   birthyear?: string;
   address?: string;
-  name?: string; // Add the name property
+  name?: string;
   phoneNumber?: string;
   role?: string;
-  // Add any other user attributes you want to display
 }
 
 const ViewProfile: React.FC = () => {
@@ -26,18 +24,6 @@ const ViewProfile: React.FC = () => {
   const auth = getAuth();
   const db = getFirestore();
 
-  const handleLogout = async () => {
-    try {
-      const authInstance = getAuth(); // Ensure auth is initialized
-      await signOut(authInstance);
-      alert("You have been logged out.");
-      navigate("/"); // Redirect to login page after logout
-    } catch (error) {
-      console.error("Error logging out:", error);
-      alert("Failed to log out. Please try again.");
-    }
-  };
-
   useEffect(() => {
     const fetchUserProfile = async () => {
       try {
@@ -46,7 +32,6 @@ const ViewProfile: React.FC = () => {
           const userDocRef = doc(db, "users", currentUser.uid);
           const userDoc = await getDoc(userDocRef);
 
-          // "No..." as placeholders for unspecified user attributes
           if (userDoc.exists()) {
             const userData = userDoc.data() as Omit<
               UserProfile,
@@ -54,9 +39,9 @@ const ViewProfile: React.FC = () => {
             >;
 
             setUser({
-              displayName: userData.name || currentUser.displayName || "No Name", // Prioritize Firestore's `name`
+              displayName: userData.name || currentUser.displayName || "No Name",
               email: currentUser.email || "No Email",
-              photoURL: currentUser.photoURL || "https://via.placeholder.com/150",
+              photoURL: currentUser.photoURL || "",
               uid: currentUser.uid,
               ...userData,
             });
@@ -64,7 +49,7 @@ const ViewProfile: React.FC = () => {
             setUser({
               displayName: currentUser.displayName || "No Name",
               email: currentUser.email || "No Email",
-              photoURL: currentUser.photoURL || "https://via.placeholder.com/150",
+              photoURL: currentUser.photoURL || "",
               uid: currentUser.uid,
             });
           }
@@ -110,17 +95,10 @@ const ViewProfile: React.FC = () => {
     <div className="container mx-auto px-4 py-8">
       <div className="mb-4">
         <button
-          onClick={() => navigate(-1)} // Navigate to the previous page
+          onClick={() => navigate(-1)}
           className="bg-gray-500 text-white px-3 py-1 rounded text-sm hover:bg-gray-600"
         >
           Back
-        </button>
-
-        <button
-          onClick={handleLogout}
-          className="bg-red-500 text-white px-3 py-1 rounded text-sm hover:bg-red-600 ml-2"
-        >
-          Logout
         </button>
       </div>
 
@@ -129,12 +107,12 @@ const ViewProfile: React.FC = () => {
           <div className="md:w-1/3 bg-primary p-8 text-center">
             <div className="w-32 h-32 rounded-full mx-auto overflow-hidden border-4 border-white">
               <img
-                src={user.photoURL}
+                src={user.photoURL || avatarFallback}
                 alt={user.displayName}
                 className="w-full h-full object-cover"
                 onError={(e) => {
                   const target = e.target as HTMLImageElement;
-                  target.src = avatarFallback; // Correct path to avatar.jpg
+                  target.src = avatarFallback;
                 }}
               />
             </div>
@@ -193,7 +171,7 @@ const ViewProfile: React.FC = () => {
 
             <div className="mt-8 flex justify-end">
               <button
-                onClick={() => navigate("../manage-user/edit/" + user.uid)}
+                onClick={() => navigate("/edit-profile")}
                 className="btn btn-primary"
               >
                 Edit Profile

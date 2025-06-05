@@ -36,8 +36,33 @@ const ManageAuthorScreen = lazy(() => import('~/components/screens/drive-thru/ad
 const SignUpScreen = lazy(() => import('~/components/screens/login/SignUp')); // Lazy load SignUpScreen
 const InformationScreen = lazy(() => import('~/components/screens/Information'));
 
+import React, { useState, useRef, useEffect } from "react";
+import avatarImg from "~/components/image/avatar.jpg"; // Import your avatar image
+
 function Layout({ showHeader = true, children }: { showHeader?: boolean; children: React.ReactNode }) {
-  const navigate = useNavigate(); // Import useNavigate for navigation
+  const navigate = useNavigate();
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  // Replace this with your actual user object if you have user avatars
+  // Example: const { user } = useAuth();
+  // const avatarUrl = user?.avatarUrl || avatarImg;
+  const avatarUrl = avatarImg; // Use avatar.jpg if user has no avatar
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setDropdownOpen(false);
+      }
+    }
+    if (dropdownOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+    } else {
+      document.removeEventListener("mousedown", handleClickOutside);
+    }
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [dropdownOpen]);
 
   return (
     <div className="min-h-screen bg-gray-900 text-white">
@@ -45,23 +70,54 @@ function Layout({ showHeader = true, children }: { showHeader?: boolean; childre
         <nav className="p-4 flex items-center justify-between bg-gray-800 shadow">
           {/* Clickable Header */}
           <button
-            onClick={() => navigate("/homepage")} // Navigate to the homepage
+            onClick={() => navigate("/homepage")}
             className="text-3xl text-blue-500 hover:text-blue-400 transition"
           >
             Tailwind <span className="text-purple-500">Library</span>
           </button>
 
-          {/* Profile Button */}
-          <button
-            onClick={() => navigate("/view-profile")} // Navigate to the profile page
-            className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition"
-          >
-            Profile
-          </button>
+          {/* Avatar Dropdown */}
+          <div className="relative" ref={dropdownRef}>
+            <button
+              onClick={() => setDropdownOpen((open) => !open)}
+              className="focus:outline-none"
+            >
+              <img
+                src={avatarUrl}
+                alt="Avatar"
+                className="w-10 h-10 rounded-full border-2 border-blue-500 object-cover"
+              />
+            </button>
+            {dropdownOpen && (
+              <div className="absolute right-0 mt-2 w-44 bg-gray-800 text-white rounded shadow-lg z-50 border border-gray-700">
+                <button
+                  className="block w-full text-left px-4 py-2 hover:bg-gray-700"
+                  onClick={() => {
+                    setDropdownOpen(false);
+                    navigate("/view-profile");
+                  }}
+                >
+                  View Profile
+                </button>
+                <button
+                  className="block w-full text-left px-4 py-2 hover:bg-gray-700"
+                  onClick={() => {
+                    setDropdownOpen(false);
+                    // Add your logout logic here, or navigate to a logout route
+                    if (typeof window !== "undefined") {
+                      window.location.href = "/"; // Example: redirect to login
+                    }
+                  }}
+                >
+                  Log Out
+                </button>
+              </div>
+            )}
+          </div>
         </nav>
       )}
       <div className="container mx-auto px-4 py-6">
-        {children} {/* Render the children */}
+        {children}
       </div>
     </div>
   );
@@ -326,7 +382,17 @@ const InnerRouter = () => {
         </Layout>
       ),
     },
-
+    {
+      path: '/edit-profile',
+      element: (
+        <Layout showHeader={true}>
+          <RequireAuth>
+            {/* Lazy load or import your EditProfileScreen here */}
+            {React.createElement(lazy(() => import('~/components/screens/drive-thru/view-profile/EditProfile')))}
+          </RequireAuth>
+        </Layout>
+      ),
+    },
     {
       path: '*',
       element: <Page404Screen />, // 404 page for unmatched routes

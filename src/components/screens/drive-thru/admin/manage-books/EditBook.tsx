@@ -4,6 +4,31 @@ import { collection, doc, getDoc, getDocs, updateDoc } from "firebase/firestore"
 import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { useNavigate, useParams } from "react-router-dom";
 
+// --- ISBN validation function ---
+function isValidISBN(isbn: string): boolean {
+  const clean = isbn.replace(/[-\s]/g, "");
+
+  // ISBN-10: 10 digits, last can be X
+  if (/^\d{9}[\dX]$/.test(clean)) {
+    let sum = 0;
+    for (let i = 0; i < 9; i++) sum += (i + 1) * parseInt(clean[i]);
+    sum += clean[9] === "X" ? 10 * 10 : 10 * parseInt(clean[9]);
+    return sum % 11 === 0;
+  }
+
+  // ISBN-13: 13 digits
+  if (/^\d{13}$/.test(clean)) {
+    let sum = 0;
+    for (let i = 0; i < 12; i++) {
+      sum += parseInt(clean[i]) * (i % 2 === 0 ? 1 : 3);
+    }
+    const check = (10 - (sum % 10)) % 10;
+    return check === parseInt(clean[12]);
+  }
+
+  return false;
+}
+
 function EditBookScreen() {
   const firestore = useFirestore();
   const navigate = useNavigate();
@@ -112,8 +137,23 @@ function EditBookScreen() {
     setSelectedCategories((prev) => prev.filter((item) => item.id !== categoryId));
   };
 
+  const handleISBNChange = (e: React.ChangeEvent<HTMLInputElement>, setFormData: any) => {
+    let value = e.target.value.replace(/[^0-9Xx]/g, "");
+    // Only allow X or x at the end for ISBN-10
+    if (value.length === 10 && (value[9] === 'x')) value = value.slice(0, 9) + 'X';
+    if (value.length < 10) value = value.replace(/[Xx]/g, "");
+    setFormData((prev: any) => ({ ...prev, isbn: value }));
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // --- ISBN validation here ---
+    if (!isValidISBN(formData.isbn)) {
+      alert("Invalid ISBN. Please enter a valid ISBN-10 or ISBN-13.");
+      return;
+    }
+
     try {
       const bookDoc = doc(firestore, "books", id!);
 
@@ -161,7 +201,7 @@ function EditBookScreen() {
               type="text"
               name="isbn"
               value={formData.isbn}
-              onChange={handleChange}
+              onChange={e => handleISBNChange(e, setFormData)}
               className="p-2 border border-gray-600 rounded w-full bg-gray-700 text-white"
               required
             />

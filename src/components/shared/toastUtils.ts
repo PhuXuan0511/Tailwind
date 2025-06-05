@@ -22,3 +22,19 @@ export const showToastFromLocalStorage = (key: string, message: string, options 
     localStorage.removeItem(key); // Clear the flag
   }
 };
+export const showErrorToastFromLocalStorage = (key: string, message: string, options = {}) => {
+  if (localStorage.getItem(key) === "true") {
+    toast.error(message, {
+      position: "top-right",
+      autoClose: 5000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
+      theme: "dark",
+      ...options,
+    });
+    localStorage.removeItem(key);
+  }
+};

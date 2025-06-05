@@ -6,6 +6,7 @@ import { Head } from "~/components/shared/Head";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { showToastFromLocalStorage } from "~/components/shared/toastUtils";
+import OverdueFee from "./OverdueFee";
 
 export enum LendStat { // Lending Statuses to avoid other strings
   Rq = "Requesting",
@@ -22,6 +23,7 @@ type Lending = {
   requestDate: string; // Date when the user clicks "Request"
   returnDate: string | null; // Set to null by default, updated when approved
   status: LendStat;
+  overdueFee?: number; // Optional, calculated based on returnDate
   bookTitle?: string; // Dynamically fetched
   borrowerName?: string; // Dynamically fetched
 };
@@ -203,12 +205,13 @@ function ManageLending() {
 
       lendingsWithDetails.forEach(async (lending) => {
         if (
-          lending.status === LendStat.Ap &&
+          (lending.status === LendStat.Br || lending.status === LendStat.Od) &&
           lending.returnDate &&
           new Date(lending.returnDate) < new Date()
         ) {
           try {
-            await updateDoc(doc(firestore, "lendings", lending.id), { status: LendStat.Od });
+            await updateDoc(doc(firestore, "lendings", lending.id),
+             { status: LendStat.Od, overdueFee: OverdueFee(lending.returnDate) }); // Reset overdue fee when marking as overdue
           } catch (error) {
             console.error("Error updating overdue lending:", error);
           }
@@ -318,6 +321,7 @@ function ManageLending() {
                 <th className="border-b border-gray-700 p-2">Request Date</th>
                 <th className="border-b border-gray-700 p-2">Return Date</th>
                 <th className="border-b border-gray-700 p-2">Status</th>
+                <th className="border-b border-gray-700 p-2">Fee</th>
                 <th className="border-b border-gray-700 p-2">Actions</th>
               </tr>
             </thead>
@@ -331,6 +335,9 @@ function ManageLending() {
                     {lending.returnDate || null}
                   </td>
                   <td className="border-b border-gray-700 p-2">{lending.status}</td>
+                  <td className="border-b border-gray-700 p-2">
+                    {lending.overdueFee !== undefined ? `$${lending.overdueFee.toFixed(2)}` : "N/A"}
+                  </td>
                   <td className="border-b border-gray-700 p-2">
                     <select
                       onChange={(e) => handleAction(e.target.value, lending.id)}

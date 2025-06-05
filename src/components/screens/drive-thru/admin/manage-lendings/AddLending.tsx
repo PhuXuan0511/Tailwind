@@ -16,6 +16,7 @@ function AddLending() {
     borrowDate: "",
     returnDate: "",
     status: "Borrowed",
+    overdueFee: 0,
   });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {

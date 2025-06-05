@@ -117,6 +117,7 @@ function ViewBook() {
         requestDate: new Date().toISOString().split("T")[0],
         returnDate: null,
         status: "Requesting",
+        overdueFee: 0,
       };
 
       await addDoc(collection(firestore, "lendings"), lendingRequest);

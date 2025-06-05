@@ -17,6 +17,7 @@ function EditLending() {
     borrowDate: "",
     returnDate: "",
     status: "Borrowed",
+    overdueFee: 0,
   });
   const [bookTitle, setBookTitle] = useState("Loading...");
   const [borrowerName, setBorrowerName] = useState("Loading...");

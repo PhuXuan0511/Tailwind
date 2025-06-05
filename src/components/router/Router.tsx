@@ -19,7 +19,6 @@ const AddUserScreen = lazy(() => import('~/components/screens/drive-thru/admin/m
 const EditUserScreen = lazy(() => import('~/components/screens/drive-thru/admin/manage-users/EditUser')); // Edit User page
 const Page404Screen = lazy(() => import('~/components/screens/404')); // 404 page
 const ManageLendingScreen = lazy(() => import('~/components/screens/drive-thru/admin/manage-lendings/ManageLending')); // Manage Lending page
-const AddLendingScreen = lazy(() => import('~/components/screens/drive-thru/admin/manage-lendings/AddLending')); // Add Lending page
 const EditLendingScreen = lazy(() => import('~/components/screens/drive-thru/admin/manage-lendings/EditLending')); // Edit Lending page
 const LoginScreen = lazy(() => import('~/components/screens/login/Login')); // Login page
 const ViewProfileScreen = lazy(() => import('~/components/screens/drive-thru/view-profile/ViewProfile')); // View Profile page
@@ -283,16 +282,6 @@ const InnerRouter = () => {
         <Layout showHeader={true}>
           <RequireAuth>
             <ManageLendingScreen />
-          </RequireAuth>
-        </Layout>
-      ),
-    },
-    {
-      path: '/manage-lending/add',
-      element: (
-        <Layout showHeader={true}>
-          <RequireAuth>
-            <AddLendingScreen />
           </RequireAuth>
         </Layout>
       ),

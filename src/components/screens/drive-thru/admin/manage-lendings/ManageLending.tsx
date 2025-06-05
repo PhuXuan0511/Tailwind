@@ -325,13 +325,6 @@ function ManageLending() {
             onChange={handleSearch}
             className="p-2 border border-gray-600 rounded w-full max-w-lg bg-gray-700 text-white"
           />
-          {/* Add New Lending Record Button */}
-          <button
-            onClick={() => navigate("/manage-lending/add")}
-            className="bg-blue-500 text-white px-3 py-1 rounded text-sm hover:bg-blue-600"
-          >
-            Add New Lending
-          </button>
         </div>
         <div className="bg-gray-800 shadow rounded-lg p-6 border border-gray-700">
           <table className="w-full text-left border-collapse">

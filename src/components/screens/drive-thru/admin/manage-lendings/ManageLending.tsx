@@ -118,7 +118,7 @@ function ManageLending() {
       
       // Update the lending status to "Borrowed"
       const lendingDocRef = doc(firestore, "lendings", lending.id);
-      await updateDoc(lendingDocRef, { status: LendStat.Br, returnDate: formattedReturnDate });
+      await updateDoc(lendingDocRef, { status: LendStat.Br, returnDate: formattedReturnDate, overdueFee: 0 });
 
       // Update the state
       setLendings((prev) =>
@@ -203,15 +203,36 @@ function ManageLending() {
         })
       );
 
-      lendingsWithDetails.forEach(async (lending) => {
-        if (
-          (lending.status === LendStat.Br || lending.status === LendStat.Od) &&
-          lending.returnDate &&
-          new Date(lending.returnDate) < new Date()
-        ) {
-          try {
-            await updateDoc(doc(firestore, "lendings", lending.id),
-             { status: LendStat.Od, overdueFee: OverdueFee(lending.returnDate) }); // Reset overdue fee when marking as overdue
+      lendingsWithDetails.forEach(async (lending) => {    
+        // If the lending is borrowed, check if it is overdue
+        if (lending.status === LendStat.Br){
+          if (lending.returnDate && new Date(lending.returnDate) < new Date()) {
+              try {
+                await updateDoc(doc(firestore, "lendings", lending.id), {
+                  status: LendStat.Od,
+                  overdueFee: OverdueFee(lending.returnDate),
+                });
+              } catch (error) {
+                console.error("Error updating overdue lending:", error);
+              }
+            }   
+        }
+        // If the lending is overdue, update the overdue fee
+        if (lending.status === LendStat.Od) {
+          // If the return date is updated, reset the overdue fee
+          if (lending.returnDate && new Date(lending.returnDate) > new Date()) {
+            try {
+              await updateDoc(doc(firestore, "lendings", lending.id), {
+                status: LendStat.Br,
+                overdueFee: 0,
+              });
+            } catch (error) {
+              console.error("Error resetting overdue fee:", error);
+            }
+            return;
+          }
+          else try {
+            await updateDoc(doc(firestore, "lendings", lending.id), { overdueFee: OverdueFee(lending.returnDate) }); 
           } catch (error) {
             console.error("Error updating overdue lending:", error);
           }

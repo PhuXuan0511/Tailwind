@@ -3,8 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useFirestore } from "~/lib/firebase";
 import { collection, onSnapshot, deleteDoc, doc, query, where, getDocs } from "firebase/firestore";
 import { Head } from "~/components/shared/Head";
-import { showToastFromLocalStorage } from "~/components/shared/toastUtils";
-import { ToastContainer } from "react-toastify";
+import { toast, ToastContainer } from "react-toastify";
 
 type User = {
   id: string;
@@ -51,7 +50,7 @@ function ManageUser() {
   }, [firestore]);
 
   useEffect(() => {
-    showToastFromLocalStorage("showToast", "👤 User added successfully!");
+    toast.success("👤 User added successfully!");
   }, []);
 
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {

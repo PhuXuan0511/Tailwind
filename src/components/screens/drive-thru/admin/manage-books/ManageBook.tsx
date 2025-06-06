@@ -3,8 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useFirestore } from "~/lib/firebase";
 import { collection, onSnapshot, deleteDoc, doc, setDoc, getDocs } from "firebase/firestore";
 import { Head } from "~/components/shared/Head";
-import { showToastFromLocalStorage } from "~/components/shared/toastUtils";
-import { ToastContainer } from "react-toastify";
+import { toast, ToastContainer } from "react-toastify";
 
 // Define the structure of a Book object
 type Book = {
@@ -85,7 +84,7 @@ function ManageBook() {
   }, [firestore]);
 
   useEffect(() => {
-    showToastFromLocalStorage("showToast", "📚 Book added successfully!");
+    toast.success("📚 Book added successfully!");
   }, []);
 
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {

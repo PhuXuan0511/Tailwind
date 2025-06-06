@@ -6,7 +6,6 @@ import { Head } from "~/components/shared/Head";
 import { LendStat } from "./ManageLending";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { showToastFromLocalStorage, showErrorToastFromLocalStorage } from "~/components/shared/toastUtils";
 
 const statusOptions = Object.values(LendStat);
 
@@ -66,13 +65,12 @@ function EditLending() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    localStorage.setItem("showToast", "true"); // Set flag for toast notification
     if (formData.returnDate < formData.borrowDate) {
-      showErrorToastFromLocalStorage("showToast", "Return date cannot be before borrow date.");
+      toast.error("Return date cannot be before borrow date.");
       return;
     }
     if (formData.returnDate < new Date().toISOString().split("T")[0]) {
-      showErrorToastFromLocalStorage("showToast", "Return date cannot be in the past.");
+      toast.error("Return date cannot be in the past.");
       return;
     }
     try {

@@ -30,3 +30,39 @@ code {
 .slick-dots li button:before {
   color: white !important;
 }
+
+.loader-spinner {
+  display: flex;
+  gap: 0.5rem;
+}
+.loader-spinner span {
+  display: block;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #3b82f6;
+  opacity: 0.8;
+  animation: bounce 0.5s infinite alternate;
+}
+.loader-spinner span:nth-child(2) {
+  animation-delay: 0.1s;
+  background: #6366f1;
+}
+.loader-spinner span:nth-child(3) {
+  animation-delay: 0.2s;
+  background: #a21caf;
+}
+.loader-spinner span:nth-child(4) {
+  animation-delay: 0.3s;
+  background: #f59e42;
+}
+@keyframes bounce {
+  to {
+    transform: translateY(-24px) scale(1.2);
+    opacity: 1;
+  }
+  from {
+    transform: translateY(0) scale(1);
+    opacity: 0.7;
+  }
+}

@@ -70,7 +70,7 @@ function ManageLending() {
       const bookDoc = await getDoc(bookDocRef);
 
       if (!bookDoc.exists()) {
-        toast.error("Book not found.");
+        alert("Book not found.");
         return;
       }
 
@@ -78,7 +78,7 @@ function ManageLending() {
       const currentQuantity = bookData.quantity;
 
       if (currentQuantity <= 0) {
-        toast.error("Book is out of stock.");
+        alert("Book is out of stock.");
         return;
       }
 
@@ -148,7 +148,7 @@ function ManageLending() {
       const bookDoc = await getDoc(bookDocRef);
 
       if (!bookDoc.exists()) {
-        toast.error("Book not found.");
+        alert("Book not found.");
         return;
       }
 

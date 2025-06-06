@@ -123,14 +123,7 @@ function ViewBook() {
       await addDoc(collection(firestore, "lendings"), lendingRequest);
 
       // Show a success notification
-      toast.success(`Request to borrow "${book.title}" submitted successfully!`, {
-        position: "top-center", // Position the notification at the top-center
-        autoClose: 3000, // Auto-close after 3 seconds
-        hideProgressBar: true, // Hide the progress bar
-        closeOnClick: true, // Close on click
-        pauseOnHover: true, // Pause on hover
-        draggable: true, // Allow dragging the notification
-      });
+      toast.success(`Request to borrow "${book.title}" submitted successfully!`);
     } catch (error) {
       console.error("Error creating lending request:", error);
       toast.error("Failed to submit request. Please try again."); // Show error notification
@@ -143,6 +136,7 @@ function ViewBook() {
 
   return (
     <div className="min-h-screen bg-gray-900 text-white">
+      <ToastContainer />
       <div className="container mx-auto px-4 py-6">
         {/* Back Button */}
         <div className="mb-4">

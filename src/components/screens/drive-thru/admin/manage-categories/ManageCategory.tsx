@@ -2,7 +2,8 @@ import React, { useEffect, useState } from "react";
 import { collection, addDoc, deleteDoc, doc, onSnapshot, query, where, getDocs } from "firebase/firestore";
 import { useFirestore } from "~/lib/firebase";
 import { Head } from "~/components/shared/Head";
-import { useNavigate } from "react-router-dom"; // Import useNavigate
+import { useNavigate } from "react-router-dom";
+import Loader from "~/components/common/Loader"; // Add this import
 
 type Category = {
   id: string;
@@ -11,9 +12,10 @@ type Category = {
 
 function ManageCategory() {
   const firestore = useFirestore();
-  const navigate = useNavigate(); // Initialize navigate
+  const navigate = useNavigate();
   const [categories, setCategories] = useState<Category[]>([]);
   const [newCategory, setNewCategory] = useState("");
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const categoryCollection = collection(firestore, "categories");
@@ -23,6 +25,7 @@ function ManageCategory() {
         name: doc.data().name,
       }));
       setCategories(categoryList);
+      setLoading(false); // Set loading to false when data is loaded
     });
 
     return () => unsubscribe();
@@ -57,6 +60,14 @@ function ManageCategory() {
       console.error("Error deleting category:", error);
     }
   };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-900 flex items-center justify-center">
+        <Loader />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-900 text-white">

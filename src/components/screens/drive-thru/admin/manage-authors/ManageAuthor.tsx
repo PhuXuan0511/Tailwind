@@ -2,7 +2,8 @@ import React, { useEffect, useState } from "react";
 import { collection, addDoc, deleteDoc, doc, onSnapshot, query, where, getDocs } from "firebase/firestore";
 import { useFirestore } from "~/lib/firebase";
 import { Head } from "~/components/shared/Head";
-import { useNavigate } from "react-router-dom"; // Import useNavigate
+import { useNavigate } from "react-router-dom";
+import Loader from "~/components/common/Loader"; // Add this import
 
 type Author = {
   id: string;
@@ -11,14 +12,16 @@ type Author = {
 
 function ManageAuthor() {
   const firestore = useFirestore();
-  const navigate = useNavigate(); // Initialize navigate
+  const navigate = useNavigate();
   const [authors, setAuthors] = useState<Author[]>([]);
   const [newAuthor, setNewAuthor] = useState("");
-  const [error, setError] = useState<string | null>(null); // Add error state
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true); // Add loading state
 
   useEffect(() => {
     if (!firestore) {
       setError("Firestore is not initialized. Please check your configuration.");
+      setLoading(false);
       return;
     }
 
@@ -31,11 +34,13 @@ function ManageAuthor() {
           name: doc.data().name,
         }));
         setAuthors(authorList);
-        setError(null); // Clear error if data loads successfully
+        setError(null);
+        setLoading(false); // Set loading to false when data is loaded
       },
       (err) => {
         console.error("Error fetching authors:", err);
         setError("Failed to fetch authors. Please try again later.");
+        setLoading(false); // Set loading to false on error
       }
     );
 
@@ -74,6 +79,14 @@ function ManageAuthor() {
     }
   };
 
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-900 flex items-center justify-center">
+        <Loader />
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gray-900 text-white">
       <Head title="Manage Authors" />
@@ -90,7 +103,7 @@ function ManageAuthor() {
 
         <h1 className="text-3xl font-bold mb-6">Manage Authors</h1>
 
-        {error && <p className="text-red-500 mb-4">{error}</p>} {/* Display error message */}
+        {error && <p className="text-red-500 mb-4">{error}</p>}
 
         <div className="mb-4 flex gap-2">
           <input

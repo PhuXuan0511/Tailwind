@@ -86,10 +86,6 @@ function ManageBook() {
     return () => unsubscribe();
   }, [firestore]);
 
-  useEffect(() => {
-    toast.success("📚 Book added successfully!");
-  }, []);
-
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     const term = e.target.value.toLowerCase();
     setSearchTerm(term);

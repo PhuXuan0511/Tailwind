@@ -5,6 +5,7 @@ import { collection, onSnapshot, deleteDoc, doc, query, where, getDocs } from "f
 import { Head } from "~/components/shared/Head";
 import { toast, ToastContainer } from "react-toastify";
 import { showToastFromLocalStorage } from "~/components/shared/toastUtils";
+import Loader from "~/components/common/Loader"; // Add this import
 
 type User = {
   id: string;
@@ -100,7 +101,11 @@ function ManageUser() {
   };
 
   if (loading) {
-    return <p className="text-center text-gray-300">Loading users...</p>;
+    return (
+      <div className="min-h-screen bg-gray-900 flex items-center justify-center">
+        <Loader />
+      </div>
+    );
   }
 
   return (

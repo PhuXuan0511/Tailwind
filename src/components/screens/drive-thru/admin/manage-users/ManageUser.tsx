@@ -4,6 +4,7 @@ import { useFirestore } from "~/lib/firebase";
 import { collection, onSnapshot, deleteDoc, doc, query, where, getDocs } from "firebase/firestore";
 import { Head } from "~/components/shared/Head";
 import { toast, ToastContainer } from "react-toastify";
+import { showToastFromLocalStorage } from "~/components/shared/toastUtils";
 
 type User = {
   id: string;
@@ -50,7 +51,7 @@ function ManageUser() {
   }, [firestore]);
 
   useEffect(() => {
-    toast.success("👤 User added successfully!");
+    showToastFromLocalStorage("showToast", "👤 User added successfully!");
   }, []);
 
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {

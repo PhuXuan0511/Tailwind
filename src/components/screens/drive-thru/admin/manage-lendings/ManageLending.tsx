@@ -5,6 +5,7 @@ import { collection, doc, getDoc, updateDoc, deleteDoc, onSnapshot } from "fireb
 import { Head } from "~/components/shared/Head";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { showToastFromLocalStorage } from "~/components/shared/toastUtils";
 import OverdueFee from "./OverdueFee";
 
 export enum LendStat { // Lending Statuses to avoid other strings
@@ -248,7 +249,7 @@ function ManageLending() {
   }, [firestore]);
 
   useEffect(() => {
-    toast.success("🦄 Lending added successfully!");
+    showToastFromLocalStorage("showToast", "🦄 Lending added successfully!");
   }, []);
 
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {

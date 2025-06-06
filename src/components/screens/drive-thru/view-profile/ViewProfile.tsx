@@ -3,6 +3,7 @@ import { getAuth, onAuthStateChanged } from 'firebase/auth';
 import { doc, getDoc, getFirestore } from 'firebase/firestore';
 import { useNavigate } from 'react-router-dom';
 import avatarFallback from "~/components/image/avatar.jpg";
+import Loader from "~/components/common/Loader"; // Add this import
 
 interface UserProfile {
   displayName: string;
@@ -67,11 +68,7 @@ const ViewProfile: React.FC = () => {
   }, [auth, db, navigate]);
 
   if (loading) {
-    return (
-      <div className="flex justify-center items-center min-h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
-      </div>
-    );
+    return <Loader />; // Use your beautiful loader here
   }
 
   if (!user) {

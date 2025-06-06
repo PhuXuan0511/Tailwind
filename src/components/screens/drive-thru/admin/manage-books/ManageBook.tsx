@@ -4,7 +4,7 @@ import { useFirestore } from "~/lib/firebase";
 import { collection, onSnapshot, deleteDoc, doc, setDoc, getDocs } from "firebase/firestore";
 import { Head } from "~/components/shared/Head";
 import { toast, ToastContainer } from "react-toastify";
-import { showToastFromLocalStorage } from "~/components/shared/toastUtils";
+import Loader from "~/components/common/Loader"; // Add this import
 
 // Define the structure of a Book object
 type Book = {
@@ -35,6 +35,7 @@ function ManageBook() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [authors, setAuthors] = useState<Author[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
+  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
   // Fetch categories and authors from Firestore
@@ -77,7 +78,8 @@ function ManageBook() {
         ...doc.data(),
       })) as Book[];
       setBooks(booksData);
-      setFilteredBooks(booksData); // Initialize filteredBooks with all books
+      setFilteredBooks(booksData);
+      setLoading(false);
     });
 
     // Cleanup the listener when the component unmounts
@@ -85,7 +87,7 @@ function ManageBook() {
   }, [firestore]);
 
   useEffect(() => {
-    showToastFromLocalStorage("showToast", "📚 Book added successfully!");
+    toast.success("📚 Book added successfully!");
   }, []);
 
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -169,6 +171,14 @@ function ManageBook() {
       .map((authorId) => authors.find((auth) => auth.id === authorId)?.name || "Unknown")
       .join(", ");
   };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-900 flex items-center justify-center">
+        <Loader />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-900 text-white">

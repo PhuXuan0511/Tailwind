@@ -7,6 +7,7 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { showToastFromLocalStorage } from "~/components/shared/toastUtils";
 import OverdueFee from "./OverdueFee";
+import Loader from "~/components/common/Loader"; // Add this import
 
 export enum LendStat { // Lending Statuses to avoid other strings
   Rq = "Requesting",
@@ -298,7 +299,11 @@ function ManageLending() {
   };
 
   if (loading) {
-    return <p className="text-center text-gray-300">Loading lending records...</p>;
+    return (
+      <div className="min-h-screen bg-gray-900 flex items-center justify-center">
+        <Loader />
+      </div>
+    );
   }
 
   return (
@@ -326,56 +331,60 @@ function ManageLending() {
             className="p-2 border border-gray-600 rounded w-full max-w-lg bg-gray-700 text-white"
           />
         </div>
-        <div className="bg-gray-800 shadow rounded-lg p-6 border border-gray-700">
-          <table className="w-full text-left border-collapse">
-            <thead>
-              <tr>
-                <th className="border-b border-gray-700 p-2">Book Title</th>
-                <th className="border-b border-gray-700 p-2">Borrower Name</th>
-                <th className="border-b border-gray-700 p-2">Request Date</th>
-                <th className="border-b border-gray-700 p-2">Return Date</th>
-                <th className="border-b border-gray-700 p-2">Status</th>
-                <th className="border-b border-gray-700 p-2">Fee</th>
-                <th className="border-b border-gray-700 p-2">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredLendings.map((lending) => (
-                <tr key={lending.id}>
-                  <td className="border-b border-gray-700 p-2">{lending.bookTitle || "Loading..."}</td>
-                  <td className="border-b border-gray-700 p-2">{lending.borrowerName || "Loading..."}</td>
-                  <td className="border-b border-gray-700 p-2">{lending.requestDate}</td>
-                  <td className="border-b border-gray-700 p-2">
-                    {lending.returnDate || null}
-                  </td>
-                  <td className="border-b border-gray-700 p-2">{lending.status}</td>
-                  <td className="border-b border-gray-700 p-2">
-                    {lending.overdueFee !== undefined ? `$${lending.overdueFee.toFixed(2)}` : "N/A"}
-                  </td>
-                  <td className="border-b border-gray-700 p-2">
-                    <select
-                      onChange={(e) => handleAction(e.target.value, lending.id)}
-                      className="bg-gray-700 text-white p-2 rounded w-48" // Added consistent width
-                    >
-                      <option value="">Select Action</option>
-                      {lending.status === LendStat.Rq && <option value="approve">Approve</option>}
-                      {lending.status === LendStat.Ap && (
-                        <option value="markAsBorrowed">Mark as Borrowed</option>
-                      )}
-                      {lending.status === LendStat.Br && (
-                        <option value="markAsReturned">Mark as Returned</option>
-                      )}
-                      {lending.status === LendStat.Od && (
-                        <option value="markAsReturned">Mark as Returned</option>
-                      )}
-                      <option value="edit">Edit</option>
-                      <option value="delete">Delete</option>
-                    </select>
-                  </td>
+        <div className="bg-gray-800 shadow rounded-lg p-6 border border-gray-700 min-h-[200px] flex items-center justify-center">
+          {loading ? (
+            <Loader />
+          ) : (
+            <table className="w-full text-left border-collapse">
+              <thead>
+                <tr>
+                  <th className="border-b border-gray-700 p-2">Book Title</th>
+                  <th className="border-b border-gray-700 p-2">Borrower Name</th>
+                  <th className="border-b border-gray-700 p-2">Request Date</th>
+                  <th className="border-b border-gray-700 p-2">Return Date</th>
+                  <th className="border-b border-gray-700 p-2">Status</th>
+                  <th className="border-b border-gray-700 p-2">Fee</th>
+                  <th className="border-b border-gray-700 p-2">Actions</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {filteredLendings.map((lending) => (
+                  <tr key={lending.id}>
+                    <td className="border-b border-gray-700 p-2">{lending.bookTitle || "Loading..."}</td>
+                    <td className="border-b border-gray-700 p-2">{lending.borrowerName || "Loading..."}</td>
+                    <td className="border-b border-gray-700 p-2">{lending.requestDate}</td>
+                    <td className="border-b border-gray-700 p-2">
+                      {lending.returnDate || null}
+                    </td>
+                    <td className="border-b border-gray-700 p-2">{lending.status}</td>
+                    <td className="border-b border-gray-700 p-2">
+                      {lending.overdueFee !== undefined ? `$${lending.overdueFee.toFixed(2)}` : "N/A"}
+                    </td>
+                    <td className="border-b border-gray-700 p-2">
+                      <select
+                        onChange={(e) => handleAction(e.target.value, lending.id)}
+                        className="bg-gray-700 text-white p-2 rounded w-48"
+                      >
+                        <option value="">Select Action</option>
+                        {lending.status === LendStat.Rq && <option value="approve">Approve</option>}
+                        {lending.status === LendStat.Ap && (
+                          <option value="markAsBorrowed">Mark as Borrowed</option>
+                        )}
+                        {lending.status === LendStat.Br && (
+                          <option value="markAsReturned">Mark as Returned</option>
+                        )}
+                        {lending.status === LendStat.Od && (
+                          <option value="markAsReturned">Mark as Returned</option>
+                        )}
+                        <option value="edit">Edit</option>
+                        <option value="delete">Delete</option>
+                      </select>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
         </div>
       </div>
     </div>

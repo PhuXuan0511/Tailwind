@@ -81,7 +81,7 @@ function ManageUser() {
       const userDoc = doc(firestore, "users", userId);
       await deleteDoc(userDoc);
 
-      alert("User and all related data have been deleted successfully.");
+      toast.success("User and all related data have been deleted successfully.");
     } catch (error) {
       console.error("Error deleting user and related data:", error);
       alert("Failed to delete user. Please try again.");

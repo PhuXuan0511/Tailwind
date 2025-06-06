@@ -66,11 +66,11 @@ function EditLending() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (formData.returnDate < formData.borrowDate) {
-      toast.error("Return date cannot be before borrow date.");
+      alert("Return date cannot be before borrow date.");
       return;
     }
     if (formData.returnDate < new Date().toISOString().split("T")[0]) {
-      toast.error("Return date cannot be in the past.");
+      alert("Return date cannot be in the past.");
       return;
     }
     try {

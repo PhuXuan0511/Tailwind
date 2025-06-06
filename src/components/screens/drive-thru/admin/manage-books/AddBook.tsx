@@ -139,25 +139,25 @@ function AddBookScreen() {
 
     // --- ISBN validation here ---
     if (!isValidISBN(formData.isbn)) {
-      toast.error("Invalid ISBN. Please enter a valid ISBN-10 or ISBN-13.");
+      alert("Invalid ISBN. Please enter a valid ISBN-10 or ISBN-13.");
       return;
     }
 
     // Year validation
     if (!/^\d+$/.test(formData.year) || parseInt(formData.year, 10) <= 0) {
-      toast.error("Year must be a positive integer.");
+      alert("Year must be a positive integer.");
       return;
     }
 
     // Edition validation
     if (!/^\d+$/.test(formData.edition) || parseInt(formData.edition, 10) <= 0) {
-      toast.error("Edition must be a positive integer.");
+      alert("Edition must be a positive integer.");
       return;
     }
 
     // Quantity validation
     if (!/^\d+$/.test(formData.quantity) || parseInt(formData.quantity, 10) <= 0) {
-      toast.error("Quantity must be a positive integer.");
+      alert("Quantity must be a positive integer.");
       return;
     }
 

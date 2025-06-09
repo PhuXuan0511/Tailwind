@@ -19,6 +19,12 @@ function UserDashboard() {
       path: "/user-dashboard/lending-list",
       image: manageLendingImage,
     },
+    {
+      title: "Notifications",
+      description: "View your notifications.",
+      path: "/user-dashboard/notifications",
+      image: manageLendingImage, // Replace with an appropriate image for notifications
+    },
   ];
 
   return (

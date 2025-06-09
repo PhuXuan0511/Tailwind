@@ -1,4 +1,4 @@
-import React, { lazy, Suspense, useState, useRef, useEffect } from 'react';
+import { lazy, Suspense } from 'react';
 import { Outlet, RouteObject, useRoutes, BrowserRouter, useNavigate } from 'react-router-dom';
 import RequireAuth from '~/components/auth/RequireAuth'; // Import RequireAuth for protected routes
 import { ToastContainer, toast } from 'react-toastify';
@@ -35,6 +35,7 @@ const ManageAuthorScreen = lazy(() => import('~/components/screens/drive-thru/ad
 const SignUpScreen = lazy(() => import('~/components/screens/login/SignUp')); // Lazy load SignUpScreen
 const InformationScreen = lazy(() => import('~/components/screens/Information'));
 
+import React, { useState, useRef, useEffect } from "react";
 import avatarImg from "~/components/image/avatar.jpg"; // Import your avatar image
 
 function Layout({ showHeader = true, children }: { showHeader?: boolean; children: React.ReactNode }) {
@@ -128,6 +129,8 @@ export const Router = () => {
     </BrowserRouter>
   );
 };
+
+const NotificationsScreen = lazy(() => import('~/components/screens/drive-thru/user/Notifications')); // Lazy load NotificationsScreen
 
 const InnerRouter = () => {
   const routes: RouteObject[] = [
@@ -377,6 +380,16 @@ const InnerRouter = () => {
           <RequireAuth>
             {/* Lazy load or import your EditProfileScreen here */}
             {React.createElement(lazy(() => import('~/components/screens/drive-thru/view-profile/EditProfile')))}
+          </RequireAuth>
+        </Layout>
+      ),
+    },
+    {
+      path: '/user-dashboard/notifications', // Notifications route
+      element: (
+        <Layout showHeader={true}>
+          <RequireAuth>
+            <NotificationsScreen />
           </RequireAuth>
         </Layout>
       ),

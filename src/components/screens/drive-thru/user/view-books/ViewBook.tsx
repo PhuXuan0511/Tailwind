@@ -118,6 +118,7 @@ function ViewBook() {
         returnDate: null,
         status: "Requesting",
         overdueFee: 0,
+        notified: false, // Add notified field
       };
 
       await addDoc(collection(firestore, "lendings"), lendingRequest);

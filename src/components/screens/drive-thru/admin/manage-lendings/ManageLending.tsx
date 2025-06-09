@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useFirestore } from "~/lib/firebase";
-import { collection, doc, getDoc, updateDoc, deleteDoc, onSnapshot } from "firebase/firestore";
+import { collection, doc, getDoc, updateDoc, deleteDoc, onSnapshot, addDoc } from "firebase/firestore";
 import { Head } from "~/components/shared/Head";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -27,6 +27,7 @@ type Lending = {
   overdueFee?: number; // Optional, calculated based on returnDate
   bookTitle?: string; // Dynamically fetched
   borrowerName?: string; // Dynamically fetched
+  notified?: boolean; // To track if the user has been notified about overdue
 };
 
 function ManageLending() {
@@ -184,6 +185,7 @@ function ManageLending() {
   // Fetch lending records and dynamically fetch book titles and borrower names
   useEffect(() => {
     const lendingsCollection = collection(firestore, "lendings");
+    const notificationsCollection = collection(firestore, "notifications");
 
     // Use onSnapshot to listen for real-time updates
     const unsubscribe = onSnapshot(lendingsCollection, async (snapshot) => {
@@ -191,15 +193,35 @@ function ManageLending() {
         snapshot.docs.map(async (docSnapshot) => {
           const lending = docSnapshot.data() as Lending;
 
-          // Fetch book title and borrower name dynamically
+          // Fetch book title dynamically
           const bookTitle = await fetchBookTitle(lending.bookId);
+
+          // Fetch borrower name dynamically
           const borrowerName = await fetchBorrowerName(lending.userId);
+
+          // If the lending is overdue and not already notified, add a notification
+          if (lending.status === LendStat.Od && lending.notified === false) {
+            try {
+              // Add notification to the notifications collection
+              await addDoc(notificationsCollection, {
+                message: `Your lending of "${bookTitle}" is overdue.`,
+                userId: lending.userId,
+                timestamp: new Date().toISOString(),
+              });
+
+              // Update the notified field in the lendings collection
+              const lendingDocRef = doc(firestore, "lendings", docSnapshot.id);
+              await updateDoc(lendingDocRef, { notified: true });
+            } catch (error) {
+              console.error("Error adding notification or updating notified field:", error);
+            }
+          }
 
           return {
             ...lending,
             id: docSnapshot.id,
             bookTitle,
-            borrowerName,
+            borrowerName, // Add borrowerName to the lending details
           };
         })
       );

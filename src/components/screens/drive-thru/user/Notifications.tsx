@@ -1,11 +1,20 @@
 import React, { useEffect, useState } from "react";
 import { collection, query, where, getFirestore, onSnapshot } from "firebase/firestore";
+import { getAuth } from "firebase/auth";
 
 function Notifications() {
   const [notifications, setNotifications] = useState<string[]>([]);
-  const currentUserId = "frXiXF6H8Ega5awzjmSWeKVGhdh1"; // Replace with dynamic user ID if available
-
+  
   useEffect(() => {
+    const auth = getAuth(); // Get Firebase Auth instance
+    const currentUser = auth.currentUser; // Get the currently logged-in user
+
+    if (!currentUser) {
+      alert("You must be logged in to view your notifications.");
+      return;
+    }
+
+    const currentUserId = currentUser.uid; // Get the user ID of the logged-in user
     const db = getFirestore();
     const notificationsCollection = collection(db, "notifications");
 

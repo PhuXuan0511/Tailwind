@@ -21,7 +21,7 @@ function ViewLending() {
 
     const userId = currentUser.uid; // Get the user ID of the logged-in user
     const lendingsCollection = collection(firestore, "lendings");
-    const userLendingsQuery = query(lendingsCollection, where("userId", "==", userId));
+    const userLendingsQuery = query(lendingsCollection, where("userId", "==", userId)); // Query only current user's lendings
 
     // Use onSnapshot to listen for real-time updates
     const unsubscribe = onSnapshot(userLendingsQuery, async (snapshot) => {
@@ -34,20 +34,16 @@ function ViewLending() {
           const bookTitle = bookDoc.exists() ? bookDoc.data().title : "Unknown Book";
 
           // Fetch borrower name dynamically using userId
-          let borrowerName = "Unknown User";
-          if (lending.userId) {
-            const userDoc = await getDoc(doc(firestore, "users", lending.userId));
-            borrowerName = userDoc.exists() && userDoc.data().name ? userDoc.data().name : "Unknown User";
-          }
+          const borrowerName = currentUser.displayName || "Unknown User";
 
           return {
             id: docSnapshot.id,
             bookTitle,
             borrowerName,
-            requestDate: lending.requestDate, // Use requestDate instead of borrowDate
-            returnDate: lending.returnDate, // Keep returnDate as is
+            requestDate: lending.requestDate,
+            returnDate: lending.returnDate,
             status: lending.status,
-            fee: lending.overdueFee, 
+            fee: lending.overdueFee,
           };
         })
       );

@@ -37,31 +37,60 @@ const InformationScreen = lazy(() => import('~/components/screens/Information'))
 
 import React, { useState, useRef, useEffect } from "react";
 import avatarImg from "~/components/image/avatar.jpg"; // Import your avatar image
+import { useAuth } from "~/lib/useAuth"; // <-- Make sure you have a useAuth hook
+import bellIcon from "~/components/image/bell.svg"; // Add a bell icon SVG to your image folder
+import { collection, query, where, getFirestore, onSnapshot } from "firebase/firestore";
 
 function Layout({ showHeader = true, children }: { showHeader?: boolean; children: React.ReactNode }) {
   const navigate = useNavigate();
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [bellOpen, setBellOpen] = useState(false);
+  const [unreadCount, setUnreadCount] = useState(0);
+  const [notifications, setNotifications] = useState<string[]>([]);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  // Replace this with your actual user object if you have user avatars
-  // Example: const { user } = useAuth();
-  // const avatarUrl = user?.avatarUrl || avatarImg;
-  const avatarUrl = avatarImg; // Use avatar.jpg if user has no avatar
+  const { user, role } = useAuth?.() || { user: null, role: null };
+  const avatarUrl = avatarImg;
 
-  // Close dropdown when clicking outside
+  // Fetch notifications for user role "user"
+  useEffect(() => {
+    if (role === "user" && user?.uid) {
+      const db = getFirestore();
+      const notificationsCollection = collection(db, "notifications");
+      const q = query(notificationsCollection, where("userId", "==", user.uid));
+      const unsubscribe = onSnapshot(q, (snapshot) => {
+        const notificationsList: string[] = snapshot.docs.map((doc) => doc.data().message);
+        setNotifications(notificationsList);
+        setUnreadCount(notificationsList.length);
+      });
+      return () => unsubscribe();
+    }
+  }, [role, user]);
+
+  // Close dropdowns when clicking outside
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node)
+      ) {
         setDropdownOpen(false);
+        setBellOpen(false);
       }
     }
-    if (dropdownOpen) {
+    if (dropdownOpen || bellOpen) {
       document.addEventListener("mousedown", handleClickOutside);
     } else {
       document.removeEventListener("mousedown", handleClickOutside);
     }
     return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, [dropdownOpen]);
+  }, [dropdownOpen, bellOpen]);
+
+  // Handle bell click: open notification list and clear unread count
+  const handleBellClick = () => {
+    setBellOpen((open) => !open);
+    setUnreadCount(0);
+  };
 
   return (
     <div className="min-h-screen bg-gray-900 text-white">
@@ -75,8 +104,58 @@ function Layout({ showHeader = true, children }: { showHeader?: boolean; childre
             Tailwind <span className="text-purple-500">Library</span>
           </button>
 
-          {/* Avatar Dropdown */}
-          <div className="relative" ref={dropdownRef}>
+          {/* Bell Icon and Avatar Dropdown */}
+          <div className="flex items-center gap-4 relative" ref={dropdownRef}>
+            {/* Bell icon for users only */}
+            {role === "user" && (
+              <div className="relative flex items-end">
+                <button
+                  onClick={handleBellClick}
+                  className="focus:outline-none"
+                  aria-label="Notifications"
+                  style={{ marginBottom: '1px' }}
+                >
+                  <img src={bellIcon} alt="Notifications" className="w-7 h-7" />
+                  {unreadCount > 0 && (
+                    <span className="absolute -top-1 -right-1 bg-red-500 text-xs rounded-full px-1">
+                      {unreadCount}
+                    </span>
+                  )}
+                </button>
+                {bellOpen && (
+                  <div className="absolute right-0 top-full mt-2 w-64 bg-gray-800 text-white rounded shadow-lg z-50 border border-gray-700">
+                    <div className="p-2 max-h-60 overflow-y-auto">
+                      {notifications.length === 0 ? (
+                        <div className="text-gray-400 text-sm p-2">No notifications</div>
+                      ) : (
+                        notifications.slice(0, 5).map((msg, idx) => (
+                          <button
+                            key={idx}
+                            className="block w-full text-left px-2 py-2 hover:bg-gray-700 text-sm"
+                            onClick={() => {
+                              setBellOpen(false);
+                              navigate("/notifications");
+                            }}
+                          >
+                            {msg.length > 60 ? msg.slice(0, 60) + "..." : msg}
+                          </button>
+                        ))
+                      )}
+                    </div>
+                    <button
+                      className="block w-full text-center py-2 border-t border-gray-700 hover:bg-gray-700 text-xs"
+                      onClick={() => {
+                        setBellOpen(false);
+                        navigate("/notifications");
+                      }}
+                    >
+                      View all notifications
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
+            {/* Avatar Dropdown */}
             <button
               onClick={() => setDropdownOpen((open) => !open)}
               className="focus:outline-none"
@@ -88,16 +167,19 @@ function Layout({ showHeader = true, children }: { showHeader?: boolean; childre
               />
             </button>
             {dropdownOpen && (
-              <div className="absolute right-0 mt-2 w-44 bg-gray-800 text-white rounded shadow-lg z-50 border border-gray-700">
-                <button
-                  className="block w-full text-left px-4 py-2 hover:bg-gray-700"
-                  onClick={() => {
-                    setDropdownOpen(false);
-                    navigate("/notifications");
-                  }}
-                >
-                  Notifications
-                </button>
+              <div className="absolute right-0 top-full mt-2 w-44 bg-gray-800 text-white rounded shadow-lg z-50 border border-gray-700">
+                {/* Only show Notifications button for users with role "user" */}
+                {role === "user" && (
+                  <button
+                    className="block w-full text-left px-4 py-2 hover:bg-gray-700"
+                    onClick={() => {
+                      setDropdownOpen(false);
+                      navigate("/notifications");
+                    }}
+                  >
+                    Notifications
+                  </button>
+                )}
                 <button
                   className="block w-full text-left px-4 py-2 hover:bg-gray-700"
                   onClick={() => {
@@ -111,9 +193,8 @@ function Layout({ showHeader = true, children }: { showHeader?: boolean; childre
                   className="block w-full text-left px-4 py-2 hover:bg-gray-700"
                   onClick={() => {
                     setDropdownOpen(false);
-                    // Add your logout logic here, or navigate to a logout route
                     if (typeof window !== "undefined") {
-                      window.location.href = "/"; // Example: redirect to login
+                      window.location.href = "/";
                     }
                   }}
                 >

@@ -1,20 +1,16 @@
 import React, { useEffect, useState } from "react";
 import { collection, query, where, getFirestore, onSnapshot } from "firebase/firestore";
-import { getAuth } from "firebase/auth";
+import { useAuth } from "~/lib/useAuth"; // Use your context
 
 function Notifications() {
   const [notifications, setNotifications] = useState<string[]>([]);
-  
+  const { user, loading } = useAuth();
+
   useEffect(() => {
-    const auth = getAuth(); // Get Firebase Auth instance
-    const currentUser = auth.currentUser; // Get the currently logged-in user
+    if (loading) return; // Wait for auth to load
+    if (!user) return;
 
-    if (!currentUser) {
-      alert("You must be logged in to view your notifications.");
-      return;
-    }
-
-    const currentUserId = currentUser.uid; // Get the user ID of the logged-in user
+    const currentUserId = user.uid;
     const db = getFirestore();
     const notificationsCollection = collection(db, "notifications");
 
@@ -26,7 +22,15 @@ function Notifications() {
     });
 
     return () => unsubscribe();
-  }, []);
+  }, [user, loading]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-900 flex items-center justify-center">
+        <span className="text-gray-300">Loading...</span>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-900 text-white">

@@ -2,7 +2,7 @@ import React from "react";
 import { useNavigate } from "react-router-dom";
 import manageBookImage from "~/components/image/managebook.jpg";
 import manageLendingImage from "~/components/image/managelending.jpg";
-
+import notification from "~/components/image/notification.jpg";
 function UserDashboard() {
   const navigate = useNavigate();
 
@@ -18,12 +18,6 @@ function UserDashboard() {
       description: "See your borrowed books and their status.",
       path: "/user-dashboard/lending-list",
       image: manageLendingImage,
-    },
-    {
-      title: "Notifications",
-      description: "View your notifications.",
-      path: "/user-dashboard/notifications",
-      image: manageLendingImage, // Replace with an appropriate image for notifications
     },
   ];
 

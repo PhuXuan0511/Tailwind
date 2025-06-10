@@ -93,6 +93,15 @@ function Layout({ showHeader = true, children }: { showHeader?: boolean; childre
                   className="block w-full text-left px-4 py-2 hover:bg-gray-700"
                   onClick={() => {
                     setDropdownOpen(false);
+                    navigate("/notifications");
+                  }}
+                >
+                  Notifications
+                </button>
+                <button
+                  className="block w-full text-left px-4 py-2 hover:bg-gray-700"
+                  onClick={() => {
+                    setDropdownOpen(false);
                     navigate("/view-profile");
                   }}
                 >
@@ -130,7 +139,7 @@ export const Router = () => {
   );
 };
 
-const NotificationsScreen = lazy(() => import('~/components/screens/drive-thru/user/Notifications')); // Lazy load NotificationsScreen
+const NotificationsScreen = lazy(() => import('~/components/screens/Notifications')); // Lazy load NotificationsScreen
 
 const InnerRouter = () => {
   const routes: RouteObject[] = [
@@ -385,7 +394,7 @@ const InnerRouter = () => {
       ),
     },
     {
-      path: '/user-dashboard/notifications', // Notifications route
+      path: '/notifications', // Notifications route
       element: (
         <Layout showHeader={true}>
           <RequireAuth>

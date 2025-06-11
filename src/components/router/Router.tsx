@@ -39,7 +39,7 @@ import React, { useState, useRef, useEffect } from "react";
 import avatarImg from "~/components/image/avatar.jpg"; // Import your avatar image
 import { useAuth } from "~/lib/useAuth"; // <-- Make sure you have a useAuth hook
 import bellIcon from "~/components/image/bell.svg"; // Add a bell icon SVG to your image folder
-import { collection, query, where, getFirestore, onSnapshot } from "firebase/firestore";
+import { collection, query, where, getFirestore, onSnapshot, writeBatch, getDocs } from "firebase/firestore";
 
 function Layout({ showHeader = true, children }: { showHeader?: boolean; children: React.ReactNode }) {
   const navigate = useNavigate();
@@ -57,13 +57,24 @@ function Layout({ showHeader = true, children }: { showHeader?: boolean; childre
     if (role === "user" && user?.uid) {
       const db = getFirestore();
       const notificationsCollection = collection(db, "notifications");
-      const q = query(notificationsCollection, where("userId", "==", user.uid));
-      const unsubscribe = onSnapshot(q, (snapshot) => {
+
+      // Query unread notifications
+      const unreadQuery = query(notificationsCollection, where("userId", "==", user.uid), where("read", "==", false));
+      const unsubscribeUnread = onSnapshot(unreadQuery, (snapshot) => {
+        setUnreadCount(snapshot.docs.length); // Count unread notifications
+      });
+
+      // Query all notifications
+      const allQuery = query(notificationsCollection, where("userId", "==", user.uid));
+      const unsubscribeAll = onSnapshot(allQuery, (snapshot) => {
         const notificationsList: string[] = snapshot.docs.map((doc) => doc.data().message);
         setNotifications(notificationsList);
-        setUnreadCount(notificationsList.length);
       });
-      return () => unsubscribe();
+
+      return () => {
+        unsubscribeUnread();
+        unsubscribeAll();
+      };
     }
   }, [role, user]);
 
@@ -86,10 +97,27 @@ function Layout({ showHeader = true, children }: { showHeader?: boolean; childre
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [dropdownOpen, bellOpen]);
 
-  // Handle bell click: open notification list and clear unread count
-  const handleBellClick = () => {
+  // Handle bell click: open notification list and mark all as read
+  const handleBellClick = async () => {
     setBellOpen((open) => !open);
-    setUnreadCount(0);
+
+    if (user?.uid) {
+      const db = getFirestore();
+      const notificationsCollection = collection(db, "notifications");
+
+      // Query unread notifications
+      const unreadQuery = query(notificationsCollection, where("userId", "==", user.uid), where("read", "==", false));
+      const snapshot = await getDocs(unreadQuery);
+
+      // Mark all unread notifications as read
+      const batch = writeBatch(db);
+      snapshot.docs.forEach((doc) => {
+        batch.update(doc.ref, { read: true }); // Update the read field to true
+      });
+      await batch.commit();
+
+      setUnreadCount(0); // Reset unread count
+    }
   };
 
   return (

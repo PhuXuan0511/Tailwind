@@ -67,6 +67,8 @@ function ManageLending() {
   // Approve a lending request
   const handleApprove = async (lending: Lending) => {
     try {
+      const bookTitle = await fetchBookTitle(lending.bookId); // Fetch book title dynamically
+
       const bookDocRef = doc(firestore, "books", lending.bookId);
       const bookDoc = await getDoc(bookDocRef);
 
@@ -86,19 +88,28 @@ function ManageLending() {
       // Decrease the book quantity by 1
       await updateDoc(bookDocRef, { quantity: currentQuantity - 1 });
 
-
-      // Update the lending status to "Approved" and set the return date
+      // Update the lending status to "Approved"
       const lendingDocRef = doc(firestore, "lendings", lending.id);
+      await updateDoc(lendingDocRef, { status: LendStat.Ap });
+
+      // Add notification for approval
+      const notificationsCollection = collection(firestore, "notifications");
+      await addDoc(notificationsCollection, {
+        message: `Your lending of "${bookTitle}" has been approved, please come and collect.`,
+        userId: lending.userId,
+        timestamp: new Date().toISOString(),
+        read: false,
+      });
 
       // Update the state
       setLendings((prev) =>
         prev.map((l) =>
-          l.id === lending.id ? { ...l, status: LendStat.Ap} : l
+          l.id === lending.id ? { ...l, status: LendStat.Ap } : l
         )
       );
       setFilteredLendings((prev) =>
         prev.map((l) =>
-          l.id === lending.id ? { ...l, status: LendStat.Ap} : l
+          l.id === lending.id ? { ...l, status: LendStat.Ap } : l
         )
       );
 
@@ -112,30 +123,49 @@ function ManageLending() {
   // Mark a lending as borrowed (life: a client fetches the book)
   const handleMarkAsBorrowed = async (lending: Lending) => {
     try {
+      const bookTitle = await fetchBookTitle(lending.bookId); // Fetch book title dynamically
+
       // Set the return date to 7 days from now
       const today = new Date();
       const returnDate = new Date(today);
       returnDate.setDate(today.getDate() + 7);
       const formattedReturnDate = returnDate.toISOString().split("T")[0];
-      
+
       // Update the lending status to "Borrowed"
       const lendingDocRef = doc(firestore, "lendings", lending.id);
-      await updateDoc(lendingDocRef, { status: LendStat.Br, returnDate: formattedReturnDate, overdueFee: 0 });
+      await updateDoc(lendingDocRef, {
+        status: LendStat.Br,
+        returnDate: formattedReturnDate,
+        overdueFee: 0,
+      });
+
+      // Add notification for borrowing
+      const notificationsCollection = collection(firestore, "notifications");
+      await addDoc(notificationsCollection, {
+        message: `You have successfully borrowed "${bookTitle}"!`,
+        userId: lending.userId,
+        timestamp: new Date().toISOString(),
+        read: false,
+      });
 
       // Update the state
       setLendings((prev) =>
         prev.map((l) =>
-          l.id === lending.id ? { ...l, status: LendStat.Br, returnDate: formattedReturnDate} : l
+          l.id === lending.id
+            ? { ...l, status: LendStat.Br, returnDate: formattedReturnDate }
+            : l
         )
       );
       setFilteredLendings((prev) =>
         prev.map((l) =>
-          l.id === lending.id ? { ...l, status: LendStat.Br, returnDate: formattedReturnDate } : l
+          l.id === lending.id
+            ? { ...l, status: LendStat.Br, returnDate: formattedReturnDate }
+            : l
         )
       );
 
       toast.success("Lending marked as borrowed!");
-    } catch (error) { 
+    } catch (error) {
       console.error("Error marking lending as borrowed:", error);
       toast.error("Failed to mark lending as borrowed. Please try again.");
     }
@@ -144,6 +174,8 @@ function ManageLending() {
   // Mark a lending as returned
   const handleMarkAsReturned = async (lending: Lending) => {
     try {
+      const bookTitle = await fetchBookTitle(lending.bookId); // Fetch book title dynamically
+
       // Reference to the book document
       const bookDocRef = doc(firestore, "books", lending.bookId);
       const bookDoc = await getDoc(bookDocRef);
@@ -162,6 +194,15 @@ function ManageLending() {
       // Update the lending status to "Returned"
       const lendingDocRef = doc(firestore, "lendings", lending.id);
       await updateDoc(lendingDocRef, { status: LendStat.Rt });
+
+      // Add notification for returning
+      const notificationsCollection = collection(firestore, "notifications");
+      await addDoc(notificationsCollection, {
+        message: `You have successfully returned "${bookTitle}"!`,
+        userId: lending.userId,
+        timestamp: new Date().toISOString(),
+        read: false,
+      });
 
       // Update the state
       setLendings((prev) =>
@@ -207,6 +248,7 @@ function ManageLending() {
                 message: `Your lending of "${bookTitle}" is overdue.`,
                 userId: lending.userId,
                 timestamp: new Date().toISOString(),
+                read: false, // Add read field
               });
 
               // Update the notified field in the lendings collection

@@ -10,7 +10,6 @@ const Loading = () => <p className="p-4 w-full h-full text-center">Loading...</p
 // Lazy load screens
 const HomepageScreen = lazy(() => import('~/components/screens/Homepage')); // Unified Homepage
 const AdminDashboardScreen = lazy(() => import('~/components/screens/drive-thru/admin/AdminDashboard')); // Admin Dashboard
-const UserDashboardScreen = lazy(() => import('~/components/screens/drive-thru/user/UserDashboard')); // User Dashboard
 const ManageBookScreen = lazy(() => import('~/components/screens/drive-thru/admin/manage-books/ManageBook'));
 const AddBookScreen = lazy(() => import('~/components/screens/drive-thru/admin/manage-books/AddBook')); // AddBook page
 const EditBookScreen = lazy(() => import('~/components/screens/drive-thru/admin/manage-books/EditBook')); // EditBook page
@@ -296,18 +295,9 @@ const InnerRouter = () => {
         </Layout>
       ),
     },
+    
     {
-      path: '/user-dashboard',
-      element: (
-        <Layout showHeader={true}>
-          <RequireAuth>
-            <UserDashboardScreen />
-          </RequireAuth>
-        </Layout>
-      ),
-    },
-    {
-      path: '/user-dashboard/book-list',
+      path: '/book-list',
       element: (
         <Layout showHeader={true}>
           <RequireAuth>
@@ -317,7 +307,7 @@ const InnerRouter = () => {
       ),
     },
     {
-      path: '/user-dashboard/book-detail/:id',
+      path: '/book-detail/:id',
       element: (
         <Layout showHeader={true}>
           <RequireAuth>
@@ -327,7 +317,7 @@ const InnerRouter = () => {
       ),
     },
     {
-      path: '/user-dashboard/lending-list',
+      path: '/lending-list',
       element: (
         <Layout showHeader={true}>
           <RequireAuth>

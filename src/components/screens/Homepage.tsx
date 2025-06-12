@@ -28,7 +28,7 @@ function Homepage() {
     {
       title: "Drive-Thru Model",
       description: "Experience our convenient drive-thru service to borrow and return books without leaving your car.",
-      path: role === "admin" ? "/admin-dashboard" : "/user-dashboard/book-list", // Dynamic path based on role
+      path: role === "admin" ? "/admin-dashboard" : "/book-list", // Updated path
       icon: <AcademicCapIcon className="h-12 w-12 text-blue-400 mb-4" />,
     },
     {

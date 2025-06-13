@@ -86,7 +86,7 @@ function AddUserScreen() {
               <div className="mb-4">
                 <label className="block text-sm font-medium mb-1">Email</label>
                 <input
-                  type="text"
+                  type="email"
                   name="email"
                   value={formData.email}
                   onChange={handleChange}

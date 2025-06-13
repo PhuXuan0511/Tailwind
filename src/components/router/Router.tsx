@@ -39,13 +39,31 @@ const SignUpScreen = lazy(() => import('~/components/screens/login/SignUp'));
 const InformationScreen = lazy(() => import('~/components/screens/Information'));
 const NotificationsScreen = lazy(() => import('~/components/screens/drive-thru/user/view-notifications/Notifications'));
 
+// Helper function to calculate time elapsed
+function getTimeElapsed(timestamp: string): string {
+  const now = new Date();
+  const notificationTime = new Date(timestamp);
+  const diffMs = now.getTime() - notificationTime.getTime();
+  const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+  const diffHours = Math.floor((diffMs % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+  const diffMinutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+
+  if (diffDays > 0) {
+    return `${diffDays} days ${diffHours} hours ago`;
+  }
+  if (diffHours > 0) {
+    return `${diffHours} hours ${diffMinutes} mins ago`;
+  }
+  return `${diffMinutes} mins ago`;
+}
+
 function Layout({ showHeader = true, children }: { showHeader?: boolean; children: React.ReactNode }) {
   const navigate = useNavigate();
   const location = useLocation();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [bellOpen, setBellOpen] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
-  const [notifications, setNotifications] = useState<string[]>([]);
+  const [notifications, setNotifications] = useState<{ message: string; timestamp: string }[]>([]);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   const { user, role } = useAuth?.() || { user: null, role: null };
@@ -66,7 +84,10 @@ function Layout({ showHeader = true, children }: { showHeader?: boolean; childre
       // Query all notifications
       const allQuery = query(notificationsCollection, where("userId", "==", user.uid));
       const unsubscribeAll = onSnapshot(allQuery, (snapshot) => {
-        const notificationsList: string[] = snapshot.docs.map((doc) => doc.data().message);
+        const notificationsList = snapshot.docs.map((doc) => ({
+          message: doc.data().message,
+          timestamp: doc.data().timestamp,
+        }));
         setNotifications(notificationsList);
       });
 
@@ -186,7 +207,7 @@ function Layout({ showHeader = true, children }: { showHeader?: boolean; childre
                       {notifications.length === 0 ? (
                         <div className="text-gray-400 text-sm p-2">No notifications</div>
                       ) : (
-                        notifications.slice(0, 5).map((msg, idx) => (
+                        notifications.slice(0, 5).map((notification, idx) => (
                           <button
                             type="button"
                             key={idx}
@@ -196,7 +217,10 @@ function Layout({ showHeader = true, children }: { showHeader?: boolean; childre
                               navigate("/notifications");
                             }}
                           >
-                            {msg.length > 60 ? msg.slice(0, 60) + "..." : msg}
+                            <span>{notification.message}</span>
+                            <span className="block text-gray-500 text-xs">
+                              {getTimeElapsed(notification.timestamp)}
+                            </span>
                           </button>
                         ))
                       )}

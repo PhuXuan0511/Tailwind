@@ -146,7 +146,7 @@ function Layout({ showHeader = true, children }: { showHeader?: boolean; childre
                 <span className="absolute left-0 -bottom-1 w-full h-0.5 bg-blue-400"></span>
               )}
             </div>
-            {/* My Lending button */}
+            {/* My Lending buttons */}
             <div className="relative">
               <button
                 type="button"

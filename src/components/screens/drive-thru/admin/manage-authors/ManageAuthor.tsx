@@ -135,9 +135,10 @@ function ManageAuthor() {
                     {author.name}
                     <button
                       onClick={() => handleDeleteAuthor(author.id)}
-                      className="bg-red-500 px-3 py-1 rounded text-sm hover:bg-red-600"
+                      className="ml-4 p-1 rounded text-red-500 hover:text-red-600 focus:outline-none"
+                      aria-label="Delete author"
                     >
-                      Delete
+                      <span className="text-xs font-bold">&#10005;</span>
                     </button>
                   </td>
                 </tr>

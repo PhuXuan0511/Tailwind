@@ -4,6 +4,7 @@ import { firestore } from "~/lib/firebase";
 import { useNavigate } from "react-router-dom";
 import { toast, ToastContainer } from "react-toastify";
 import { getAuth } from "firebase/auth";
+import Loader from "~/components/common/Loader"; // Import Loader component
 
 type Book = {
   id: string;
@@ -132,7 +133,11 @@ function ViewBook() {
   };
 
   if (loading) {
-    return <p className="text-center text-gray-300">Loading books...</p>;
+    return (
+      <div className="min-h-screen bg-gray-900 flex items-center justify-center">
+        <Loader />
+      </div>
+    );
   }
 
   return (
@@ -150,7 +155,15 @@ function ViewBook() {
         </div>
 
         <div className="flex justify-between items-center mb-6">
-          <h1 className="text-3xl font-bold">Books</h1>
+          <div className="flex items-center gap-4">
+            <h1 className="text-3xl font-bold">Books</h1>
+            <button
+              onClick={() => navigate("/lending-list")}
+              className="ml-2 px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition"
+            >
+              My Lending
+            </button>
+          </div>
           <input
             type="text"
             placeholder="Search books..."
@@ -187,7 +200,7 @@ function ViewBook() {
               {/* Buttons */}
               <div className="mt-auto flex justify-end space-x-2">
                 <button
-                  onClick={() => navigate(`/user-dashboard/book-detail/${book.id}`)}
+                  onClick={() => navigate(`/book-detail/${book.id}`)}
                   className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
                 >
                   Preview

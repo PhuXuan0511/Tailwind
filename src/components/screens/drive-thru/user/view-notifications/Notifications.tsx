@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { collection, query, where, getFirestore, onSnapshot, deleteDoc, doc } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
+import Loader from "~/components/common/Loader"; // Import Loader component
 
 type Notification = {
   id: string;
@@ -9,6 +10,7 @@ type Notification = {
 
 function Notifications() {
   const [notifications, setNotifications] = useState<Notification[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const auth = getAuth();
@@ -30,6 +32,7 @@ function Notifications() {
         message: doc.data().message,
       }));
       setNotifications(notificationsList);
+      setLoading(false); // <-- Add this line
     });
 
     return () => unsubscribe();
@@ -39,6 +42,14 @@ function Notifications() {
     const db = getFirestore();
     await deleteDoc(doc(db, "notifications", id));
   };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-900 flex items-center justify-center">
+        <Loader />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-900 text-white">

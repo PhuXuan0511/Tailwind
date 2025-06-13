@@ -21,7 +21,11 @@ const InfoRules: React.FC = () => {
                 <h2 className="text-xl font-semibold mb-2">1. Borrowing & Returning Books</h2>
                 <ul className="list-disc list-inside space-y-1 text-white">
                     <li>Library members can borrow up to <span className="font-medium">5 books</span> at a time.</li>
-                    <li>Borrowing period: <span className="font-medium">7 days</span> May be extended upon request.</li>
+                    <li>Borrowing period: <span className="font-medium">7 days</span>.</li>
+                        <ul className="list-none ml-20">
+                            <li>Renewals are allowed for an additional <span className="font-medium">7 days</span> if no holds are placed on the book.</li>
+                            <li>Renewals are <span className="font-medium">free of charge</span> and must be done at least <span className="font-medium">2 days</span> before due.</li>
+                        </ul>
                     <li>Late return penalty: 
                         <ul className="list-none ml-20">
                             <li>First week overdue: <span className="font-medium">$1 per day</span> per book.</li>

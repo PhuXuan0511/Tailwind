@@ -21,12 +21,16 @@ const ManageNews = () => {
   useEffect(() => {
     const newsCollection = collection(firestore, "news");
     const unsubscribe = onSnapshot(newsCollection, (snapshot) => {
-      const newsData = snapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      })) as News[];
+      const newsData = snapshot.docs.map((doc) => {
+        const data = doc.data();
+        return {
+          id: doc.id,
+          ...data,
+          createdAt: data.createdAt?.toDate ? data.createdAt.toDate() : new Date(data.createdAt),
+        };
+      }) as News[];
       setNewsList(newsData);
-      setFilteredNews(newsData); // Initialize filteredNews with all news
+      setFilteredNews(newsData);
     });
 
     return () => unsubscribe();
@@ -114,11 +118,20 @@ const ManageNews = () => {
               </div>
 
               {/* Delete Button */}
-              <button
+                {/* 
+                <button
                 onClick={() => handleDeleteNews(news.id)}
                 className="absolute bottom-2 right-2 bg-red-600 hover:bg-red-700 text-white py-1 px-2 rounded-lg text-sm transition"
-              >
+                >
                 Delete
+                </button>
+                */}
+              <button
+                onClick={() => handleDeleteNews(news.id)}
+                className="absolute bottom-2 right-2 ml-4 p-1 rounded text-red-500 hover:text-red-600 focus:outline-none"
+                aria-label="Delete news"
+              >
+                <span className="text-xs font-bold">&#10005;</span>
               </button>
             </div>
           ))}

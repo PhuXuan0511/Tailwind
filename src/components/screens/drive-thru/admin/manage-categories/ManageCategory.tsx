@@ -115,9 +115,10 @@ function ManageCategory() {
                     {cat.name}
                     <button
                       onClick={() => handleDeleteCategory(cat.id)}
-                      className="bg-red-500 px-3 py-1 rounded text-sm hover:bg-red-600"
+                      className="ml-4 p-1 rounded text-red-500 hover:text-red-600 focus:outline-none"
+                      aria-label="Delete category"
                     >
-                      Delete
+                      <span className="text-xs font-bold">&#10005;</span>
                     </button>
                   </td>
                 </tr>

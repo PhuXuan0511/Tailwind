@@ -124,7 +124,7 @@ function EditUserScreen(){
               <div className="mb-4">
                 <label className="block text-sm font-medium mb-1">E-Mail</label>
                 <input
-                  type="text"
+                  type="email"
                   name="email"
                   value={formData.email}
                   onChange={handleChange}

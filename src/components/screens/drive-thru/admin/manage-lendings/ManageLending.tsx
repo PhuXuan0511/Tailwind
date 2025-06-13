@@ -245,7 +245,7 @@ function ManageLending() {
             try {
               // Add notification to the notifications collection
               await addDoc(notificationsCollection, {
-                message: `Your lending of "${bookTitle}" is overdue.`,
+                message: `Your lending of "${bookTitle}" is overdue. Please return it and pay the fee as soon as possible.`,
                 userId: lending.userId,
                 timestamp: new Date().toISOString(),
                 read: false, // Add read field
@@ -434,14 +434,13 @@ function ManageLending() {
                         {lending.status === LendStat.Ap && (
                           <option value="markAsBorrowed">Mark as Borrowed</option>
                         )}
-                        {lending.status === LendStat.Br && (
-                          <option value="markAsReturned">Mark as Returned</option>
-                        )}
-                        {lending.status === LendStat.Od && (
+                        {(lending.status === LendStat.Br || lending.status === LendStat.Od) && (
                           <option value="markAsReturned">Mark as Returned</option>
                         )}
                         <option value="edit">Edit</option>
-                        <option value="delete">Delete</option>
+                        {(lending.status != LendStat.Br && lending.status != LendStat.Od) && (
+                          <option value="delete">Delete</option>
+                        )}
                       </select>
                     </td>
                   </tr>

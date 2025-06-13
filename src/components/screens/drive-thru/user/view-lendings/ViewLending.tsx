@@ -4,6 +4,7 @@ import { firestore } from "~/lib/firebase";
 import { getAuth } from "firebase/auth";
 import { Head } from "~/components/shared/Head";
 import { useNavigate } from "react-router-dom";
+import Loader from "~/components/common/Loader"; // Import Loader component
 
 function ViewLending() {
   const [lendings, setLendings] = useState<any[]>([]); // Use `any[]` to handle Firestore data dynamically
@@ -84,7 +85,11 @@ function ViewLending() {
   };
 
   if (loading) {
-    return <p className="text-center text-gray-300">Loading lendings...</p>;
+    return (
+      <div className="min-h-screen bg-gray-900 flex items-center justify-center">
+        <Loader />
+      </div>
+    );
   }
 
   return (

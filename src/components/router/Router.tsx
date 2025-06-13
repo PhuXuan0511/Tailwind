@@ -247,7 +247,7 @@ export const Router = () => {
   );
 };
 
-const NotificationsScreen = lazy(() => import('~/components/screens/Notifications')); // Lazy load NotificationsScreen
+const NotificationsScreen = lazy(() => import('~/components/screens/drive-thru/user/view-notifications/Notifications')); // Lazy load NotificationsScreen
 
 const InnerRouter = () => {
   const routes: RouteObject[] = [

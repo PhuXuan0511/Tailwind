@@ -4,6 +4,7 @@ import { firestore } from "~/lib/firebase";
 import { useNavigate } from "react-router-dom";
 import { toast, ToastContainer } from "react-toastify";
 import { getAuth } from "firebase/auth";
+import Loader from "~/components/common/Loader"; // Import Loader component
 
 type Book = {
   id: string;
@@ -132,7 +133,11 @@ function ViewBook() {
   };
 
   if (loading) {
-    return <p className="text-center text-gray-300">Loading books...</p>;
+    return (
+      <div className="min-h-screen bg-gray-900 flex items-center justify-center">
+        <Loader />
+      </div>
+    );
   }
 
   return (

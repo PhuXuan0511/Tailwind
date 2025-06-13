@@ -157,12 +157,7 @@ function ViewBook() {
         <div className="flex justify-between items-center mb-6">
           <div className="flex items-center gap-4">
             <h1 className="text-3xl font-bold">Books</h1>
-            <button
-              onClick={() => navigate("/lending-list")}
-              className="ml-2 px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition"
-            >
-              My Lending
-            </button>
+            {/* Removed "My Lending" button */}
           </div>
           <input
             type="text"

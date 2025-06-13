@@ -1,47 +1,47 @@
-import { lazy, Suspense } from 'react';
-import { Outlet, RouteObject, useRoutes, BrowserRouter, useNavigate } from 'react-router-dom';
-import RequireAuth from '~/components/auth/RequireAuth'; // Import RequireAuth for protected routes
+import React, { lazy, Suspense, useState, useRef, useEffect } from 'react';
+import { Outlet, RouteObject, useRoutes, BrowserRouter, useNavigate, useLocation } from 'react-router-dom';
+import RequireAuth from '~/components/auth/RequireAuth';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { Bounce } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css'; // Import CSS for toast notifications
+import avatarImg from "~/components/image/avatar.jpg";
+import { useAuth } from "~/lib/useAuth";
+import bellIcon from "~/components/image/bell.svg";
+import { collection, query, where, getFirestore, onSnapshot, writeBatch, getDocs } from "firebase/firestore";
+
 const Loading = () => <p className="p-4 w-full h-full text-center">Loading...</p>;
 
 // Lazy load screens
-const HomepageScreen = lazy(() => import('~/components/screens/Homepage')); // Unified Homepage
-const AdminDashboardScreen = lazy(() => import('~/components/screens/drive-thru/admin/AdminDashboard')); // Admin Dashboard
+const HomepageScreen = lazy(() => import('~/components/screens/Homepage'));
+const AdminDashboardScreen = lazy(() => import('~/components/screens/drive-thru/admin/AdminDashboard'));
 const ManageBookScreen = lazy(() => import('~/components/screens/drive-thru/admin/manage-books/ManageBook'));
-const AddBookScreen = lazy(() => import('~/components/screens/drive-thru/admin/manage-books/AddBook')); // AddBook page
-const EditBookScreen = lazy(() => import('~/components/screens/drive-thru/admin/manage-books/EditBook')); // EditBook page
-const ManageUserScreen = lazy(() => import('~/components/screens/drive-thru/admin/manage-users/ManageUser')); // Manage User page
-const AddUserScreen = lazy(() => import('~/components/screens/drive-thru/admin/manage-users/AddUser')); // Add User page
-const EditUserScreen = lazy(() => import('~/components/screens/drive-thru/admin/manage-users/EditUser')); // Edit User page
-const Page404Screen = lazy(() => import('~/components/screens/404')); // 404 page
-const ManageLendingScreen = lazy(() => import('~/components/screens/drive-thru/admin/manage-lendings/ManageLending')); // Manage Lending page
-const EditLendingScreen = lazy(() => import('~/components/screens/drive-thru/admin/manage-lendings/EditLending')); // Edit Lending page
-const LoginScreen = lazy(() => import('~/components/screens/login/Login')); // Login page
-const ViewProfileScreen = lazy(() => import('~/components/screens/drive-thru/view-profile/ViewProfile')); // View Profile page
-const ViewBook = lazy(() => import('~/components/screens/drive-thru/user/view-books/ViewBook')); // Lazy load ViewBook
-const ViewLending = lazy(() => import('~/components/screens/drive-thru/user/view-lendings/ViewLending')); // Lazy load ViewLending
-import AboutUsScreen from '~/components/screens/AboutUs'; // Import the About Us screen
-const BookDetail = lazy(() => import('~/components/screens/drive-thru/user/view-books/BookDetailScreen')); // Lazy load BookDetailScreen
-const ManageNewsScreen = lazy(() => import('~/components/screens/news/ManageNews')); // Admin Manage News page
-const AddNewsScreen = lazy(() => import('~/components/screens/news/AddNews')); // Add News page
+const AddBookScreen = lazy(() => import('~/components/screens/drive-thru/admin/manage-books/AddBook'));
+const EditBookScreen = lazy(() => import('~/components/screens/drive-thru/admin/manage-books/EditBook'));
+const ManageUserScreen = lazy(() => import('~/components/screens/drive-thru/admin/manage-users/ManageUser'));
+const AddUserScreen = lazy(() => import('~/components/screens/drive-thru/admin/manage-users/AddUser'));
+const EditUserScreen = lazy(() => import('~/components/screens/drive-thru/admin/manage-users/EditUser'));
+const Page404Screen = lazy(() => import('~/components/screens/404'));
+const ManageLendingScreen = lazy(() => import('~/components/screens/drive-thru/admin/manage-lendings/ManageLending'));
+const EditLendingScreen = lazy(() => import('~/components/screens/drive-thru/admin/manage-lendings/EditLending'));
+const LoginScreen = lazy(() => import('~/components/screens/login/Login'));
+const ViewProfileScreen = lazy(() => import('~/components/screens/drive-thru/view-profile/ViewProfile'));
+const ViewBook = lazy(() => import('~/components/screens/drive-thru/user/view-books/ViewBook'));
+const ViewLending = lazy(() => import('~/components/screens/drive-thru/user/view-lendings/ViewLending'));
+import AboutUsScreen from '~/components/screens/AboutUs';
+const BookDetail = lazy(() => import('~/components/screens/drive-thru/user/view-books/BookDetailScreen'));
+const ManageNewsScreen = lazy(() => import('~/components/screens/news/ManageNews'));
+const AddNewsScreen = lazy(() => import('~/components/screens/news/AddNews'));
 const ViewNewsScreen = lazy(() => import('~/components/screens/news/ViewNews'));
-const ViewInformationScreen = lazy(() => import('~/components/screens/Information')); // Information page
+const ViewInformationScreen = lazy(() => import('~/components/screens/Information'));
 const ManageCategoryScreen = lazy(() => import('~/components/screens/drive-thru/admin/manage-categories/ManageCategory'));
-const ManageAuthorScreen = lazy(() => import('~/components/screens/drive-thru/admin/manage-authors/ManageAuthor')); // ✅ Lazy load ManageAuthor
-const SignUpScreen = lazy(() => import('~/components/screens/login/SignUp')); // Lazy load SignUpScreen
+const ManageAuthorScreen = lazy(() => import('~/components/screens/drive-thru/admin/manage-authors/ManageAuthor'));
+const SignUpScreen = lazy(() => import('~/components/screens/login/SignUp'));
 const InformationScreen = lazy(() => import('~/components/screens/Information'));
-
-import React, { useState, useRef, useEffect } from "react";
-import avatarImg from "~/components/image/avatar.jpg"; // Import your avatar image
-import { useAuth } from "~/lib/useAuth"; // <-- Make sure you have a useAuth hook
-import bellIcon from "~/components/image/bell.svg"; // Add a bell icon SVG to your image folder
-import { collection, query, where, getFirestore, onSnapshot, writeBatch, getDocs } from "firebase/firestore";
+const NotificationsScreen = lazy(() => import('~/components/screens/drive-thru/user/view-notifications/Notifications'));
 
 function Layout({ showHeader = true, children }: { showHeader?: boolean; children: React.ReactNode }) {
   const navigate = useNavigate();
+  const location = useLocation();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [bellOpen, setBellOpen] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
@@ -123,20 +123,51 @@ function Layout({ showHeader = true, children }: { showHeader?: boolean; childre
     <div className="min-h-screen bg-gray-900 text-white">
       {showHeader && (
         <nav className="p-4 flex items-center justify-between bg-gray-800 shadow">
-          {/* Clickable Header */}
-          <button
-            onClick={() => navigate("/homepage")}
-            className="text-3xl text-blue-500 hover:text-blue-400 transition"
-          >
-            Tailwind <span className="text-purple-500">Library</span>
-          </button>
-
+          {/* Clickable Header, My Lending, and View Book */}
+          <div className="flex items-center gap-6">
+            <button
+              type="button"
+              onClick={() => navigate("/homepage")}
+              className="text-3xl text-blue-500 hover:text-blue-400 transition"
+            >
+              Tailwind <span className="text-purple-500">Library</span>
+            </button>
+            {/* View Book button */}
+            <div className="relative">
+              <button
+                type="button"
+                onClick={() => navigate("/book-list")}
+                className="text-base font-semibold tracking-wide text-blue-300 hover:text-blue-400 transition bg-transparent px-0 py-0 rounded shadow-none border-none"
+                style={{ background: "none", boxShadow: "none", border: "none", padding: 0, letterSpacing: "0.05em" }}
+              >
+                Book List
+              </button>
+              {location.pathname === "/book-list" && (
+                <span className="absolute left-0 -bottom-1 w-full h-0.5 bg-blue-400"></span>
+              )}
+            </div>
+            {/* My Lending button */}
+            <div className="relative">
+              <button
+                type="button"
+                onClick={() => navigate("/lending-list")}
+                className="text-base font-semibold tracking-wide text-blue-300 hover:text-blue-400 transition bg-transparent px-0 py-0 rounded shadow-none border-none"
+                style={{ background: "none", boxShadow: "none", border: "none", padding: 0, letterSpacing: "0.05em" }}
+              >
+                My Lendings
+              </button>
+              {location.pathname === "/lending-list" && (
+                <span className="absolute left-0 -bottom-1 w-full h-0.5 bg-blue-400"></span>
+              )}
+            </div>
+          </div>
           {/* Bell Icon and Avatar Dropdown */}
           <div className="flex items-center gap-4 relative" ref={dropdownRef}>
             {/* Bell icon for users only */}
             {role === "user" && (
               <div className="relative flex items-end">
                 <button
+                  type="button"
                   onClick={handleBellClick}
                   className="focus:outline-none"
                   aria-label="Notifications"
@@ -157,6 +188,7 @@ function Layout({ showHeader = true, children }: { showHeader?: boolean; childre
                       ) : (
                         notifications.slice(0, 5).map((msg, idx) => (
                           <button
+                            type="button"
                             key={idx}
                             className="block w-full text-left px-2 py-2 hover:bg-gray-700 text-sm"
                             onClick={() => {
@@ -170,6 +202,7 @@ function Layout({ showHeader = true, children }: { showHeader?: boolean; childre
                       )}
                     </div>
                     <button
+                      type="button"
                       className="block w-full text-center py-2 border-t border-gray-700 hover:bg-gray-700 text-xs"
                       onClick={() => {
                         setBellOpen(false);
@@ -184,6 +217,7 @@ function Layout({ showHeader = true, children }: { showHeader?: boolean; childre
             )}
             {/* Avatar Dropdown */}
             <button
+              type="button"
               onClick={() => setDropdownOpen((open) => !open)}
               className="focus:outline-none"
             >
@@ -198,6 +232,7 @@ function Layout({ showHeader = true, children }: { showHeader?: boolean; childre
                 {/* Only show Notifications button for users with role "user" */}
                 {role === "user" && (
                   <button
+                    type="button"
                     className="block w-full text-left px-4 py-2 hover:bg-gray-700"
                     onClick={() => {
                       setDropdownOpen(false);
@@ -208,6 +243,7 @@ function Layout({ showHeader = true, children }: { showHeader?: boolean; childre
                   </button>
                 )}
                 <button
+                  type="button"
                   className="block w-full text-left px-4 py-2 hover:bg-gray-700"
                   onClick={() => {
                     setDropdownOpen(false);
@@ -217,6 +253,7 @@ function Layout({ showHeader = true, children }: { showHeader?: boolean; childre
                   View Profile
                 </button>
                 <button
+                  type="button"
                   className="block w-full text-left px-4 py-2 hover:bg-gray-700"
                   onClick={() => {
                     setDropdownOpen(false);
@@ -247,16 +284,14 @@ export const Router = () => {
   );
 };
 
-const NotificationsScreen = lazy(() => import('~/components/screens/drive-thru/user/view-notifications/Notifications')); // Lazy load NotificationsScreen
-
 const InnerRouter = () => {
   const routes: RouteObject[] = [
     {
-      path: '/', // Default route
-      element: <LoginScreen />, // Login page
+      path: '/',
+      element: <LoginScreen />,
     },
     {
-      path: '/homepage', // Unified Homepage route
+      path: '/homepage',
       element: (
         <Layout showHeader={true}>
           <RequireAuth>
@@ -266,20 +301,20 @@ const InnerRouter = () => {
       ),
     },
     {
-      path: '/admin-manage-news', // Admin Manage News route
+      path: '/admin-manage-news',
       element: (
         <Layout showHeader={true}>
-          <RequireAuth> {/* No role restriction */}
+          <RequireAuth>
             <ManageNewsScreen />
           </RequireAuth>
         </Layout>
       ),
     },
     {
-      path: '/admin-add-news', // Add News route
+      path: '/admin-add-news',
       element: (
         <Layout showHeader={true}>
-          <RequireAuth> {/* No role restriction */}
+          <RequireAuth>
             <AddNewsScreen />
           </RequireAuth>
         </Layout>
@@ -295,7 +330,6 @@ const InnerRouter = () => {
         </Layout>
       ),
     },
-    
     {
       path: '/book-list',
       element: (
@@ -417,7 +451,7 @@ const InnerRouter = () => {
       ),
     },
     {
-      path: '/about-us', // Add the About Us path
+      path: '/about-us',
       element: (
         <Layout showHeader={true}>
           <AboutUsScreen />
@@ -465,19 +499,10 @@ const InnerRouter = () => {
       ),
     },
     {
-      path: '/signup', // Add the SignUp path
+      path: '/signup',
       element: (
         <Layout showHeader={true}>
           <SignUpScreen />
-        </Layout>
-      ),
-    },
-
-    {
-      path: '/information', // <-- Add this route
-      element: (
-        <Layout showHeader={true}>
-          <InformationScreen />
         </Layout>
       ),
     },
@@ -486,14 +511,13 @@ const InnerRouter = () => {
       element: (
         <Layout showHeader={true}>
           <RequireAuth>
-            {/* Lazy load or import your EditProfileScreen here */}
             {React.createElement(lazy(() => import('~/components/screens/drive-thru/view-profile/EditProfile')))}
           </RequireAuth>
         </Layout>
       ),
     },
     {
-      path: '/notifications', // Notifications route
+      path: '/notifications',
       element: (
         <Layout showHeader={true}>
           <RequireAuth>
@@ -504,7 +528,7 @@ const InnerRouter = () => {
     },
     {
       path: '*',
-      element: <Page404Screen />, // 404 page for unmatched routes
+      element: <Page404Screen />,
     },
   ];
 

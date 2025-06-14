@@ -58,6 +58,7 @@ function getTimeElapsed(timestamp: string): string {
 }
 
 function Layout({ showHeader = true, children }: { showHeader?: boolean; children: React.ReactNode }) {
+  const { role, user } = useAuth?.() || { role: null, user: null };
   const navigate = useNavigate();
   const location = useLocation();
   const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -66,7 +67,6 @@ function Layout({ showHeader = true, children }: { showHeader?: boolean; childre
   const [notifications, setNotifications] = useState<{ message: string; timestamp: string }[]>([]);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  const { user, role } = useAuth?.() || { user: null, role: null };
   const avatarUrl = avatarImg;
 
   // Fetch notifications for user role "user"
@@ -140,11 +140,18 @@ function Layout({ showHeader = true, children }: { showHeader?: boolean; childre
     }
   };
 
+  // Only show user nav if role is "user" and on specific routes
+  const showUserNav =
+    role === "user" &&
+    ["/homepage", "/book-list", "/lending-list"].some((path) =>
+      location.pathname.startsWith(path)
+    ) ||
+    (role === "user" && location.pathname.startsWith("/book-detail/"));
+
   return (
     <div className="min-h-screen bg-gray-900 text-white">
       {showHeader && (
         <nav className="p-4 flex items-center justify-between bg-gray-800 shadow">
-          {/* Clickable Header, My Lending, and View Book */}
           <div className="flex items-center gap-6">
             <button
               type="button"
@@ -153,34 +160,24 @@ function Layout({ showHeader = true, children }: { showHeader?: boolean; childre
             >
               Tailwind <span className="text-purple-500">Library</span>
             </button>
-            {/* View Book button */}
-            <div className="relative">
-              <button
-                type="button"
-                onClick={() => navigate("/book-list")}
-                className="text-base font-semibold tracking-wide text-blue-300 hover:text-blue-400 transition bg-transparent px-0 py-0 rounded shadow-none border-none"
-                style={{ background: "none", boxShadow: "none", border: "none", padding: 0, letterSpacing: "0.05em" }}
-              >
-                Book List
-              </button>
-              {location.pathname === "/book-list" && (
-                <span className="absolute left-0 -bottom-1 w-full h-0.5 bg-blue-400"></span>
-              )}
-            </div>
-            {/* My Lending buttons */}
-            <div className="relative">
-              <button
-                type="button"
-                onClick={() => navigate("/lending-list")}
-                className="text-base font-semibold tracking-wide text-blue-300 hover:text-blue-400 transition bg-transparent px-0 py-0 rounded shadow-none border-none"
-                style={{ background: "none", boxShadow: "none", border: "none", padding: 0, letterSpacing: "0.05em" }}
-              >
-                My Lendings
-              </button>
-              {location.pathname === "/lending-list" && (
-                <span className="absolute left-0 -bottom-1 w-full h-0.5 bg-blue-400"></span>
-              )}
-            </div>
+            {showUserNav && (
+              <>
+                <button
+                  type="button"
+                  onClick={() => navigate("/book-list")}
+                  className="text-base font-semibold tracking-wide text-blue-300 hover:text-blue-400 transition"
+                >
+                  Book List
+                </button>
+                <button
+                  type="button"
+                  onClick={() => navigate("/lending-list")}
+                  className="text-base font-semibold tracking-wide text-blue-300 hover:text-blue-400 transition"
+                >
+                  My Lendings
+                </button>
+              </>
+            )}
           </div>
           {/* Bell Icon and Avatar Dropdown */}
           <div className="flex items-center gap-4 relative" ref={dropdownRef}>
@@ -293,9 +290,7 @@ function Layout({ showHeader = true, children }: { showHeader?: boolean; childre
           </div>
         </nav>
       )}
-      <div className="container mx-auto px-4 py-6">
-        {children}
-      </div>
+      <div className="container mx-auto px-4 py-6">{children}</div>
     </div>
   );
 }

@@ -5,7 +5,8 @@ import { getAuth } from "firebase/auth";
 import { Head } from "~/components/shared/Head";
 import { useNavigate } from "react-router-dom";
 import Loader from "~/components/common/Loader"; // Import Loader component
-
+import DeleteButton from "~/components/shared/buttons/DeleteButton"; // Import DeleteButton component
+import BackButton from "~/components/shared/buttons/BackButton";
 function ViewLending() {
   const [lendings, setLendings] = useState<any[]>([]); // Use `any[]` to handle Firestore data dynamically
   const [loading, setLoading] = useState(true);
@@ -94,6 +95,7 @@ function ViewLending() {
 
   return (
     <div className="min-h-screen bg-gray-900 text-white">
+      <BackButton className="mb-4" />
       <Head title="View Lendings" />
       <div className="container mx-auto px-4 py-6">
         {/* Back Button */}

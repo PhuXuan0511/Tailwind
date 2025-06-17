@@ -3,7 +3,7 @@ import { useFirestore } from "~/lib/firebase";
 import { collection, getDocs, addDoc } from "firebase/firestore";
 import { useNavigate } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
-
+import BackButton from "~/components/shared/buttons/BackButton";
 function AddUserScreen() {
     const firestore = useFirestore();
     const navigate = useNavigate();
@@ -62,6 +62,7 @@ function AddUserScreen() {
         <div className="min-h-screen bg-gray-900 text-white">
           <ToastContainer /> 
           <div className="container mx-auto px-4 py-6">
+            <BackButton className="mb-4"/>
             <h1 className="text-3xl font-bold mb-6">Add New User</h1>
             <form onSubmit={handleSubmit} className="bg-gray-800 p-6 rounded-lg shadow">
               <div className="mb-4">

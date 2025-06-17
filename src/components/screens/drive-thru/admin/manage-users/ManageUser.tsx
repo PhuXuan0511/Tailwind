@@ -6,6 +6,7 @@ import { Head } from "~/components/shared/Head";
 import { toast, ToastContainer } from "react-toastify";
 import { showToastFromLocalStorage } from "~/components/shared/toastUtils";
 import Loader from "~/components/common/Loader"; // Add this import
+import BackButton from "~/components/shared/buttons/BackButton";
 
 type User = {
   id: string;
@@ -114,14 +115,7 @@ function ManageUser() {
       <ToastContainer />
       <div className="container mx-auto px-4 py-6">
         {/* Back to Homepage Button */}
-        <div className="mb-4">
-          <button
-            onClick={() => navigate(-1)}
-            className="bg-gray-500 text-white px-3 py-1 rounded text-sm hover:bg-gray-600"
-          >
-            Back
-          </button>
-        </div>
+        <BackButton className="mb-4" />
         <h1 className="text-3xl font-bold mb-6">Manage Users</h1>
         <div className="mb-4 flex items-center space-x-4">
           {/* Search Box */}

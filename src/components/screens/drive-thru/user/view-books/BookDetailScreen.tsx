@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { doc, getDoc } from "firebase/firestore";
 import { firestore } from "~/lib/firebase";
+import BackButton from "~/components/shared/buttons/BackButton";
 
 type Book = {
   id: string;
@@ -86,12 +87,7 @@ function BookDetailScreen() {
   return (
     <div className="min-h-screen bg-gray-900 text-white">
       <div className="container mx-auto px-4 py-6">
-        <button
-          onClick={() => navigate(-1)}
-          className="bg-gray-500 text-white px-3 py-1 rounded text-sm hover:bg-gray-600 mb-4"
-        >
-          Back
-        </button>
+        <BackButton className="mb-4" onClick={() => navigate(-1)} />
         <div className="bg-gray-800 p-6 rounded-lg shadow-lg flex flex-col sm:flex-row">
           <img
             src={book.imageUrl || "https://via.placeholder.com/150"}

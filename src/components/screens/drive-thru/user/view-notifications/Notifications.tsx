@@ -3,6 +3,7 @@ import { collection, query, where, getFirestore, onSnapshot, deleteDoc, doc } fr
 import { getAuth } from "firebase/auth";
 import Loader from "~/components/common/Loader"; // Import Loader component
 import DeleteButton from "~/components/shared/buttons/DeleteButton";
+import BackButton from "~/components/shared/buttons/BackButton";
 
 type Notification = {
   id: string;
@@ -72,6 +73,7 @@ function Notifications() {
   return (
     <div className="min-h-screen bg-gray-900 text-white">
       <div className="container mx-auto px-4 py-6">
+        <BackButton className="mb-4" />
         <h1 className="text-4xl font-bold mb-6">Notifications</h1>
         <div className="bg-gray-800 shadow rounded-lg p-6 border border-gray-700">
           {notifications.length > 0 ? (

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { collection, onSnapshot, deleteDoc, doc } from "firebase/firestore";
 import { useFirestore } from "~/lib/firebase"; // Use Firestore from your firebase.ts
 import { useNavigate } from "react-router-dom";
-
+import BackButton from "../../shared/buttons/BackButton";
 type News = {
   id: string;
   title: string;
@@ -68,14 +68,7 @@ const ManageNews = () => {
     <div className="min-h-screen bg-gray-900 text-white">
       <div className="container mx-auto px-4 py-6">
         {/* Back Button */}
-        <div className="mb-4">
-          <button
-            onClick={() => navigate(-1)}
-            className="bg-gray-500 text-white px-3 py-1 rounded text-sm hover:bg-gray-600"
-          >
-            Back
-          </button>
-        </div>
+        <BackButton className="mb-4" />
 
         <h1 className="text-3xl font-bold mb-6">Manage News</h1>
 

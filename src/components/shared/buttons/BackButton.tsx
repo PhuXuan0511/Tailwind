@@ -1,22 +1,26 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 
-type BackButtonProps = {
-  children?: React.ReactNode;
-  to?: number | string; // Standard: -1 (eine Seite zurück)
-  className?: string;
-};
+type BackButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement>;
 
-const BackButton: React.FC<BackButtonProps> = ({
-  className = "",
-}) => {
+const BackButton: React.FC<BackButtonProps> = ({ onClick, ...props }) => {
   const navigate = useNavigate();
+
+  const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+    if (onClick) onClick(e);
+    if (!e.defaultPrevented) {
+      navigate(-1);
+    }
+  };
+
   return (
     <button
-      onClick={() => navigate(-1)}
-      className={mt-2 p-1 rounded text-blue-500 hover:text-blue-600 focus:outline-none}
+      type="button"
+      className="mt-2 p-1 rounded text-blue-400 hover:text-blue-500 focus:outline-none"
+      onClick={handleClick}
+      {...props}
     >
-    <span className="text-blue">&#8592;</span>
+      <span className="text-blue-400 hover:text-blue-500">&#8617;</span>
     </button>
   );
 };

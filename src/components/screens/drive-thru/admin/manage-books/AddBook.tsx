@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useFirestore } from "~/lib/firebase";
-import { collection, addDoc, getDocs } from "firebase/firestore";
+import { collection, query, where, getDocs, addDoc } from "firebase/firestore";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { useNavigate } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
@@ -140,6 +140,14 @@ function AddBookScreen() {
     // --- ISBN validation here ---
     if (!isValidISBN(formData.isbn)) {
       alert("Invalid ISBN. Please enter a valid ISBN-10 or ISBN-13.");
+      return;
+    }
+    // If valid, check if it already exists in the database
+    const booksCollection = collection(firestore, "books");
+    const isbnQuery = query(booksCollection, where("isbn", "==", formData.isbn));
+    const isbnSnapshot = await getDocs(isbnQuery);
+    if (!isbnSnapshot.empty) {
+      alert("A book with this ISBN already exists.");
       return;
     }
 

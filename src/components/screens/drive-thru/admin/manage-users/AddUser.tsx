@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useFirestore } from "~/lib/firebase";
-import { collection, addDoc } from "firebase/firestore";
+import { collection, getDocs, addDoc } from "firebase/firestore";
 import { useNavigate } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 
@@ -17,24 +17,47 @@ function AddUserScreen() {
         password: "",
     });
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-        const { name, value } = e.target;
-        setFormData((prev) => ({ ...prev, [name]: value }));
+      const { name, value } = e.target;
+      setFormData((prev) => ({ ...prev, [name]: value }));
     };
+
+    // Helper to check for duplicate user
+    const isDuplicateUser = async () => {
+      const usersCollection = collection(firestore, "users");
+      const snapshot = await getDocs(usersCollection);
+      return snapshot.docs.some(doc => {
+        const data = doc.data();
+        return (
+          data.name === formData.name &&
+          data.birthyear === parseInt(formData.birthyear, 10) &&
+          data.address === formData.address &&
+          data.phone === formData.phone &&
+          data.email === formData.email &&
+          data.role === formData.role
+        );
+      });
+    };
+
+    // Modified handleSubmit to check for duplicates
     const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        try {
-          const usersCollection = collection(firestore, "users");
-          await addDoc(usersCollection, {
-            ...formData,
-            birthyear: parseInt(formData.birthyear, 10),
-          });
-          localStorage.setItem("showToast", "true"); // Set flag for toast
-          navigate("/manage-user"); // Redirect to ManageUser page
-        } catch (error) {
-          console.error("Error adding user:", error);
-          alert("Failed to add user. Check the console for details.");
+      e.preventDefault();
+      try {
+        if (await isDuplicateUser()) {
+          alert("A user with identical credentials already exists.");
+          return;
         }
-      };
+        const usersCollection = collection(firestore, "users");
+        await addDoc(usersCollection, {
+          ...formData,
+          birthyear: parseInt(formData.birthyear, 10),
+        });
+        localStorage.setItem("showToast", "true");
+        navigate("/manage-user");
+      } catch (error) {
+        console.error("Error adding user:", error);
+        alert("Failed to add user. Check the console for details.");
+      }
+    };
       return (
         <div className="min-h-screen bg-gray-900 text-white">
           <ToastContainer /> 

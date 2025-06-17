@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { collection, query, where, getFirestore, onSnapshot, deleteDoc, doc } from "firebase/firestore";
+import { collection, query, where, getFirestore, orderBy, onSnapshot, deleteDoc, doc } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
 import Loader from "~/components/common/Loader"; // Import Loader component
 import DeleteButton from "~/components/shared/buttons/DeleteButton";
@@ -43,7 +43,7 @@ function Notifications() {
     const db = getFirestore();
     const notificationsCollection = collection(db, "notifications");
 
-    const q = query(notificationsCollection, where("userId", "==", currentUserId));
+    const q = query(notificationsCollection, where("userId", "==", currentUserId), orderBy("timestamp", "desc"));
     const unsubscribe = onSnapshot(q, (snapshot) => {
       const notificationsList: Notification[] = snapshot.docs.map((doc) => ({
         id: doc.id,
@@ -83,10 +83,13 @@ function Notifications() {
                 <p className="text-gray-500 text-sm">
                   {formatTimestamp(notification.timestamp)}
                 </p>
-                <DeleteButton
+                <div className="flex justify-between items-end mt-2">
+                  <div />
+                  <DeleteButton
                   onClick={() => handleDelete(notification.id)}
-                  className="mt-2"
-                ></DeleteButton>
+                  className="self-end"
+                  />
+                </div>
               </div>
             ))
           ) : (

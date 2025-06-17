@@ -6,7 +6,23 @@ import Loader from "~/components/common/Loader"; // Import Loader component
 type Notification = {
   id: string;
   message: string;
+  timestamp: string;
 };
+
+// Helper function to format the timestamp
+function formatTimestamp(timestamp: string): string {
+  const date = new Date(timestamp);
+  const options: Intl.DateTimeFormatOptions = {
+    weekday: "long",
+    day: "2-digit",
+    month: "long",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: true,
+  };
+  return date.toLocaleString("en-US", options);
+}
 
 function Notifications() {
   const [notifications, setNotifications] = useState<Notification[]>([]);
@@ -30,9 +46,10 @@ function Notifications() {
       const notificationsList: Notification[] = snapshot.docs.map((doc) => ({
         id: doc.id,
         message: doc.data().message,
+        timestamp: doc.data().timestamp,
       }));
       setNotifications(notificationsList);
-      setLoading(false); // <-- Add this line
+      setLoading(false);
     });
 
     return () => unsubscribe();
@@ -58,11 +75,14 @@ function Notifications() {
         <div className="bg-gray-800 shadow rounded-lg p-6 border border-gray-700">
           {notifications.length > 0 ? (
             notifications.map((notification) => (
-              <div key={notification.id} className="flex items-center justify-between mb-4">
+              <div key={notification.id} className="mb-4">
                 <p className="text-gray-300">{notification.message}</p>
+                <p className="text-gray-500 text-sm">
+                  {formatTimestamp(notification.timestamp)}
+                </p>
                 <button
                   onClick={() => handleDelete(notification.id)}
-                  className="ml-4 p-1 rounded text-red-500 hover:text-red-600 focus:outline-none"
+                  className="mt-2 p-1 rounded text-red-500 hover:text-red-600 focus:outline-none"
                   aria-label="Delete notification"
                 >
                   <span className="text-xs font-bold">&#10005;</span>

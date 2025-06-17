@@ -4,6 +4,7 @@ import { useFirestore } from "~/lib/firebase";
 import { Head } from "~/components/shared/Head";
 import { useNavigate } from "react-router-dom";
 import Loader from "~/components/common/Loader"; // Add this import
+import DeleteButton from "~/components/shared/buttons/DeleteButton"; // Import DeleteButton component
 
 type Author = {
   id: string;
@@ -133,13 +134,10 @@ function ManageAuthor() {
                 <tr key={author.id}>
                   <td className="border-b border-gray-700 p-2 flex justify-between items-center">
                     {author.name}
-                    <button
+                    <DeleteButton
                       onClick={() => handleDeleteAuthor(author.id)}
-                      className="ml-4 p-1 rounded text-red-500 hover:text-red-600 focus:outline-none"
-                      aria-label="Delete author"
-                    >
-                      <span className="text-xs font-bold">&#10005;</span>
-                    </button>
+                      className="mt-2"
+                    ></DeleteButton>
                   </td>
                 </tr>
               ))}

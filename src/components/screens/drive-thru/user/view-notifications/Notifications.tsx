@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { collection, query, where, getFirestore, onSnapshot, deleteDoc, doc } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
 import Loader from "~/components/common/Loader"; // Import Loader component
+import DeleteButton from "~/components/shared/buttons/DeleteButton";
 
 type Notification = {
   id: string;
@@ -80,13 +81,10 @@ function Notifications() {
                 <p className="text-gray-500 text-sm">
                   {formatTimestamp(notification.timestamp)}
                 </p>
-                <button
+                <DeleteButton
                   onClick={() => handleDelete(notification.id)}
-                  className="mt-2 p-1 rounded text-red-500 hover:text-red-600 focus:outline-none"
-                  aria-label="Delete notification"
-                >
-                  <span className="text-xs font-bold">&#10005;</span>
-                </button>
+                  className="mt-2"
+                ></DeleteButton>
               </div>
             ))
           ) : (

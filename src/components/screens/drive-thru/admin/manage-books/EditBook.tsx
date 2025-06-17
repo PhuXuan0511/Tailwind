@@ -71,7 +71,7 @@ function EditBookScreen() {
             isbn: bookData.isbn || "",
             title: bookData.title || "",
             year: bookData.year?.toString() || "",
-            edition: bookData.edition || "",
+            edition: bookData.edition?.toString() || "",
             quantity: bookData.quantity?.toString() || "",
             restrictions: bookData.restrictions || "",
             imageUrl: bookData.imageUrl || "",

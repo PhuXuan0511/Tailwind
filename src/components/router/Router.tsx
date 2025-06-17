@@ -149,150 +149,161 @@ function Layout({ showHeader = true, children }: { showHeader?: boolean; childre
     (role === "user" && location.pathname.startsWith("/book-detail/"));
 
   return (
-    <div className="min-h-screen bg-gray-900 text-white">
-      {showHeader && (
-        <nav className="p-4 flex items-center justify-between bg-gray-800 shadow">
-          <div className="flex items-center gap-6">
-            <button
-              type="button"
-              onClick={() => navigate("/homepage")}
-              className="text-3xl text-blue-500 hover:text-blue-400 transition"
-            >
-              Tailwind <span className="text-purple-500">Library</span>
-            </button>
-            {showUserNav && (
-              <>
-                <button
-                  type="button"
-                  onClick={() => navigate("/book-list")}
-                  className="text-base font-semibold tracking-wide text-blue-300 hover:text-blue-400 transition"
-                >
-                  Book List
-                </button>
-                <button
-                  type="button"
-                  onClick={() => navigate("/lending-list")}
-                  className="text-base font-semibold tracking-wide text-blue-300 hover:text-blue-400 transition"
-                >
-                  My Lendings
-                </button>
-              </>
-            )}
-          </div>
-          {/* Bell Icon and Avatar Dropdown */}
-          <div className="flex items-center gap-4 relative" ref={dropdownRef}>
-            {/* Bell icon for users only */}
-            {role === "user" && (
-              <div className="relative flex items-end">
-                <button
-                  type="button"
-                  onClick={handleBellClick}
-                  className="focus:outline-none"
-                  aria-label="Notifications"
-                  style={{ marginBottom: '1px' }}
-                >
-                  <img src={bellIcon} alt="Notifications" className="w-7 h-7" />
-                  {unreadCount > 0 && (
-                    <span className="absolute -top-1 -right-1 bg-red-500 text-xs rounded-full px-1">
-                      {unreadCount}
-                    </span>
-                  )}
-                </button>
-                {bellOpen && (
-                  <div className="absolute right-0 top-full mt-2 w-64 bg-gray-800 text-white rounded shadow-lg z-50 border border-gray-700">
-                    <div className="p-2 max-h-60 overflow-y-auto">
-                      {notifications.length === 0 ? (
-                        <div className="text-gray-400 text-sm p-2">No notifications</div>
-                      ) : (
-                        notifications.slice(0, 5).map((notification, idx) => (
-                          <button
-                            type="button"
-                            key={idx}
-                            className="block w-full text-left px-2 py-2 hover:bg-gray-700 text-sm"
-                            onClick={() => {
-                              setBellOpen(false);
-                              navigate("/notifications");
-                            }}
-                          >
-                            <span>{notification.message}</span>
-                            <span className="block text-gray-500 text-xs">
-                              {getTimeElapsed(notification.timestamp)}
-                            </span>
-                          </button>
-                        ))
-                      )}
-                    </div>
-                    <button
-                      type="button"
-                      className="block w-full text-center py-2 border-t border-gray-700 hover:bg-gray-700 text-xs"
-                      onClick={() => {
-                        setBellOpen(false);
-                        navigate("/notifications");
-                      }}
-                    >
-                      View all notifications
-                    </button>
-                  </div>
+  <div className="min-h-screen bg-gray-900 text-white">
+    {showHeader && (
+      <nav className="p-4 flex items-center justify-between bg-gray-800 shadow">
+        <div className="flex items-center gap-6">
+          <button
+            type="button"
+            onClick={() => navigate("/homepage")}
+            className="text-3xl text-blue-500 hover:text-blue-400 transition"
+          >
+            Tailwind <span className="text-purple-500">Library</span>
+          </button>
+          {showUserNav && (
+            <>
+              <button
+                type="button"
+                onClick={() => navigate("/book-list")}
+                className={`relative text-base font-semibold tracking-wide text-blue-300 hover:text-blue-400 transition pb-1
+                  after:content-[''] after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-full after:bg-blue-400 after:scale-x-0 after:transition-transform after:origin-left hover:after:scale-x-100 ${
+                    location.pathname.startsWith("/book-list")
+                      ? "after:scale-x-100 after:bg-blue-500 text-blue-400"
+                      : ""
+                  }`}
+              >
+                Book List
+              </button>
+              <button
+                type="button"
+                onClick={() => navigate("/lending-list")}
+                className={`relative text-base font-semibold tracking-wide text-blue-300 hover:text-blue-400 transition pb-1
+                  after:content-[''] after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-full after:bg-blue-400 after:scale-x-0 after:transition-transform after:origin-left hover:after:scale-x-100 ${
+                    location.pathname.startsWith("/lending-list")
+                      ? "after:scale-x-100 after:bg-blue-500 text-blue-400"
+                      : ""
+                  }`}
+              >
+                My Lendings
+              </button>
+            </>
+          )}
+        </div>
+
+        {/* Bell & Avatar */}
+        <div className="flex items-center gap-4 relative" ref={dropdownRef}>
+          {role === "user" && (
+            <div className="relative flex items-end">
+              <button
+                type="button"
+                onClick={handleBellClick}
+                className="focus:outline-none"
+                aria-label="Notifications"
+                style={{ marginBottom: "1px" }}
+              >
+                <img src={bellIcon} alt="Notifications" className="w-7 h-7" />
+                {unreadCount > 0 && (
+                  <span className="absolute -top-1 -right-1 bg-red-500 text-xs rounded-full px-1">
+                    {unreadCount}
+                  </span>
                 )}
-              </div>
-            )}
-            {/* Avatar Dropdown */}
-            <button
-              type="button"
-              onClick={() => setDropdownOpen((open) => !open)}
-              className="focus:outline-none"
-            >
-              <img
-                src={avatarUrl}
-                alt="Avatar"
-                className="w-10 h-10 rounded-full border-2 border-blue-500 object-cover"
-              />
-            </button>
-            {dropdownOpen && (
-              <div className="absolute right-0 top-full mt-2 w-44 bg-gray-800 text-white rounded shadow-lg z-50 border border-gray-700">
-                {/* Only show Notifications button for users with role "user" */}
-                {role === "user" && (
+              </button>
+              {bellOpen && (
+                <div className="absolute right-0 top-full mt-2 w-64 bg-gray-800 text-white rounded shadow-lg z-50 border border-gray-700">
+                  <div className="p-2 max-h-60 overflow-y-auto">
+                    {notifications.length === 0 ? (
+                      <div className="text-gray-400 text-sm p-2">No notifications</div>
+                    ) : (
+                      notifications.slice(0, 5).map((notification, idx) => (
+                        <button
+                          type="button"
+                          key={idx}
+                          className="block w-full text-left px-2 py-2 hover:bg-gray-700 text-sm"
+                          onClick={() => {
+                            setBellOpen(false);
+                            navigate("/notifications");
+                          }}
+                        >
+                          <span>{notification.message}</span>
+                          <span className="block text-gray-500 text-xs">
+                            {getTimeElapsed(notification.timestamp)}
+                          </span>
+                        </button>
+                      ))
+                    )}
+                  </div>
                   <button
                     type="button"
-                    className="block w-full text-left px-4 py-2 hover:bg-gray-700"
+                    className="block w-full text-center py-2 border-t border-gray-700 hover:bg-gray-700 text-xs"
                     onClick={() => {
-                      setDropdownOpen(false);
+                      setBellOpen(false);
                       navigate("/notifications");
                     }}
                   >
-                    Notifications
+                    View all notifications
                   </button>
-                )}
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Avatar Dropdown */}
+          <button
+            type="button"
+            onClick={() => setDropdownOpen((open) => !open)}
+            className="focus:outline-none"
+          >
+            <img
+              src={avatarUrl}
+              alt="Avatar"
+              className="w-10 h-10 rounded-full border-2 border-blue-500 object-cover"
+            />
+          </button>
+          {dropdownOpen && (
+            <div className="absolute right-0 top-full mt-2 w-44 bg-gray-800 text-white rounded shadow-lg z-50 border border-gray-700">
+              {role === "user" && (
                 <button
                   type="button"
                   className="block w-full text-left px-4 py-2 hover:bg-gray-700"
                   onClick={() => {
                     setDropdownOpen(false);
-                    navigate("/view-profile");
+                    navigate("/notifications");
                   }}
                 >
-                  View Profile
+                  Notifications
                 </button>
-                <button
-                  type="button"
-                  className="block w-full text-left px-4 py-2 hover:bg-gray-700"
-                  onClick={() => {
-                    setDropdownOpen(false);
-                    if (typeof window !== "undefined") {
-                      window.location.href = "/";
-                    }
-                  }}
-                >
-                  Log Out
-                </button>
-              </div>
-            )}
-          </div>
-        </nav>
-      )}
-      <div className="container mx-auto px-4 py-6">{children}</div>
-    </div>
-  );
+              )}
+              <button
+                type="button"
+                className="block w-full text-left px-4 py-2 hover:bg-gray-700"
+                onClick={() => {
+                  setDropdownOpen(false);
+                  navigate("/view-profile");
+                }}
+              >
+                View Profile
+              </button>
+              <button
+                type="button"
+                className="block w-full text-left px-4 py-2 hover:bg-gray-700"
+                onClick={() => {
+                  setDropdownOpen(false);
+                  if (typeof window !== "undefined") {
+                    window.location.href = "/";
+                  }
+                }}
+              >
+                Log Out
+              </button>
+            </div>
+          )}
+        </div>
+      </nav>
+    )}
+    <div className="container mx-auto px-4 py-6">{children}</div>
+  </div>
+);
+
 }
 
 export const Router = () => {

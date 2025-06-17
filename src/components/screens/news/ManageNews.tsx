@@ -3,6 +3,8 @@ import { collection, onSnapshot, deleteDoc, doc } from "firebase/firestore";
 import { useFirestore } from "~/lib/firebase"; // Use Firestore from your firebase.ts
 import { useNavigate } from "react-router-dom";
 import BackButton from "../../shared/buttons/BackButton";
+import AddButton from "../../shared/buttons/AddButton";
+
 type News = {
   id: string;
   title: string;
@@ -81,12 +83,7 @@ const ManageNews = () => {
             placeholder="Search by title, date, or content..."
             className="w-full max-w-md p-3 rounded bg-gray-700 text-white border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
-          <button
-            onClick={() => navigate("/admin-add-news")} // Redirect to Add News screen
-            className="bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg transition"
-          >
-            Add News
-          </button>
+            <AddButton onClick={() => navigate("/admin-add-news")}/>
         </div>
 
         {/* News List */}

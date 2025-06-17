@@ -6,6 +6,7 @@ import { useNavigate } from "react-router-dom";
 import Loader from "~/components/common/Loader"; // Add this import
 import DeleteButton from "~/components/shared/buttons/DeleteButton"; // Import DeleteButton component
 import BackButton from "~/components/shared/buttons/BackButton";
+import AddButton from "~/components/shared/buttons/AddButton";
 type Category = {
   id: string;
   name: string;
@@ -86,12 +87,7 @@ function ManageCategory() {
             placeholder="Enter new category"
             className="p-2 border border-gray-600 rounded bg-gray-700 text-white w-full max-w-md"
           />
-          <button
-            onClick={handleAddCategory}
-            className="bg-blue-500 px-4 py-2 rounded hover:bg-blue-600"
-          >
-            Add
-          </button>
+          <AddButton onClick={handleAddCategory} />
         </div>
 
         <div className="bg-gray-800 p-6 rounded-lg shadow border border-gray-700">

@@ -20,7 +20,7 @@ const BackButton: React.FC<BackButtonProps> = ({ onClick, ...props }) => {
       onClick={handleClick}
       {...props}
     >
-      <span className="text-blue-400 hover:text-blue-500">&#8617;</span>
+      <span className="font-bold text-blue-400 hover:text-blue-500">&#8617;</span>
     </button>
   );
 };

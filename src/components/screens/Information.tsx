@@ -1,6 +1,6 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
-
+import BackButton from "../shared/buttons/BackButton";
 const InfoRules: React.FC = () => {
     const navigate = useNavigate();
     return (
@@ -28,14 +28,7 @@ const InfoRules: React.FC = () => {
             </svg>
             <div className="w-full max-w-5xl px-4 md:px-8">
                 {/* Back Button */}
-                <div className="mb-6 flex">
-                    <button
-                        onClick={() => navigate(-1)}
-                        className="bg-gray-700 hover:bg-gray-600 text-white px-4 py-1.5 rounded-lg text-sm shadow transition font-semibold"
-                    >
-                        ← Back
-                    </button>
-                </div>
+                <BackButton className="mb-6"/>
                 <h1 className="text-3xl font-extrabold mb-8 text-center text-gray-100 tracking-wide drop-shadow">Library Rules</h1>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
                     <div>

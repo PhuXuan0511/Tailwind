@@ -6,6 +6,7 @@ import { Head } from "~/components/shared/Head";
 import { toast, ToastContainer } from "react-toastify";
 import Loader from "~/components/common/Loader"; // Add this import
 import BackButton from "~/components/shared/buttons/BackButton";
+import AddButton from "~/components/shared/buttons/AddButton";
 // Define the structure of a Book object
 type Book = {
   id: string;
@@ -194,12 +195,7 @@ function ManageBook() {
             className="p-2 border border-gray-600 rounded w-full max-w-lg bg-gray-700 text-white"
           />
           {/* Add New Book Button */}
-          <button
-            onClick={() => navigate("/manage-book/add")}
-            className="bg-blue-500 text-white px-3 py-1 rounded text-sm hover:bg-blue-600"
-          >
-            Add New Book
-          </button>
+          <AddButton onClick={() => navigate("/manage-book/add")} />
         </div>
         <div className="bg-gray-800 shadow rounded-lg p-6 border border-gray-700">
           <table className="w-full text-left border-collapse">

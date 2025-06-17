@@ -98,16 +98,6 @@ function ViewLending() {
       <BackButton className="mb-4" />
       <Head title="View Lendings" />
       <div className="container mx-auto px-4 py-6">
-        {/* Back Button */}
-        <div className="mb-4">
-          <button
-            onClick={() => navigate(-1)} // Navigate to the previous page
-            className="bg-gray-500 text-white px-3 py-1 rounded text-sm hover:bg-gray-600"
-          >
-            Back
-          </button>
-        </div>
-
         <h1 className="text-3xl font-bold mb-6">My Lendings</h1>
         <div className="bg-gray-800 shadow rounded-lg p-6 border border-gray-700">
           <table className="w-full text-left border-collapse">

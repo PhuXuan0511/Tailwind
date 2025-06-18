@@ -11,7 +11,7 @@ const RequireAuth = ({ children, requiredRole }: { children: React.ReactNode; re
   }
 
   if (!user) {
-    return <Navigate to="/login" state={{ from: location }} replace />;
+    return <Navigate to="/" state={{ from: location }} replace />;
   }
 
   // Debugging role

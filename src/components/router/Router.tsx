@@ -334,7 +334,7 @@ const InnerRouter = () => {
       path: '/admin-manage-news',
       element: (
         <Layout showHeader={true}>
-          <RequireAuth>
+          <RequireAuth requiredRole="admin">
             <ManageNewsScreen />
           </RequireAuth>
         </Layout>
@@ -344,7 +344,7 @@ const InnerRouter = () => {
       path: '/admin-add-news',
       element: (
         <Layout showHeader={true}>
-          <RequireAuth>
+          <RequireAuth requiredRole="admin">
             <AddNewsScreen />
           </RequireAuth>
         </Layout>
@@ -354,7 +354,7 @@ const InnerRouter = () => {
       path: '/admin-dashboard',
       element: (
         <Layout showHeader={true}>
-          <RequireAuth>
+          <RequireAuth requiredRole="admin">
             <AdminDashboardScreen />
           </RequireAuth>
         </Layout>
@@ -364,7 +364,7 @@ const InnerRouter = () => {
       path: '/book-list',
       element: (
         <Layout showHeader={true}>
-          <RequireAuth>
+          <RequireAuth requiredRole='user'>
             <ViewBook />
           </RequireAuth>
         </Layout>
@@ -374,7 +374,7 @@ const InnerRouter = () => {
       path: '/book-detail/:id',
       element: (
         <Layout showHeader={true}>
-          <RequireAuth>
+          <RequireAuth requiredRole='user'>
             <BookDetail />
           </RequireAuth>
         </Layout>
@@ -384,7 +384,7 @@ const InnerRouter = () => {
       path: '/lending-list',
       element: (
         <Layout showHeader={true}>
-          <RequireAuth>
+          <RequireAuth requiredRole='user'>
             <ViewLending />
           </RequireAuth>
         </Layout>
@@ -394,7 +394,7 @@ const InnerRouter = () => {
       path: '/manage-user',
       element: (
         <Layout showHeader={true}>
-          <RequireAuth>
+          <RequireAuth requiredRole="admin">
             <ManageUserScreen />
           </RequireAuth>
         </Layout>
@@ -404,7 +404,7 @@ const InnerRouter = () => {
       path: '/manage-user/add',
       element: (
         <Layout showHeader={true}>
-          <RequireAuth>
+          <RequireAuth requiredRole="admin">
             <AddUserScreen />
           </RequireAuth>
         </Layout>
@@ -414,7 +414,7 @@ const InnerRouter = () => {
       path: '/manage-user/edit/:id',
       element: (
         <Layout showHeader={true}>
-          <RequireAuth>
+          <RequireAuth requiredRole="admin">
             <EditUserScreen />
           </RequireAuth>
         </Layout>
@@ -424,7 +424,7 @@ const InnerRouter = () => {
       path: '/manage-book',
       element: (
         <Layout showHeader={true}>
-          <RequireAuth>
+          <RequireAuth requiredRole="admin">
             <ManageBookScreen />
           </RequireAuth>
         </Layout>
@@ -434,7 +434,7 @@ const InnerRouter = () => {
       path: '/manage-book/add',
       element: (
         <Layout showHeader={true}>
-          <RequireAuth>
+          <RequireAuth requiredRole="admin">
             <AddBookScreen />
           </RequireAuth>
         </Layout>
@@ -444,7 +444,7 @@ const InnerRouter = () => {
       path: '/manage-book/edit/:id',
       element: (
         <Layout showHeader={true}>
-          <RequireAuth>
+          <RequireAuth requiredRole="admin">
             <EditBookScreen />
           </RequireAuth>
         </Layout>
@@ -454,7 +454,7 @@ const InnerRouter = () => {
       path: '/manage-lending',
       element: (
         <Layout showHeader={true}>
-          <RequireAuth>
+          <RequireAuth requiredRole="admin">
             <ManageLendingScreen />
           </RequireAuth>
         </Layout>
@@ -464,7 +464,7 @@ const InnerRouter = () => {
       path: '/manage-lending/edit/:id',
       element: (
         <Layout showHeader={true}>
-          <RequireAuth>
+          <RequireAuth requiredRole="admin">
             <EditLendingScreen />
           </RequireAuth>
         </Layout>
@@ -512,7 +512,7 @@ const InnerRouter = () => {
       path: '/manage-category',
       element: (
         <Layout showHeader={true}>
-          <RequireAuth>
+          <RequireAuth requiredRole="admin">
             <ManageCategoryScreen />
           </RequireAuth>
         </Layout>
@@ -522,7 +522,7 @@ const InnerRouter = () => {
       path: '/manage-author',
       element: (
         <Layout showHeader={true}>
-          <RequireAuth>
+          <RequireAuth requiredRole="admin">
             <ManageAuthorScreen />
           </RequireAuth>
         </Layout>

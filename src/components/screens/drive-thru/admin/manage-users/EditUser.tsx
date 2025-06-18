@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useFirestore } from "~/lib/firebase";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { useNavigate, useParams } from "react-router-dom";
+import BackButton from "~/components/shared/buttons/BackButton";
 
 function EditUserScreen(){
     const firestore = useFirestore();
@@ -78,6 +79,7 @@ function EditUserScreen(){
     return (
         <div className="min-h-screen bg-gray-900 text-white">
           <div className="container mx-auto px-4 py-6">
+            <BackButton className="mb-4"/>
             <h1 className="text-3xl font-bold mb-6">Edit User</h1>
             <form onSubmit={handleSubmit} className="bg-gray-800 p-6 rounded-lg shadow">
               <div className="mb-4">

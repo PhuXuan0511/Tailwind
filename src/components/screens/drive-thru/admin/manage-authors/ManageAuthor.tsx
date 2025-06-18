@@ -4,7 +4,9 @@ import { useFirestore } from "~/lib/firebase";
 import { Head } from "~/components/shared/Head";
 import { useNavigate } from "react-router-dom";
 import Loader from "~/components/common/Loader"; // Add this import
-
+import DeleteButton from "~/components/shared/buttons/DeleteButton"; // Import DeleteButton component
+import BackButton from "~/components/shared/buttons/BackButton";
+import AddButton from "~/components/shared/buttons/AddButton";
 type Author = {
   id: string;
   name: string;
@@ -92,14 +94,7 @@ function ManageAuthor() {
       <Head title="Manage Authors" />
       <div className="container mx-auto px-4 py-6">
         {/* Back Button */}
-        <div className="mb-4">
-          <button
-            onClick={() => navigate(-1)}
-            className="bg-gray-500 text-white px-3 py-1 rounded text-sm hover:bg-gray-600"
-          >
-            Back
-          </button>
-        </div>
+        <BackButton className="mb-4"/>
 
         <h1 className="text-3xl font-bold mb-6">Manage Authors</h1>
 
@@ -113,12 +108,7 @@ function ManageAuthor() {
             placeholder="Enter new author"
             className="p-2 border border-gray-600 rounded bg-gray-700 text-white w-full max-w-md"
           />
-          <button
-            onClick={handleAddAuthor}
-            className="bg-blue-500 px-4 py-2 rounded hover:bg-blue-600"
-          >
-            Add
-          </button>
+          <AddButton onClick={handleAddAuthor} className="mt-2" />
         </div>
 
         <div className="bg-gray-800 p-6 rounded-lg shadow border border-gray-700">
@@ -133,13 +123,10 @@ function ManageAuthor() {
                 <tr key={author.id}>
                   <td className="border-b border-gray-700 p-2 flex justify-between items-center">
                     {author.name}
-                    <button
+                    <DeleteButton
                       onClick={() => handleDeleteAuthor(author.id)}
-                      className="ml-4 p-1 rounded text-red-500 hover:text-red-600 focus:outline-none"
-                      aria-label="Delete author"
-                    >
-                      <span className="text-xs font-bold">&#10005;</span>
-                    </button>
+                      className="mt-2"
+                    ></DeleteButton>
                   </td>
                 </tr>
               ))}

@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { useFirestore } from "~/lib/firebase";
-import { collection, addDoc, getDocs } from "firebase/firestore";
+import { collection, query, where, getDocs, addDoc } from "firebase/firestore";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { useNavigate } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
-
+import BackButton from "~/components/shared/buttons/BackButton";
 // --- ISBN validation function ---
 function isValidISBN(isbn: string): boolean {
   const clean = isbn.replace(/[-\s]/g, "");
@@ -142,6 +142,14 @@ function AddBookScreen() {
       alert("Invalid ISBN. Please enter a valid ISBN-10 or ISBN-13.");
       return;
     }
+    // If valid, check if it already exists in the database
+    const booksCollection = collection(firestore, "books");
+    const isbnQuery = query(booksCollection, where("isbn", "==", formData.isbn));
+    const isbnSnapshot = await getDocs(isbnQuery);
+    if (!isbnSnapshot.empty) {
+      alert("A book with this ISBN already exists.");
+      return;
+    }
 
     // Year validation
     if (!/^\d+$/.test(formData.year) || parseInt(formData.year, 10) <= 0) {
@@ -248,6 +256,7 @@ function AddBookScreen() {
   return (
     <div className="min-h-screen bg-gray-900 text-white">
       <div className="container mx-auto px-4 py-6">
+        <BackButton className="mb-4"/>
         <h1 className="text-3xl font-bold mb-6">Add New Book</h1>
         <form onSubmit={handleSubmit} className="bg-gray-800 p-6 rounded-lg shadow">
           {/* ISBN Input */}

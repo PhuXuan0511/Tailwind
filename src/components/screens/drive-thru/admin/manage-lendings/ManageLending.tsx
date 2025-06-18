@@ -8,6 +8,7 @@ import "react-toastify/dist/ReactToastify.css";
 import { showToastFromLocalStorage } from "~/components/shared/toastUtils";
 import OverdueFee from "./OverdueFee";
 import Loader from "~/components/common/Loader"; // Add this import
+import BackButton from "~/components/shared/buttons/BackButton";
 
 export enum LendStat { // Lending Statuses to avoid other strings
   Rq = "Requesting",
@@ -375,15 +376,7 @@ function ManageLending() {
       <Head title="Manage Lending" />
       <ToastContainer />
       <div className="container mx-auto px-4 py-6">
-        {/* Back Button */}
-        <div className="mb-4">
-          <button
-            onClick={() => navigate(-1)}
-            className="bg-gray-500 text-white px-3 py-1 rounded text-sm hover:bg-gray-600"
-          >
-            Back
-          </button>
-        </div>
+        <BackButton className="mb-4" />
         <h1 className="text-3xl font-bold mb-6">Manage Lending</h1>
         <div className="mb-4 flex items-center space-x-4">
           {/* Search Box */}

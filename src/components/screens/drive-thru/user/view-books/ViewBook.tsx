@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { toast, ToastContainer } from "react-toastify";
 import { getAuth } from "firebase/auth";
 import Loader from "~/components/common/Loader"; // Import Loader component
+import BackButton from "~/components/shared/buttons/BackButton";
 
 type Book = {
   id: string;
@@ -145,14 +146,7 @@ function ViewBook() {
       <ToastContainer />
       <div className="container mx-auto px-4 py-6">
         {/* Back Button */}
-        <div className="mb-4">
-          <button
-            onClick={() => navigate(-1)}
-            className="bg-gray-500 text-white px-3 py-1 rounded text-sm hover:bg-gray-600"
-          >
-            Back
-          </button>
-        </div>
+        <BackButton className="mb-4" />
 
         <div className="flex justify-between items-center mb-6">
           <div className="flex items-center gap-4">

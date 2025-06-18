@@ -3,7 +3,7 @@ import { collection, addDoc } from "firebase/firestore";
 import { useFirestore } from "~/lib/firebase"; // Use Firestore from your firebase.ts
 import { useNavigate } from "react-router-dom";
 import { Head } from "~/components/shared/Head"; // Import Head for consistent headers
-
+import BackButton from "../../shared/buttons/BackButton"; // Import BackButton for navigation
 const AddNews = () => {
   const firestore = useFirestore();
   const navigate = useNavigate();
@@ -38,14 +38,7 @@ const AddNews = () => {
       <Head title="Add News" />
       <div className="container mx-auto px-4 py-6">
         {/* Back to Manage News Button */}
-        <div className="mb-4">
-          <button
-            onClick={() => navigate(-1)}
-            className="bg-gray-500 text-white px-3 py-1 rounded text-sm hover:bg-gray-600"
-          >
-            Back
-          </button>
-        </div>
+        <BackButton className="mb-4" />
         <h1 className="text-3xl font-bold mb-6">Add News</h1>
 
         <form

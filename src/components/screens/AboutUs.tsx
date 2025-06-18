@@ -1,18 +1,13 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
+import BackButton from "../shared/buttons/BackButton";
+
 function AboutUs() {
   const navigate = useNavigate();
   return (
     <div className="min-h-screen py-10 relative overflow-hidden bg-library-gradient">
       <div className="max-w-2xl w-full mx-auto p-6 rounded-lg shadow-md relative z-10">
-        <div className="mb-4">
-          <button
-            onClick={() => navigate(-1)}
-            className="bg-gray-500 text-white px-3 py-1 rounded text-sm hover:bg-gray-600"
-          >
-            Back
-          </button>
-        </div>
+        <BackButton className="mb-4" />
         <h1 className="text-2xl font-bold mb-6 text-center">About Us</h1>
         Welcome to our university library initiative—a collaborative project driven by a passionate team of students, faculty, and researchers dedicated to advancing access to knowledge and resources.
         Our mission is to empower the academic community through innovative digital tools, comprehensive collections, and inclusive learning spaces.

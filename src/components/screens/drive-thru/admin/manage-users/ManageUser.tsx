@@ -6,6 +6,8 @@ import { Head } from "~/components/shared/Head";
 import { toast, ToastContainer } from "react-toastify";
 import { showToastFromLocalStorage } from "~/components/shared/toastUtils";
 import Loader from "~/components/common/Loader"; // Add this import
+import BackButton from "~/components/shared/buttons/BackButton";
+import AddButton from "~/components/shared/buttons/AddButton";
 
 type User = {
   id: string;
@@ -114,14 +116,7 @@ function ManageUser() {
       <ToastContainer />
       <div className="container mx-auto px-4 py-6">
         {/* Back to Homepage Button */}
-        <div className="mb-4">
-          <button
-            onClick={() => navigate(-1)}
-            className="bg-gray-500 text-white px-3 py-1 rounded text-sm hover:bg-gray-600"
-          >
-            Back
-          </button>
-        </div>
+        <BackButton className="mb-4" />
         <h1 className="text-3xl font-bold mb-6">Manage Users</h1>
         <div className="mb-4 flex items-center space-x-4">
           {/* Search Box */}
@@ -133,12 +128,7 @@ function ManageUser() {
             className="p-2 border border-gray-600 rounded w-full max-w-lg bg-gray-700 text-white"
           />
           {/* Add New User Button */}
-          <button
-            onClick={() => navigate("/manage-user/add")}
-            className="bg-blue-500 text-white px-3 py-1 rounded text-sm hover:bg-blue-600"
-          >
-            Add New User
-          </button>
+          <AddButton onClick={() => navigate("/manage-user/add")} />
         </div>
         <div className="bg-gray-800 shadow rounded-lg p-6 border border-gray-700">
           <table className="w-full text-left border-collapse">

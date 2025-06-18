@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from "react";
-import { collection, query, where, getFirestore, onSnapshot, deleteDoc, doc } from "firebase/firestore";
+import { collection, query, where, getFirestore, orderBy, onSnapshot, deleteDoc, doc } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
 import Loader from "~/components/common/Loader"; // Import Loader component
+import DeleteButton from "~/components/shared/buttons/DeleteButton";
+import BackButton from "~/components/shared/buttons/BackButton";
 
 type Notification = {
   id: string;
@@ -41,7 +43,7 @@ function Notifications() {
     const db = getFirestore();
     const notificationsCollection = collection(db, "notifications");
 
-    const q = query(notificationsCollection, where("userId", "==", currentUserId));
+    const q = query(notificationsCollection, where("userId", "==", currentUserId), orderBy("timestamp", "desc"));
     const unsubscribe = onSnapshot(q, (snapshot) => {
       const notificationsList: Notification[] = snapshot.docs.map((doc) => ({
         id: doc.id,
@@ -71,6 +73,7 @@ function Notifications() {
   return (
     <div className="min-h-screen bg-gray-900 text-white">
       <div className="container mx-auto px-4 py-6">
+        <BackButton className="mb-4" />
         <h1 className="text-4xl font-bold mb-6">Notifications</h1>
         <div className="bg-gray-800 shadow rounded-lg p-6 border border-gray-700">
           {notifications.length > 0 ? (
@@ -80,13 +83,13 @@ function Notifications() {
                 <p className="text-gray-500 text-sm">
                   {formatTimestamp(notification.timestamp)}
                 </p>
-                <button
+                <div className="flex justify-between items-end mt-2">
+                  <div />
+                  <DeleteButton
                   onClick={() => handleDelete(notification.id)}
-                  className="mt-2 p-1 rounded text-red-500 hover:text-red-600 focus:outline-none"
-                  aria-label="Delete notification"
-                >
-                  <span className="text-xs font-bold">&#10005;</span>
-                </button>
+                  className="self-end"
+                  />
+                </div>
               </div>
             ))
           ) : (

@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react";
 import { collection, onSnapshot, deleteDoc, doc } from "firebase/firestore";
 import { useFirestore } from "~/lib/firebase"; // Use Firestore from your firebase.ts
 import { useNavigate } from "react-router-dom";
+import BackButton from "../../shared/buttons/BackButton";
+import AddButton from "../../shared/buttons/AddButton";
 
 type News = {
   id: string;
@@ -68,14 +70,7 @@ const ManageNews = () => {
     <div className="min-h-screen bg-gray-900 text-white">
       <div className="container mx-auto px-4 py-6">
         {/* Back Button */}
-        <div className="mb-4">
-          <button
-            onClick={() => navigate(-1)}
-            className="bg-gray-500 text-white px-3 py-1 rounded text-sm hover:bg-gray-600"
-          >
-            Back
-          </button>
-        </div>
+        <BackButton className="mb-4" />
 
         <h1 className="text-3xl font-bold mb-6">Manage News</h1>
 
@@ -88,12 +83,7 @@ const ManageNews = () => {
             placeholder="Search by title, date, or content..."
             className="w-full max-w-md p-3 rounded bg-gray-700 text-white border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
-          <button
-            onClick={() => navigate("/admin-add-news")} // Redirect to Add News screen
-            className="bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg transition"
-          >
-            Add News
-          </button>
+            <AddButton onClick={() => navigate("/admin-add-news")}/>
         </div>
 
         {/* News List */}

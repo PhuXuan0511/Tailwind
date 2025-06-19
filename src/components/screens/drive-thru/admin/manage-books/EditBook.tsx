@@ -178,7 +178,7 @@ function EditBookScreen() {
         category: categoryIds, // Save categories as an array
       });
 
-      alert("Book updated successfully!");
+      localStorage.setItem("bookEdited", "true"); // Set flag
       navigate("/manage-book");
     } catch (error) {
       console.error("Error updating book:", error);

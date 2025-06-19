@@ -207,7 +207,12 @@ function AddBookScreen() {
         category: selectedCategories.map((cat) => cat.id), // Save category as an array of IDs
       });
 
-      toast.success("Book added successfully!");
+      toast.success("Book added successfully!", {
+        position: "top-right",
+        autoClose: 5000,
+        theme: "dark",
+      });
+      localStorage.setItem("bookAdded", "true"); // <-- Set flag before navigating
       navigate("/manage-book");
     } catch (error) {
       console.error("Error adding book:", error);

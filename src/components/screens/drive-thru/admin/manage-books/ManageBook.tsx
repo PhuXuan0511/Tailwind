@@ -7,6 +7,7 @@ import { toast, ToastContainer } from "react-toastify";
 import Loader from "~/components/common/Loader"; // Add this import
 import BackButton from "~/components/shared/buttons/BackButton";
 import AddButton from "~/components/shared/buttons/AddButton";
+import { showToastFromLocalStorage } from "~/components/shared/toastUtils"; // Add this import
 // Define the structure of a Book object
 type Book = {
   id: string;
@@ -107,10 +108,15 @@ function ManageBook() {
     try {
       const bookDoc = doc(firestore, "books", bookId);
       await deleteDoc(bookDoc);
-      alert("Book deleted successfully.");
+      localStorage.setItem("bookDeleted", "true"); // Set flag
+      toast.success("Book deleted successfully!", {
+        position: "top-right",
+        autoClose: 5000,
+        theme: "dark",
+      });
+      // Optionally update state to remove the book from the list
     } catch (error) {
-      console.error("Error deleting book:", error);
-      alert("Failed to delete book. Please try again.");
+      toast.error("Failed to delete book.");
     }
   };
 
@@ -168,6 +174,12 @@ function ManageBook() {
       .map((authorId) => authors.find((auth) => auth.id === authorId)?.name || "Unknown")
       .join(", ");
   };
+
+  useEffect(() => {
+    showToastFromLocalStorage("bookAdded", "Book added successfully!");
+    showToastFromLocalStorage("bookDeleted", "Book deleted successfully!");
+    showToastFromLocalStorage("bookEdited", "Book updated successfully!");
+  }, []);
 
   if (loading) {
     return (

@@ -3,6 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { doc, getDoc } from "firebase/firestore";
 import { firestore } from "~/lib/firebase";
 import BackButton from "~/components/shared/buttons/BackButton";
+import { createRoot } from 'react-dom/client';
 
 type Book = {
   id: string;
@@ -13,7 +14,6 @@ type Book = {
   edition: string;
   category: string; // ID
   quantity: number;
-  restrictions: string;
   imageUrl?: string;
 };
 
@@ -21,14 +21,15 @@ function BookDetailScreen() {
   const { id } = useParams<{ id: string }>();
   const [book, setBook] = useState<Book | null>(null);
   const [loading, setLoading] = useState(true);
-  const [authorName, setAuthorName] = useState<string>("");
-  const [categoryName, setCategoryName] = useState<string>("");
+  const [authorName, setAuthorName] = useState<string | null>(null);
+  const [categoryName, setCategoryName] = useState<string | null>(null);
   const navigate = useNavigate();
 
   useEffect(() => {
     const fetchBookDetails = async () => {
+      if (!id || typeof id !== "string") return; // Prevents error if id is undefined or not a string
       try {
-        const bookRef = doc(firestore, "books", id!);
+        const bookRef = doc(firestore, "books", id);
         const bookSnap = await getDoc(bookRef);
 
         if (bookSnap.exists()) {
@@ -42,27 +43,36 @@ function BookDetailScreen() {
             edition: data.edition,
             category: data.category,
             quantity: data.quantity,
-            restrictions: data.restrictions,
             imageUrl: data.imageUrl || "",
-          });          
+          });
 
           // Fetch author name
-          if (data.author) {
+          let fetchedAuthorName = "";
+          if (data.author && typeof data.author === "string") {
+            console.log("Fetching author for ID:", data.author);
             const authorRef = doc(firestore, "authors", data.author);
             const authorSnap = await getDoc(authorRef);
             if (authorSnap.exists()) {
-              setAuthorName(authorSnap.data().name || "");
+              fetchedAuthorName = authorSnap.data().name || "";
+            } else {
+              console.log("Author not found for ID:", data.author);
             }
           }
+          setAuthorName(fetchedAuthorName);
 
           // Fetch category name
-          if (data.category) {
+          let fetchedCategoryName = "";
+          if (data.category && typeof data.category === "string") {
+            console.log("Fetching category for ID:", data.category);
             const categoryRef = doc(firestore, "categories", data.category);
             const categorySnap = await getDoc(categoryRef);
             if (categorySnap.exists()) {
-              setCategoryName(categorySnap.data().name || "");
+              fetchedCategoryName = categorySnap.data().name || "";
+            } else {
+              console.log("Category not found for ID:", data.category);
             }
           }
+          setCategoryName(fetchedCategoryName);
         } else {
           console.error("Book not found.");
         }
@@ -76,7 +86,7 @@ function BookDetailScreen() {
     fetchBookDetails();
   }, [id]);
 
-  if (loading) {
+  if (loading || authorName === null || categoryName === null) {
     return <p className="text-center text-gray-300">Loading book details...</p>;
   }
 
@@ -96,18 +106,22 @@ function BookDetailScreen() {
           />
           <div className="flex-1">
             <h1 className="text-3xl font-bold mb-4">{book.title}</h1>
-            <p className="text-gray-400 mb-2">by {authorName || "Unknown Author"}</p>
+            <p className="text-gray-400 mb-2">
+              by {authorName ? authorName : (book.author ? `Author ID: ${book.author}` : "Unknown Author")}
+            </p>
             <p className="text-gray-400 mb-2">ISBN: {book.isbn}</p>
             <p className="text-gray-400 mb-2">Year: {book.year}</p>
             <p className="text-gray-400 mb-2">Edition: {book.edition}</p>
-            <p className="text-gray-400 mb-2">Category: {categoryName || "Unknown Category"}</p>
+            <p className="text-gray-400 mb-2">
+              Category: {categoryName ? categoryName : (book.category ? `: ${book.category}` : "Unknown Category")}
+            </p>
             <p className="text-gray-400 mb-2">Quantity: {book.quantity}</p>
-            <p className="text-gray-400">Restrictions: {book.restrictions}</p>
           </div>
         </div>
       </div>
     </div>
   );
 }
+
 
 export default BookDetailScreen;

@@ -106,9 +106,8 @@ function ManageBook() {
 
   const handleDeleteBook = async (bookId: string) => {
     try {
-      const bookDoc = doc(firestore, "books", bookId);
-      await deleteDoc(bookDoc);
-      localStorage.setItem("bookDeleted", "true"); // Set flag
+      // Delete the book from Firestore
+      await deleteDoc(doc(firestore, "books", bookId));
       toast.success("Book deleted successfully!", {
         position: "top-right",
         autoClose: 5000,

@@ -531,7 +531,7 @@ const InnerRouter = () => {
     {
       path: '/signup',
       element: (
-        <Layout showHeader={true}>
+        <Layout showHeader={false}>
           <SignUpScreen />
         </Layout>
       ),
